@@ -1,8 +1,8 @@
-import { useEffect, useRef } from 'react'
+import { Fragment, useEffect, useRef } from 'react'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { motion, useMotionValue, useReducedMotion, useSpring, useTransform } from 'framer-motion'
-import { ArrowDown } from 'lucide-react'
+import { ArrowDown, ArrowUpRight } from 'lucide-react'
 import { openEnquiry, PRICING_ID, scrollToId } from './content'
 import heroPerson from '../../../assets/chis-hero-model.png'
 
@@ -11,118 +11,65 @@ if (typeof window !== 'undefined') {
 }
 
 /* -------------------------------------------------------------------------- */
-/*  Palette (from the reference banner)                                       */
-/*  #0f2a1d forest   #123524 forest-2   #fbf4e6 cream   #eadbbd tan           */
-/*  #7a4a1d → #e3a64a  gold-brown gradient                                    */
+/*  Dark Editorial Luxury tokens                                              */
+/*  ink #0b0706 · paper #f6efe9 · ember #ff5938 · rust #d9361b                */
 /* -------------------------------------------------------------------------- */
 
+const GRADIENT = 'linear-gradient(95deg, #f6efe9 0%, #ff5938 70%, #d9361b 100%)'
 const HERO_IMAGE = '/hero-mountain.jpg'
+const TITLE_LINES = ['Vacation', 'membership', 'plans.']
+const LEAD =
+  'Discover CHIS membership options and holiday packages designed around you, from the first weekend away to a lifetime of arrivals.'
+const SCROLL_TEXT = 'SCROLL • DISCOVER • EXPLORE • '
 
-const PINES = [
-  ...[30, 105, 185, 265, 350, 440, 520].map((x, i) => ({ x, y: 905 + (i % 3) * 8, s: 1.5 + ((i * 3) % 5) / 6 })),
-  ...[1150, 1235, 1320, 1405, 1490, 1575].map((x, i) => ({ x, y: 910 + (i % 2) * 10, s: 1.3 + ((i * 2) % 5) / 6 })),
-]
+/* ---------- gradient headline, letter by letter ---------- */
+/* Each letter carries a slice of one continuous gradient so transforms never break bg-clip. */
 
-/* ---------- illustrated alpine scene (4 parallax layers) ---------- */
-
-function Pine({ x, y, s }) {
+function GradientLine({ text }) {
+  const step = 0.56 // em per letter (approximate advance width)
+  const total = text.length * step
   return (
-    <g transform={`translate(${x} ${y}) scale(${s})`}>
-      <path d="M0 -150 L38 -92 L20 -92 L52 -40 L28 -40 L62 10 H-62 L-28 -40 H-52 L-20 -92 H-38Z" fill="#1d4632" />
-      <rect x="-6" y="10" width="12" height="22" fill="#3b2a1c" />
-    </g>
-  )
-}
-
-function SceneSky() {
-  return (
-    <svg viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice" className="h-full w-full" aria-hidden="true">
-      <defs>
-        <linearGradient id="vh-sky" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stopColor="#b7d9f0" />
-          <stop offset="0.55" stopColor="#f1e8d2" />
-          <stop offset="1" stopColor="#fbf4e6" />
-        </linearGradient>
-        <radialGradient id="vh-sunglow" cx="0.5" cy="0.5" r="0.5">
-          <stop offset="0" stopColor="#fff3cf" stopOpacity="0.95" />
-          <stop offset="0.4" stopColor="#ffd98f" stopOpacity="0.45" />
-          <stop offset="1" stopColor="#ffd98f" stopOpacity="0" />
-        </radialGradient>
-      </defs>
-      <rect width="1600" height="900" fill="url(#vh-sky)" />
-      <circle className="vh-sun" cx="1180" cy="230" r="300" fill="url(#vh-sunglow)" />
-      <g className="vh-cloud" fill="#fff">
-        <ellipse cx="960" cy="330" rx="190" ry="32" opacity="0.7" />
-        <ellipse cx="1070" cy="310" rx="120" ry="30" opacity="0.8" />
-        <ellipse cx="1380" cy="200" rx="160" ry="26" opacity="0.6" />
-        <ellipse cx="1470" cy="185" rx="90" ry="24" opacity="0.7" />
-      </g>
-    </svg>
-  )
-}
-
-function SceneFar() {
-  return (
-    <svg viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice" className="h-full w-full" aria-hidden="true">
-      <path d="M440 700 L650 470 L760 540 L930 330 L1090 500 L1190 410 L1340 530 L1470 430 L1600 540 V700Z" fill="#9db3c8" />
-      <path d="M930 330 L875 420 L912 404 L934 446 L962 408 L1004 426Z" fill="#f6f9fc" />
-      <path d="M650 470 L610 530 L640 520 L662 552 L690 520 L714 534Z" fill="#f6f9fc" />
-      <path d="M1190 410 L1150 470 L1178 462 L1196 490 L1220 462 L1244 472Z" fill="#f6f9fc" />
-      <path d="M1470 430 L1430 490 L1458 482 L1476 510 L1500 482 L1524 492Z" fill="#f6f9fc" />
-      <path d="M0 690 L170 570 L290 630 L420 540 L560 660 L640 700Z" fill="#b3c6d6" opacity="0.85" />
-    </svg>
-  )
-}
-
-function SceneMid() {
-  return (
-    <svg viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice" className="h-full w-full" aria-hidden="true">
-      <defs>
-        <linearGradient id="vh-lake" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stopColor="#a7cad8" />
-          <stop offset="1" stopColor="#dcebe8" />
-        </linearGradient>
-      </defs>
-      <rect y="690" width="1600" height="210" fill="url(#vh-lake)" />
-      {Array.from({ length: 7 }).map((_, i) => (
-        <rect
-          key={i}
-          className="vh-shimmer"
-          x={700 + i * 50}
-          y={720 + i * 18}
-          width={150 - i * 8}
-          height="3"
-          rx="1.5"
-          fill="#fff"
-          opacity="0.6"
-          style={{ animationDelay: `${i * 300}ms` }}
-        />
+    <span className="block overflow-hidden pb-[0.08em]" aria-hidden="true">
+      {text.split('').map((ch, i) => (
+        <span key={i} className="inline-block overflow-hidden align-bottom">
+          <span
+            data-letter
+            className="inline-block bg-clip-text text-transparent will-change-transform"
+            style={{
+              backgroundImage: GRADIENT,
+              backgroundSize: `${total}em 100%`,
+              backgroundPosition: `${-i * step}em 0`,
+              backgroundRepeat: 'no-repeat',
+            }}
+          >
+            {ch}
+          </span>
+        </span>
       ))}
-      <path d="M0 700 Q200 640 420 690 T820 700 T1200 680 T1600 700 V720 H0Z" fill="#6f9a7c" />
-      <path d="M640 715 Q760 680 880 712 Q770 730 640 715Z" fill="#4f7d62" />
-    </svg>
+    </span>
   )
 }
 
-function SceneFront() {
-  return (
-    <svg viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice" className="h-full w-full" aria-hidden="true">
-      {PINES.map((p, i) => (
-        <Pine key={i} {...p} />
-      ))}
-    </svg>
-  )
-}
+/* ---------- rotating circular scroller badge ---------- */
 
-/* ---------- parallax layer driven by pointer springs ---------- */
-
-function Layer({ px, py, depth, children }) {
-  const x = useTransform(px, [-0.5, 0.5], [depth, -depth])
-  const y = useTransform(py, [-0.5, 0.5], [depth * 0.55, -depth * 0.55])
+function ScrollerBadge({ onClick }) {
   return (
-    <motion.div style={{ x, y }} className="absolute -inset-10 will-change-transform">
-      {children}
-    </motion.div>
+    <button
+      type="button"
+      onClick={onClick}
+      aria-label="Scroll to membership plans"
+      className="group relative grid h-[clamp(5.5rem,14svh,8rem)] w-[clamp(5.5rem,14svh,8rem)] place-items-center rounded-full border border-[#f6efe9]/15 transition-colors duration-500 hover:border-[#ff5938]/70 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#ff5938] focus-visible:ring-offset-2 focus-visible:ring-offset-[#0b0706]"
+    >
+      <svg viewBox="0 0 120 120" className="ed-spin absolute inset-0 h-full w-full" aria-hidden="true">
+        <defs>
+          <path id="ed-circle" d="M60,60 m-44,0 a44,44 0 1,1 88,0 a44,44 0 1,1 -88,0" />
+        </defs>
+        <text fill="#f6efe9" fillOpacity="0.6" fontSize="9.5" letterSpacing="2.6" className="font-sans">
+          <textPath href="#ed-circle">{SCROLL_TEXT}</textPath>
+        </text>
+      </svg>
+      <ArrowDown className="h-5 w-5 text-[#ff5938] transition-transform duration-300 group-hover:translate-y-1" />
+    </button>
   )
 }
 
@@ -130,17 +77,16 @@ function Layer({ px, py, depth, children }) {
 
 export default function VacationHeroSection() {
   const ref = useRef(null)
-  const sceneRef = useRef(null)
+  const bgRef = useRef(null)
   const contentRef = useRef(null)
   const reduced = !!useReducedMotion()
 
-  // Pointer parallax with springs (no per-frame React renders)
   const mx = useMotionValue(0)
   const my = useMotionValue(0)
   const px = useSpring(mx, { stiffness: 70, damping: 18, mass: 0.6 })
   const py = useSpring(my, { stiffness: 70, damping: 18, mass: 0.6 })
-  const personX = useTransform(px, [-0.5, 0.5], [-14, 14])
-  const personY = useTransform(py, [-0.5, 0.5], [-6, 6])
+  const personX = useTransform(px, [-0.5, 0.5], [-16, 16])
+  const personY = useTransform(py, [-0.5, 0.5], [-8, 8])
 
   const onMove = (e) => {
     if (reduced) return
@@ -149,25 +95,42 @@ export default function VacationHeroSection() {
     my.set((e.clientY - r.top) / r.height - 0.5)
   }
 
-  // Intro timeline + scroll parallax (skipped for reduced motion)
   useEffect(() => {
     const root = ref.current
     if (!root) return undefined
 
     const mm = gsap.matchMedia()
     mm.add('(prefers-reduced-motion: no-preference)', () => {
-      const q = (sel) => root.querySelectorAll(sel)
+      const q = (s) => root.querySelectorAll(s)
 
-      const tl = gsap.timeline({ defaults: { ease: 'power3.out' }, delay: 0.1 })
-      tl.from(q('[data-hero="eyebrow"]'), { y: 16, opacity: 0, duration: 0.7 })
-        .from(q('[data-hero="line"]'), { yPercent: 115, opacity: 0, duration: 1, stagger: 0.14 }, '-=0.35')
-        .from(q('[data-hero="sub"]'), { y: 18, opacity: 0, duration: 0.8 }, '-=0.6')
-        .from(q('[data-hero="cta"] > *'), { y: 18, opacity: 0, duration: 0.7, stagger: 0.1 }, '-=0.5')
-        .from(q('[data-hero="person"]'), { x: 80, opacity: 0, duration: 1.2 }, 0.35)
+      // Letter-by-letter masked entrance
+      gsap
+        .timeline({ defaults: { ease: 'expo.out' }, delay: 0.1 })
+        .from(q('[data-letter]'), { yPercent: 110, duration: 1.3, stagger: 0.025 })
+        .from(q('[data-hero="fade"]'), { y: 16, opacity: 0, duration: 0.9, stagger: 0.1 }, '-=0.8')
+        .from(q('[data-hero="person"]'), { x: 80, opacity: 0, duration: 1.4 }, 0.3)
 
+      // Lead paragraph brightens word by word, scrubbed
+      gsap.fromTo(
+        q('[data-word]'),
+        { opacity: 0.14 },
+        {
+          opacity: 1,
+          ease: 'none',
+          stagger: 0.1,
+          scrollTrigger: { trigger: q('[data-lead]')[0], start: 'top 85%', end: 'bottom 35%', scrub: true },
+        },
+      )
+
+      // Gentle scroll parallax
       const scrub = { trigger: root, start: 'top top', end: 'bottom top', scrub: true }
-      gsap.to(sceneRef.current, { yPercent: 12, scale: 1.06, ease: 'none', scrollTrigger: scrub })
-      gsap.to(contentRef.current, { yPercent: -8, ease: 'none', scrollTrigger: scrub })
+      gsap.to(bgRef.current, { yPercent: 10, scale: 1.06, ease: 'none', scrollTrigger: scrub })
+      gsap.to(contentRef.current, { yPercent: -6, ease: 'none', scrollTrigger: scrub })
+    })
+
+    // Reduced motion: show everything in its final state
+    mm.add('(prefers-reduced-motion: reduce)', () => {
+      gsap.set(root.querySelectorAll('[data-word]'), { opacity: 1 })
     })
 
     return () => mm.revert()
@@ -177,144 +140,120 @@ export default function VacationHeroSection() {
     <section
       ref={ref}
       onPointerMove={onMove}
-      className="relative isolate flex min-h-[100svh] w-full flex-col overflow-hidden bg-[#07100d] text-[#fbf4e6]"
+      aria-labelledby="hero-title"
+      className="relative isolate flex h-[100svh] min-h-[540px] w-full flex-col overflow-hidden bg-[#0b0706] text-[#f6efe9]"
     >
       <style>{`
-        @keyframes vh-ken     { from { transform: scale(1.02); } to { transform: scale(1.1); } }
-        @keyframes vh-sun     { 0%,100% { opacity: 0.85; } 50% { opacity: 1; } }
-        @keyframes vh-cloud   { from { transform: translateX(-2%); } to { transform: translateX(3%); } }
-        @keyframes vh-shimmer { 0%,100% { opacity: 0.25; transform: scaleX(0.85); } 50% { opacity: 0.8; transform: scaleX(1.05); } }
-        @keyframes vh-wheel   { 0% { transform: translateY(0); opacity: 1; } 100% { transform: translateY(10px); opacity: 0; } }
-
-        .vh-ken     { animation: vh-ken 30s ease-in-out infinite alternate; }
-        .vh-sun     { animation: vh-sun 7s ease-in-out infinite; }
-        .vh-cloud   { animation: vh-cloud 24s ease-in-out infinite alternate; }
-        .vh-shimmer { transform-box: fill-box; transform-origin: center; animation: vh-shimmer 3.4s ease-in-out infinite; }
-        .vh-wheel   { animation: vh-wheel 1.8s ease-in-out infinite; }
-
-        @media (prefers-reduced-motion: reduce) {
-          .vh-ken, .vh-sun, .vh-cloud, .vh-shimmer, .vh-wheel { animation: none; }
-        }
+        @keyframes ed-drift-a { 0%,100% { transform: translate3d(0,0,0) scale(1); } 50% { transform: translate3d(6%,8%,0) scale(1.12); } }
+        @keyframes ed-drift-b { 0%,100% { transform: translate3d(0,0,0) scale(1); } 50% { transform: translate3d(-8%,-6%,0) scale(1.15); } }
+        @keyframes ed-spin    { to { transform: rotate(360deg); } }
+        .ed-drift-a { animation: ed-drift-a 18s ease-in-out infinite; }
+        .ed-drift-b { animation: ed-drift-b 22s ease-in-out infinite; }
+        .ed-spin    { animation: ed-spin 18s linear infinite; }
+        @media (prefers-reduced-motion: reduce) { .ed-drift-a, .ed-drift-b, .ed-spin { animation: none; } }
       `}</style>
 
-      {/* ===== Scene ===== */}
-      <div aria-hidden="true" className="absolute inset-0 -z-10">
-        <div ref={sceneRef} className="absolute inset-0 will-change-transform">
-          <div className="vh-ken absolute inset-0">
-            {HERO_IMAGE ? (
-              <Layer px={px} py={py} depth={14}>
-                <img src={HERO_IMAGE} alt="" className="h-full w-full object-cover object-center" />
-              </Layer>
-            ) : (
-              <>
-                <Layer px={px} py={py} depth={8}>
-                  <SceneSky />
-                </Layer>
-                <Layer px={px} py={py} depth={18}>
-                  <SceneFar />
-                </Layer>
-                <Layer px={px} py={py} depth={32}>
-                  <SceneMid />
-                </Layer>
-                <Layer px={px} py={py} depth={52}>
-                  <SceneFront />
-                </Layer>
-              </>
-            )}
-          </div>
+      {/* ===== Atmosphere ===== */}
+      <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
+        <div ref={bgRef} className="absolute inset-0 will-change-transform">
+          {HERO_IMAGE && (
+            <img
+              src={HERO_IMAGE}
+              alt=""
+              className="h-full w-full object-cover object-center opacity-30 mix-blend-luminosity"
+            />
+          )}
         </div>
-
-        {/* Dark overlays preserve contrast across the image on all screen sizes. */}
-        <div className="absolute inset-0 bg-gradient-to-b from-[#07100d]/65 via-[#07100d]/35 to-[#07100d]/75" />
-        <div className="absolute inset-0 bg-gradient-to-r from-[#07100d]/85 via-[#07100d]/45 to-[#07100d]/10" />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_70%_45%,transparent_15%,rgba(7,16,13,0.45)_100%)]" />
-        <div className="absolute bottom-0 right-[4%] h-[70%] w-[42%] rounded-full bg-[#e3a64a]/15 blur-3xl" />
-        <div className="absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-[#07100d]/70 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-b from-[#0b0706]/70 via-[#0b0706]/80 to-[#0b0706]" />
+        <div className="ed-drift-a absolute -left-[15%] -top-[20%] h-[55vw] w-[55vw] rounded-full bg-[#ff5938]/25 blur-3xl" />
+        <div className="ed-drift-b absolute -bottom-[25%] -right-[10%] h-[50vw] w-[50vw] rounded-full bg-[#d9361b]/25 blur-3xl" />
+        <svg className="absolute inset-0 h-full w-full opacity-[0.07] mix-blend-overlay" xmlns="http://www.w3.org/2000/svg">
+          <filter id="ed-grain">
+            <feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="3" stitchTiles="stitch" />
+            <feColorMatrix type="saturate" values="0" />
+          </filter>
+          <rect width="100%" height="100%" filter="url(#ed-grain)" />
+        </svg>
       </div>
 
-      {/* ===== Foreground PNG ===== */}
+      {/* ===== Foreground person ===== */}
       <motion.div
         aria-hidden="true"
         style={reduced ? undefined : { x: personX, y: personY }}
-        className="pointer-events-none absolute bottom-0 right-[-5%] z-0 w-[85%] sm:right-0 sm:w-[70%] lg:w-[58%]"
+        className="pointer-events-none absolute bottom-0 right-[-8%] z-0 w-[80%] sm:right-0 sm:w-[60%] lg:w-[46%]"
       >
         <img
           data-hero="person"
           src={heroPerson}
           alt=""
-          className="h-auto max-h-[88svh] w-full object-contain object-bottom mix-blend-screen opacity-90"
+          className="h-auto max-h-[84svh] w-full object-contain object-bottom mix-blend-screen opacity-80"
         />
       </motion.div>
 
       {/* ===== Content ===== */}
       <div
         ref={contentRef}
-        className="relative z-10 mx-auto flex w-full max-w-7xl flex-1 flex-col justify-center px-5 py-28 sm:px-8 sm:py-32 lg:px-12 lg:py-16"
+        className="relative z-10 mx-auto flex min-h-0 w-full max-w-[90rem] flex-1 flex-col justify-center px-5 pb-[6svh] pt-[10svh] sm:px-8 lg:px-12"
       >
-        <div className="max-w-xl">
-          <h1 className="mt-6 font-display text-[clamp(2.25rem,min(8.5vh,6vw),5rem)] font-extrabold leading-[0.98] tracking-tight">
-            <span className="block overflow-hidden pb-2">
-              <span data-hero="line" className="inline-block">Vacation packages</span>
-            </span>
-            <span className="block overflow-hidden pb-2">
-              <span
-                data-hero="line"
-                className="inline-block bg-gradient-to-r from-[#f1c27d] via-[#e3a64a] to-[#ffe7b0] bg-clip-text text-transparent"
-              >
-                and membership
-              </span>
-            </span>
-            <span className="block overflow-hidden pb-2">
-              <span
-                data-hero="line"
-                className="inline-block bg-gradient-to-r from-[#e3a64a] to-[#ffe7b0] bg-clip-text text-transparent"
-              >
-                plans.
-              </span>
-            </span>
-          </h1>
+        <h1
+          id="hero-title"
+          className="font-nunito font-light leading-[0.9] tracking-[-0.05em] text-[clamp(2.75rem,min(12vw,15.5svh),12rem)]"
+        >
+          <span className="sr-only">Vacation packages and membership plans.</span>
+          {TITLE_LINES.map((line) => (
+            <Fragment key={line}>
+              <GradientLine text={line} />{' '}
+            </Fragment>
+          ))}
+        </h1>
 
-          <p data-hero="sub" className="mt-6 max-w-lg text-base leading-7 text-[#fbf4e6]/85 sm:text-lg">
-            Discover CHIS membership options and holiday experiences designed around you.
-          </p>
+        <div className="mt-[4svh] grid items-end gap-[3svh] lg:grid-cols-12 lg:gap-10">
+          <div className="lg:col-span-6">
+            <div data-hero="fade" className="mb-[2.5svh] h-px w-24 bg-[#f6efe9]/15" />
+            <p
+              data-lead
+              className="max-w-xl font-sans text-[clamp(1rem,2.8svh,1.5rem)] font-light leading-snug tracking-[-0.03em] text-[#f6efe9]"
+            >
+              {LEAD.split(' ').map((w, i) => (
+                <span key={i} data-word className="inline-block pr-[0.28em]" style={{ opacity: reduced ? 1 : undefined }}>
+                  {w}
+                </span>
+              ))}
+            </p>
 
-          <div data-hero="cta" className="mt-9 flex flex-wrap gap-3">
-            <motion.button
-              type="button"
-              onClick={() => scrollToId(PRICING_ID)}
-              whileHover={reduced ? undefined : { scale: 1.04 }}
-              whileTap={{ scale: 0.96 }}
-              className="group relative inline-flex items-center gap-2 overflow-hidden rounded-full bg-[#fbf4e6] px-7 py-3.5 text-sm font-semibold text-[#0f2a1d] shadow-lg shadow-black/30 transition-colors duration-300 hover:bg-white focus:outline-none focus-visible:ring-2 focus-visible:ring-[#e3a64a] focus-visible:ring-offset-2 focus-visible:ring-offset-[#07100d]"
-            >
-              <span
-                aria-hidden="true"
-                className="pointer-events-none absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/25 to-transparent transition-transform duration-700 group-hover:translate-x-full"
-              />
-              <span className="relative">Explore Membership Plans</span>
-              <ArrowDown className="relative h-4 w-4 transition-transform duration-300 group-hover:translate-y-0.5" />
-            </motion.button>
-            <motion.button
-              type="button"
-              onClick={() => openEnquiry()}
-              whileHover={reduced ? undefined : { scale: 1.04 }}
-              whileTap={{ scale: 0.96 }}
-              className="rounded-full border border-white/50 bg-black/20 px-7 py-3.5 text-sm font-medium text-white backdrop-blur-md transition-colors duration-300 hover:border-[#e3a64a] hover:bg-black/40 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#e3a64a] focus-visible:ring-offset-2 focus-visible:ring-offset-[#07100d]"
-            >
-              Enquire Now
-            </motion.button>
+            <div data-hero="fade" className="mt-[4svh] flex flex-wrap items-center gap-3">
+              {/* Primary pill */}
+              <motion.button
+                type="button"
+                onClick={() => scrollToId(PRICING_ID)}
+                whileTap={{ scale: 0.97 }}
+                className="group inline-flex items-center gap-3 rounded-full bg-[#ff5938] py-2 pl-7 pr-2 text-sm font-medium text-[#0b0706] transition-shadow duration-300 hover:shadow-[0_0_40px_-6px_#ff5938] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#f6efe9] focus-visible:ring-offset-2 focus-visible:ring-offset-[#0b0706]"
+              >
+                Explore membership plans
+                <span className="grid h-10 w-10 place-items-center rounded-full bg-[#0b0706] text-[#ff5938] transition-transform duration-500 group-hover:rotate-[360deg]">
+                  <ArrowUpRight className="h-4 w-4" />
+                </span>
+              </motion.button>
+
+              {/* Secondary pill */}
+              <motion.button
+                type="button"
+                onClick={() => openEnquiry()}
+                whileTap={{ scale: 0.97 }}
+                className="rounded-full border border-[#f6efe9]/25 px-7 py-3.5 text-sm font-medium text-[#f6efe9] transition-all duration-300 hover:border-[#ff5938] hover:shadow-[0_0_28px_-6px_#ff5938] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#ff5938] focus-visible:ring-offset-2 focus-visible:ring-offset-[#0b0706]"
+              >
+                Enquire now
+              </motion.button>
+            </div>
+          </div>
+
+          <div data-hero="fade" className="hidden sm:flex lg:col-span-6 lg:justify-end">
+            <ScrollerBadge onClick={() => scrollToId(PRICING_ID)} />
           </div>
         </div>
       </div>
 
-      {/* Scroll cue */}
-      <div
-        aria-hidden="true"
-        className="absolute bottom-6 left-1/2 z-20 hidden -translate-x-1/2 sm:block"
-      >
-        <span className="flex h-9 w-6 justify-center rounded-full border border-white/60 pt-1.5">
-          <span className="vh-wheel h-1.5 w-1 rounded-full bg-white" />
-        </span>
-      </div>
+      <div className="relative z-10 h-px w-full bg-[#f6efe9]/15" aria-hidden="true" />
     </section>
   )
 }

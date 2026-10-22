@@ -1,260 +1,291 @@
 import { useEffect, useRef } from 'react'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
-import { motion, useReducedMotion } from 'framer-motion'
 import { ArrowDown, ArrowUpRight } from 'lucide-react'
 import { openEnquiry, PRICING_ID, scrollToId } from './content'
-import membershipCard from '../../../assets/chis-gold-card.png'
+import womanImage from '../../../assets/chis-woman.png'
 
 if (typeof window !== 'undefined') {
   gsap.registerPlugin(ScrollTrigger)
 }
 
 /* -------------------------------------------------------------------------- */
-/*  Palette: white · charcoal · CHIS red */
+/*  Design tokens                                                             */
+/*  ink     #0b0706  warm black base                                          */
+/*  ember   #ff5938  CHIS red (glow, accents)                                 */
+/*  rust    #d9361b  deep CHIS red (gradient end)                             */
+/*  paper   #f6efe9  warm white for type                                      */
+/*  mute    paper @ 55%  secondary copy                                       */
 /* -------------------------------------------------------------------------- */
 
-/* -------------------------------------------------------------------------- */
-/*  Section                                                                   */
-/* -------------------------------------------------------------------------- */
+const LEAD =
+  'Confused which hotel will provide you the best services? Well, you don’t have to worry anymore, because you have landed at the right place. Country Holidays Inn & Suites is everything that the customers’ desire. Exceptional holiday packages with affordable prices. A one-stop destination for all your exotic vacation needs. Country Holidays Inn & Suites assures you fully equipped rooms with all modern facilities that let you have a fabulous holiday trip. Come along with us if you need a break from your ordinary lifestyle. We are here for you.'
+
+const STATS = [
+  { value: '5–30', label: 'Years of membership' },
+  { value: '6N / 7D', label: 'Holiday stays' },
+  { value: '500+', label: 'Destinations' },
+  { value: '₹10,000+', label: 'Potential flight savings' },
+]
 
 export default function MembershipAboutSection() {
-  const ref = useRef(null)
-  const blobARef = useRef(null)
-  const blobBRef = useRef(null)
-  const reduced = !!useReducedMotion()
+  const root = useRef(null)
+  const glowRef = useRef(null)
+  const glow2Ref = useRef(null)
+  const womanRef = useRef(null)
 
-  // GSAP: scroll reveals, rule draw, and blob parallax.
-  // Content stays visible if JS is unavailable; reduced motion skips all of it.
   useEffect(() => {
-    const root = ref.current
-    if (!root) return undefined
+    const el = root.current
+    if (!el) return undefined
 
     const mm = gsap.matchMedia()
+
     mm.add('(prefers-reduced-motion: no-preference)', () => {
-      root.querySelectorAll('[data-reveal]').forEach((el) => {
-        const isCard = el.dataset.reveal === 'card'
-        gsap.from(el, {
-          opacity: 0,
-          ...(isCard ? { y: 48, scale: 0.96 } : { y: 30 }),
-          duration: 0.9,
-          delay: (Number(el.dataset.delay) || 0) / 1000,
-          ease: 'power3.out',
-          scrollTrigger: { trigger: el, start: 'top 90%', once: true },
-        })
+      // 1. The one orchestrated moment: "About" rises letter by letter from a mask.
+      gsap.from(el.querySelectorAll('[data-letter]'), {
+        yPercent: 115,
+        rotate: 4,
+        duration: 1.3,
+        stagger: 0.07,
+        ease: 'expo.out',
+        scrollTrigger: { trigger: el, start: 'top 75%', once: true },
       })
 
-      root.querySelectorAll('.ma-rule').forEach((el) => {
-        gsap.from(el, {
+      // 2. Lead paragraph brightens word by word as you scroll.
+      gsap.from(el.querySelectorAll('[data-word]'), {
+        opacity: 0.14,
+        stagger: 0.12,
+        ease: 'none',
+        scrollTrigger: {
+          trigger: el.querySelector('[data-lead]'),
+          start: 'top 82%',
+          end: 'bottom 50%',
+          scrub: true,
+        },
+      })
+
+      // 3. Glow parallax.
+      const scrub = { trigger: el, start: 'top bottom', end: 'bottom top', scrub: true }
+      gsap.to(glowRef.current, { yPercent: 40, ease: 'none', scrollTrigger: scrub })
+      gsap.to(glow2Ref.current, { yPercent: -30, ease: 'none', scrollTrigger: scrub })
+
+      // 4. Hairlines draw in.
+      el.querySelectorAll('[data-line]').forEach((line) => {
+        gsap.from(line, {
           scaleX: 0,
           transformOrigin: 'left center',
-          duration: 1.2,
-          delay: 0.25,
-          ease: 'power3.out',
-          scrollTrigger: { trigger: el, start: 'top 92%', once: true },
+          duration: 1.4,
+          ease: 'expo.out',
+          scrollTrigger: { trigger: line, start: 'top 92%', once: true },
         })
       })
 
-      const scrub = { trigger: root, start: 'top bottom', end: 'bottom top', scrub: true }
-      gsap.to(blobARef.current, { yPercent: -35, ease: 'none', scrollTrigger: scrub })
-      gsap.to(blobBRef.current, { yPercent: 28, ease: 'none', scrollTrigger: scrub })
+      // 5. Stats slide up once, as a group.
+      gsap.from(el.querySelectorAll('[data-stat]'), {
+        y: 40,
+        opacity: 0,
+        duration: 1,
+        stagger: 0.1,
+        ease: 'power3.out',
+        scrollTrigger: { trigger: el.querySelector('[data-stats]'), start: 'top 88%', once: true },
+      })
+
+      // 6. The portrait drifts slightly slower than the page.
+      gsap.fromTo(
+        womanRef.current,
+        { yPercent: 6 },
+        {
+          yPercent: -6,
+          ease: 'none',
+          scrollTrigger: { trigger: womanRef.current, start: 'top bottom', end: 'bottom top', scrub: true },
+        },
+      )
     })
 
     return () => mm.revert()
   }, [])
 
+  const words = LEAD.split(' ')
+
   return (
     <section
-      ref={ref}
+      ref={root}
       id="membership-about"
-      className="relative isolate overflow-hidden bg-transparent py-20 text-slate-950 sm:py-28"
+      className="relative isolate overflow-hidden bg-[#0b0706] text-[#f6efe9]"
     >
       <style>{`
-        @keyframes ma-glow {
-          from { transform: translate(0, 0) scale(1); }
-          to   { transform: translate(36px, -28px) scale(1.15); }
+        @keyframes ma-drift {
+          from { transform: translate(0,0) scale(1); }
+          to   { transform: translate(60px,40px) scale(1.18); }
         }
-
-        #membership-about .ma-glow { animation: ma-glow 16s ease-in-out infinite alternate; }
-
+        #membership-about .ma-drift { animation: ma-drift 18s ease-in-out infinite alternate; }
+        #membership-about .ma-grain {
+          background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)' opacity='.5'/></svg>");
+        }
         @media (prefers-reduced-motion: reduce) {
-          #membership-about .ma-glow { animation: none !important; }
+          #membership-about .ma-drift { animation: none !important; }
         }
       `}</style>
 
-      {/* Atmosphere: outer wrappers are parallaxed by GSAP, inner blobs drift via CSS */}
-      <div aria-hidden="true" className="absolute inset-0 -z-10">
-        <div ref={blobARef} className="absolute -left-40 top-24 h-[30rem] w-[30rem]">
-          <div className="ma-glow h-full w-full rounded-full bg-[#ff5938]/15 blur-3xl" />
+      {/* Atmosphere: ember glow top-left, faint counter-glow bottom-right, film grain */}
+      <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10">
+        <div ref={glowRef} className="absolute -left-48 -top-48 h-[44rem] w-[44rem]">
+          <div className="ma-drift h-full w-full rounded-full bg-[radial-gradient(closest-side,#ff5938_0%,rgba(217,54,27,0.55)_40%,transparent_72%)] opacity-70 blur-3xl" />
         </div>
-        <div ref={blobBRef} className="absolute -right-40 bottom-20 h-[32rem] w-[32rem]">
-          <div className="ma-glow h-full w-full rounded-full bg-[#ff5938]/10 blur-3xl" />
+        <div ref={glow2Ref} className="absolute -right-56 bottom-0 h-[36rem] w-[36rem]">
+          <div className="ma-drift h-full w-full rounded-full bg-[radial-gradient(closest-side,#d9361b_0%,transparent_70%)] opacity-25 blur-3xl" />
+        </div>
+        <div className="ma-grain absolute inset-0 opacity-[0.07] mix-blend-overlay" />
+      </div>
+
+      {/* ============================ ABOUT ============================ */}
+      <div className="mx-auto max-w-[96rem] px-5 pb-24 pt-10 sm:px-10 sm:pb-36 lg:px-16">
+        {/* Top bar */}
+        <div className="flex justify-end">
+          <button
+            type="button"
+            onClick={() => openEnquiry()}
+            className="group text-right text-[11px] leading-4 tracking-wide focus:outline-none focus-visible:ring-2 focus-visible:ring-[#ff5938]"
+          >
+            <span className="block text-[#f6efe9]/75">Questions about membership?</span>
+            <span className="inline-flex items-center gap-1 text-[#ff5938] transition-colors group-hover:text-[#ff8a70]">
+              Drop us a line
+              <ArrowUpRight className="h-3 w-3 transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+            </span>
+          </button>
+        </div>
+
+        {/* Headline */}
+        <h2
+          aria-label="About"
+          className="mt-6 flex select-none justify-center font-nunito font-normal leading-[0.9] tracking-[-0.06em] sm:mt-2"
+          style={{ fontSize: 'clamp(6rem, 21vw, 20rem)' }}
+        >
+          {'About'.split('').map((ch, i) => (
+            <span key={i} className="overflow-hidden pb-[0.08em] pr-[0.01em]" aria-hidden="true">
+              <span
+                data-letter
+                className="inline-block bg-clip-text text-transparent"
+                style={{
+                  // each letter samples a slice of one shared white → CHIS red gradient
+                  backgroundImage: 'linear-gradient(90deg,#f6efe9 0%,#f6efe9 18%,#ff5938 78%,#d9361b 100%)',
+                  backgroundSize: '500% 100%',
+                  backgroundPosition: `${i * 25}% 0`,
+                  WebkitBackgroundClip: 'text',
+                }}
+              >
+                {ch}
+              </span>
+            </span>
+          ))}
+        </h2>
+        <p className="mt-6 text-center font-sans text-xl font-light tracking-[-0.02em] text-[#ff5938] sm:mt-8 sm:text-3xl">
+          CHIS Membership Plans
+        </p>
+
+        {/* Lead paragraph: centred */}
+        <p
+          data-lead
+          className="mx-auto mt-10 max-w-[64rem] text-center font-sans font-light tracking-[-0.03em] text-[#f6efe9] sm:mt-12"
+          style={{
+            fontSize: 'clamp(1.35rem, 2.6vw, 2.35rem)',
+            lineHeight: 1.08,
+          }}
+        >
+          {words.map((w, i) => (
+            <span key={i} data-word>
+              {w}{' '}
+            </span>
+          ))}
+        </p>
+
+        <div className="mt-12 flex flex-wrap items-center justify-center gap-4 sm:mt-16">
+          <button
+            type="button"
+            onClick={() => scrollToId(PRICING_ID)}
+            className="group inline-flex items-center gap-3 rounded-full bg-[#ff5938] py-1.5 pl-6 pr-1.5 text-sm font-medium text-[#0b0706] transition-colors duration-300 hover:bg-[#ff765d] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#f6efe9] focus-visible:ring-offset-2 focus-visible:ring-offset-[#0b0706]"
+          >
+            Explore membership
+            <span className="grid h-10 w-10 place-items-center rounded-full bg-[#0b0706] text-[#ff5938] transition-transform duration-500 group-hover:rotate-[135deg]">
+              <ArrowDown className="h-4 w-4" aria-hidden="true" />
+            </span>
+          </button>
+          <button
+            type="button"
+            onClick={() => openEnquiry()}
+            className="rounded-full border border-[#f6efe9]/25 px-6 py-3 text-sm text-[#f6efe9] transition-colors duration-300 hover:border-[#ff5938] hover:text-[#ff5938] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#ff5938]"
+          >
+            Ask us a question
+          </button>
         </div>
       </div>
 
-      <svg
-        aria-hidden="true"
-        viewBox="0 0 1440 1100"
-        preserveAspectRatio="none"
-        className="pointer-events-none absolute inset-x-0 top-0 z-0 h-[58rem] w-full opacity-[0.16]"
-      >
-        <g fill="none" stroke="#0f172a" strokeDasharray="14 18" strokeLinecap="round" strokeWidth="3" opacity=".45">
-          <path d="M-40 210 C 180 210, 170 300, 410 300" />
-          <path d="M-50 450 C 190 450, 260 520, 520 520" />
-          <path d="M-60 700 C 220 700, 300 790, 600 790" />
-        </g>
-        <g fill="#ff5938">
-          <path d="M410 286l9 12 28 3-28 4-9 12-4-13-14-2 14-3z" />
-          <path d="M520 506l9 12 28 3-28 4-9 12-4-13-14-2 14-3z" />
-          <path d="M600 776l9 12 28 3-28 4-9 12-4-13-14-2 14-3z" />
-        </g>
-      </svg>
+      {/* ======================= MEMBER ADVANTAGE ======================= */}
+      <div className="mx-auto max-w-[96rem] px-5 sm:px-10 lg:px-16">
+        <div data-line className="h-px w-full bg-[#f6efe9]/15" />
 
-      {/* ===== CHIS membership introduction ===== */}
-      <div className="relative z-10 mx-auto max-w-7xl px-5 sm:px-8 lg:px-12">
-        <div className="relative grid min-h-[32rem] items-center gap-8 overflow-hidden border-y border-slate-950/10 py-10 sm:py-14 lg:min-h-[38rem] lg:grid-cols-[0.8fr_1.2fr] lg:gap-12 lg:py-16">
-          <span aria-hidden="true" className="pointer-events-none absolute -left-3 top-1/2 hidden -translate-y-1/2 -rotate-90 font-display text-[7rem] font-bold leading-none tracking-[0.18em] text-slate-950/[0.035] sm:block lg:-left-8 lg:text-[9rem]">
-            ABOUT
-          </span>
-          <div data-reveal className="relative z-10 max-w-xl lg:pl-10">
-            <p className="mb-4 flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.2em] text-[#d9361b]">
-              <span className="h-2 w-2 rounded-full bg-[#ff5938]" />
-              About Country Holidays
+        <div className="grid items-center gap-14 py-20 sm:py-28 lg:grid-cols-[1.1fr_0.9fr] lg:gap-20">
+          {/* Oversized figure */}
+          <div>
+            <p className="text-sm text-[#f6efe9]/55">The member advantage</p>
+            <p
+              className="mt-4 select-none font-sans font-normal pb-[0.12em] leading-[0.95] tracking-[-0.06em] text-transparent"
+              style={{
+                fontSize: 'clamp(4.5rem, 13vw, 12rem)',
+                backgroundImage: 'linear-gradient(95deg,#f6efe9 0%,#ff5938 70%,#d9361b 100%)',
+                WebkitBackgroundClip: 'text',
+                backgroundClip: 'text',
+              }}
+            >
+              Escape
             </p>
-            <h2 className="font-sans text-4xl font-semibold uppercase leading-[0.9] tracking-[-0.055em] sm:text-5xl lg:text-6xl">
-              A better way
-              <span className="block text-[#d9361b]">to holiday.</span>
-            </h2>
-            <p className="mt-6 text-sm leading-7 text-slate-700 sm:text-base sm:leading-8">
-              Country Holidays Inn &amp; Suites brings memorable stays and thoughtfully planned getaways together.
-              Discover comfortable rooms, exceptional holiday packages, and member benefits designed to make every
-              vacation feel special.
+            <h3 className="mt-8 max-w-xl font-sans text-2xl font-light leading-tight tracking-[-0.03em] sm:text-4xl">
+              Highlights of the CHIS Travel Membership Plan
+            </h3>
+            <p className="mt-5 max-w-md text-sm leading-7 text-[#f6efe9]/60 sm:text-base">
+              Six nights and seven days at destinations across India and beyond, with member benefits that make every journey more rewarding.
             </p>
-            <div className="mt-7 flex flex-wrap gap-3">
-              <motion.button
-                type="button"
-                onClick={() => scrollToId(PRICING_ID)}
-                whileHover={reduced ? undefined : { scale: 1.04 }}
-                whileTap={{ scale: 0.96 }}
-                className="group inline-flex items-center gap-2 rounded-full bg-[#ff5938] px-6 py-3 text-sm font-semibold text-slate-950 shadow-lg shadow-[#ff5938]/20 transition-colors duration-300 hover:bg-[#ff765d] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#ff5938] focus-visible:ring-offset-2"
-              >
-                Explore membership
-                <ArrowDown className="h-4 w-4 transition-transform duration-300 group-hover:translate-y-0.5" />
-              </motion.button>
-              <motion.button
-                type="button"
-                onClick={() => openEnquiry()}
-                whileHover={reduced ? undefined : { scale: 1.04 }}
-                whileTap={{ scale: 0.96 }}
-                className="group inline-flex items-center gap-2 rounded-full border border-slate-950/25 bg-white/50 px-6 py-3 text-sm font-medium text-slate-950 transition-colors duration-300 hover:border-[#ff5938] hover:bg-[#ff5938]/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#ff5938]"
-              >
-                Ask us a question
-                <ArrowUpRight className="h-4 w-4 transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
-              </motion.button>
-            </div>
+            <a
+              href="#member-benefits"
+              className="group mt-8 inline-flex items-center gap-2 border-b border-[#ff5938] pb-1 text-sm font-medium text-[#f6efe9] transition-colors hover:text-[#ff5938] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#ff5938]"
+            >
+              Explore member benefits
+              <ArrowDown className="h-4 w-4 transition-transform duration-300 group-hover:translate-y-0.5" aria-hidden="true" />
+            </a>
           </div>
 
-          <div data-reveal data-delay="120" className="relative flex min-h-[16rem] items-center justify-center sm:min-h-[22rem] lg:min-h-[28rem]">
-            <div aria-hidden="true" className="absolute inset-x-0 top-1/2 h-[75%] -translate-y-1/2 rounded-full bg-[#ff5938]/[0.06] blur-3xl" />
-            <p aria-hidden="true" className="relative select-none font-sans text-[clamp(10rem,30vw,26rem)] font-bold leading-[0.72] tracking-[-0.12em] text-transparent sm:text-[clamp(14rem,28vw,24rem)]" style={{ backgroundImage: `url(${membershipCard})`, backgroundPosition: 'center', backgroundSize: 'cover', backgroundClip: 'text', WebkitBackgroundClip: 'text' }}>
-              CHIS
-            </p>
-            <div className="absolute bottom-0 right-0 rounded-2xl border border-white/75 bg-white/75 px-5 py-4 shadow-[0_18px_45px_-24px_rgba(15,23,42,0.4)] backdrop-blur-sm sm:bottom-2 sm:right-4 sm:px-6 sm:py-5">
-              <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#d9361b]">Your holiday, your way</p>
-              <p className="mt-1 font-display text-xl font-semibold text-slate-950 sm:text-2xl">Make every stay count.</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* ===== Member advantage: destination feature and travel statistics ===== */}
-      <div className="relative z-10 mt-16 w-full px-4 sm:mt-20 sm:px-6 lg:mt-24 lg:px-8">
-        <div className="grid min-h-[100svh] w-full grid-rows-[1fr_auto] overflow-hidden rounded-[1.5rem] bg-transparent text-slate-950 sm:rounded-[2rem]">
-          <div className="grid min-h-[70svh] items-center gap-8 px-6 py-12 sm:px-10 lg:min-h-[calc(100svh-7rem)] lg:grid-cols-2 lg:gap-12 lg:px-14 lg:py-14">
-            <div data-reveal className="relative flex min-h-[22rem] items-center justify-center sm:min-h-[28rem]">
-              <div aria-hidden="true" className="absolute h-[18rem] w-[18rem] rounded-full bg-[#fff0e9] sm:h-[24rem] sm:w-[24rem]" />
-              <div aria-hidden="true" className="absolute h-[13rem] w-[13rem] rounded-full border border-[#ff5938]/20 sm:h-[18rem] sm:w-[18rem]" />
-              <div className="relative grid h-[11rem] w-[11rem] place-items-center rounded-full bg-[#d9361b] text-center text-white shadow-[0_24px_70px_-24px_rgba(217,54,27,0.55)] sm:h-[15rem] sm:w-[15rem]">
-                <div>
-                  <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-white/80 sm:text-xs">Discover</p>
-                  <p className="mt-1 font-sans text-5xl font-semibold leading-none tracking-[-0.06em] sm:text-7xl">500<span className="text-[#ffc6b8]">+</span></p>
-                  <p className="mt-2 text-xs font-medium text-white/90 sm:text-sm">destinations</p>
-                </div>
-              </div>
-              <div className="absolute left-0 top-[18%] rounded-xl border border-slate-950/5 bg-white/85 px-4 py-3 shadow-lg backdrop-blur-sm sm:left-[3%]">
-                <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-500">Member stay</p>
-                <p className="mt-1 font-display text-lg font-semibold leading-none text-slate-950 sm:text-xl">6 nights</p>
-              </div>
-              <div className="absolute bottom-[12%] right-0 rounded-xl border border-slate-950/5 bg-white/85 px-4 py-3 shadow-lg backdrop-blur-sm sm:right-[3%]">
-                <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-500">Every getaway</p>
-                <p className="mt-1 font-display text-lg font-semibold leading-none text-slate-950 sm:text-xl">7 days</p>
-              </div>
-            </div>
-
-            <div data-reveal data-delay="100" className="relative z-10">
-              <p className="flex items-center gap-2 text-sm font-medium text-slate-600">
-                <span className="h-2 w-2 animate-pulse rounded-full bg-[#ff5938]" />
-                The member advantage
-              </p>
-              <h3 className="mt-5 max-w-xl font-sans text-3xl font-semibold uppercase leading-[0.92] tracking-[-0.055em] sm:text-4xl lg:text-[3.2rem]">
-                Highlights Of CHIS
-                <span className="mt-1 block">Travel Membership Plan</span>
-              </h3>
-              <p className="mt-6 font-sans text-[clamp(3.5rem,7vw,6rem)] font-semibold leading-none tracking-[-0.07em] text-[#176b49]">
-                6N <span className="text-[#ff5938]">/</span> 7D
-              </p>
-              <p className="mt-2 text-lg font-medium tracking-tight text-slate-950 sm:text-xl">Holiday stays made for your next escape</p>
-              <p className="mt-3 max-w-lg text-sm leading-6 text-slate-600 sm:text-base sm:leading-7">
-                Enjoy six nights and seven days at destinations across India and beyond, with member benefits that make every journey more rewarding.
-              </p>
-              <div className="mt-6 flex flex-col items-start gap-5 sm:flex-row sm:items-center">
-                <a
-                  href="#member-benefits"
-                  className="group inline-flex items-center gap-3 rounded-full bg-[#ff5938] py-1.5 pl-6 pr-1.5 text-sm font-semibold text-slate-950 shadow-lg shadow-[#ff5938]/20 transition-transform duration-300 hover:scale-[1.03] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-950 focus-visible:ring-offset-2 active:scale-95"
-                >
-                  Explore member benefits
-                  <span className="flex h-10 w-10 items-center justify-center rounded-full bg-slate-950 text-[#ff5938] transition-transform duration-300 group-hover:rotate-45">
-                    <ArrowDown aria-hidden="true" className="h-4 w-4" />
-                  </span>
-                </a>
-                <div className="flex items-center gap-3">
-                  <img
-                    src={membershipCard}
-                    alt="CHIS Gold membership card"
-                    loading="lazy"
-                    className="w-32 -rotate-3 rounded-lg shadow-[0_14px_30px_-14px_rgba(0,0,0,0.55)] sm:w-40"
-                  />
-                  <div>
-                    <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#d9361b]">Your membership</p>
-                    <p className="mt-1 font-display text-lg font-semibold text-slate-950">T-2 Gold</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 border-y border-slate-950/15 sm:grid-cols-4">
-            {[
-              { value: '5–30', label: 'Years of membership' },
-              { value: '6N / 7D', label: 'Holiday stays' },
-              { value: '500+', label: 'Destinations' },
-              { value: '₹10,000+', label: 'Potential flight savings' },
-            ].map((stat, i) => (
-              <div
-                key={stat.label}
-                data-reveal
-                data-delay={i * 60}
-                className={`border-slate-950/15 px-5 py-5 sm:px-7 sm:py-6 ${
-                  i < 2 ? 'border-b' : ''
-                } ${i % 2 === 0 ? 'border-r' : ''} sm:border-b-0 sm:border-r sm:last:border-r-0`}
-              >
-                <p className="font-sans text-3xl font-semibold leading-none tracking-[-0.04em] sm:text-4xl">{stat.value}</p>
-                <p className="mt-2 text-xs leading-5 text-slate-600 sm:text-sm">{stat.label}</p>
-              </div>
-            ))}
+          {/* Portrait: she points back toward the copy */}
+          <div className="relative grid min-h-[22rem] place-items-end justify-items-center sm:min-h-[30rem]">
+            <div aria-hidden="true" className="absolute bottom-[8%] h-[80%] w-[80%] rounded-full bg-[#ff5938]/25 blur-[100px]" />
+            <img
+              ref={womanRef}
+              src={womanImage}
+              alt="Smiling woman pointing toward the CHIS membership benefits"
+              loading="lazy"
+              className="relative w-full max-w-[36rem] select-none"
+              style={{
+                WebkitMaskImage: 'linear-gradient(to bottom, #000 78%, transparent 100%)',
+                maskImage: 'linear-gradient(to bottom, #000 78%, transparent 100%)',
+              }}
+            />
           </div>
         </div>
 
+        {/* Stats */}
+        <div data-line className="h-px w-full bg-[#f6efe9]/15" />
+        <dl data-stats className="grid grid-cols-2 sm:grid-cols-4">
+          {STATS.map((s, i) => (
+            <div
+              key={s.label}
+              data-stat
+              className={`py-8 pr-4 sm:py-12 ${i > 0 ? 'sm:border-l sm:border-[#f6efe9]/15 sm:pl-8' : ''}`}
+            >
+              <dd className="font-sans text-3xl font-light leading-none tracking-[-0.05em] sm:text-5xl">{s.value}</dd>
+              <dt className="mt-3 text-xs text-[#f6efe9]/55 sm:text-sm">{s.label}</dt>
+            </div>
+          ))}
+        </dl>
+        <div className="h-16 sm:h-24" />
       </div>
     </section>
   )

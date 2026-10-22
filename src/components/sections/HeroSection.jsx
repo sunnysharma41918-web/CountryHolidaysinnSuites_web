@@ -78,10 +78,10 @@ function ScrollBadge({ onClick }) {
         aria-hidden="true"
       >
         <defs>
-          <path id="hero-circle" d="M60,60 m-46,0 a46,46 0 1,1 92,0 a46,46 0 1,1 -92,0" />
+          <path id="hero-circle" d="M 60, 60 m 0, -45 a 45,45 0 1,1 0,90 a 45,45 0 1,1 0,-90" />
         </defs>
-        <text fill="currentColor" fontSize="10" fontWeight="700" letterSpacing="2.3">
-          <textPath href="#hero-circle">{text.repeat(2)}</textPath>
+        <text fill="currentColor" fontSize="9.2" fontWeight="700" letterSpacing="2.7" className="uppercase select-none">
+          <textPath href="#hero-circle">{text}</textPath>
         </text>
       </svg>
       <span className="grid h-11 w-11 place-items-center rounded-full bg-[#ff5938] text-[#0d0d0c] transition-transform duration-500 group-hover:translate-y-1">

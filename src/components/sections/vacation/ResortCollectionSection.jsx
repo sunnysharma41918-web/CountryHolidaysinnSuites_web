@@ -13,7 +13,7 @@ export default function ResortCollectionSection() {
           <p className="text-xs font-semibold uppercase tracking-[0.2em] text-gold">
             Explore our collection
           </p>
-          <h2 className="mt-2 font-display text-4xl text-midnight sm:text-5xl">
+          <h2 className="mt-2 font-nunito text-4xl text-midnight sm:text-5xl">
             Featured resorts
           </h2>
         </div>

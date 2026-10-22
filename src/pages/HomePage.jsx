@@ -4,6 +4,7 @@ import AboutSection from '../components/sections/AboutSection'
 import MountainClipsSection from '../components/sections/MountainClipsSection'
 import LuxurySection from '../components/sections/LuxurySection'
 import RecreationSection from '../components/sections/RecreationSection'
+import DestinationsSection from '../components/sections/DestinationsSection'
 import TripFAQSection from '../components/sections/TripFAQSection'
 import TripTestimonialsSection from '../components/sections/TripTestimonialsSection'
 import ExclusiveDealsSection from '../components/sections/ExclusiveDealsSection'
@@ -44,16 +45,19 @@ export default function HomePage() {
         {/* 4. Luxury Welcome Section */}
         <LuxurySection onSelectPackage={handleSelectPackage} />
 
-        {/* 5. Popular Places For Recreation Section */}
+        {/* 5. Featured Destinations */}
+        <DestinationsSection />
+
+        {/* 6. Popular Places For Recreation Section */}
         <RecreationSection onBookTrip={handleSelectPackage} />
 
-        {/* 6. Frequently Asked Questions Section */}
+        {/* 7. Frequently Asked Questions Section */}
         <TripFAQSection />
 
-        {/* 7. People Speak About Us Testimonials */}
+        {/* 8. People Speak About Us Testimonials */}
         <TripTestimonialsSection />
 
-        {/* 8. Exclusive Deals Newsletter CTA */}
+        {/* 9. Exclusive Deals Newsletter CTA */}
         <ExclusiveDealsSection />
       </div>
     </PageTransition>

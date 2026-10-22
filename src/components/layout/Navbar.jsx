@@ -8,9 +8,13 @@ import DestinationMenuLinks from './DestinationMenuLinks'
 export default function Navbar({ onBookNow }) {
   const { pathname } = useLocation()
   const isDestinationRoute = pathname.startsWith('/destinations')
+  const isDestinationDetailRoute =
+    isDestinationRoute && pathname !== '/destinations' && !pathname.startsWith('/destinations/category/')
   const [mobileOpen, setMobileOpen] = useState(false)
   const [destinationsOpen, setDestinationsOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
+  const [destinationsSectionVisible, setDestinationsSectionVisible] = useState(false)
+  const isLightNavbar = !isDestinationDetailRoute && (isDestinationRoute || destinationsSectionVisible)
 
   // Scroll detection to adapt background on scroll
   useEffect(() => {
@@ -20,6 +24,18 @@ export default function Navbar({ onBookNow }) {
     window.addEventListener('scroll', handleScroll, { passive: true })
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
+
+  useEffect(() => {
+    const section = document.getElementById('destinations')
+    if (!section) return undefined
+
+    const observer = new IntersectionObserver(
+      ([entry]) => setDestinationsSectionVisible(entry.isIntersecting),
+      { threshold: 0.35 },
+    )
+    observer.observe(section)
+    return () => observer.disconnect()
+  }, [pathname])
 
   // Close mobile drawer on route change
   useEffect(() => {
@@ -68,19 +84,21 @@ export default function Navbar({ onBookNow }) {
 
   return (
     <header
-      className={`fixed inset-x-0 top-0 z-50 font-sans transition-all duration-300 ${isDestinationRoute
-          ? `border-b border-slate-200 bg-white/95 backdrop-blur-xl shadow-sm ${scrolled ? 'py-3.5' : 'py-5 sm:py-6'
-          }`
-          : scrolled
-            ? 'border-b border-white/10 bg-slate-950/85 py-3.5 shadow-2xl backdrop-blur-xl'
-            : 'bg-transparent py-5 sm:py-6'
-        }`}
+      className={`fixed inset-x-0 top-0 z-50 font-sans transition-all duration-300 ${
+        isDestinationDetailRoute
+          ? `border-b border-white/10 bg-black/95 shadow-2xl backdrop-blur-xl ${scrolled ? 'py-3.5' : 'py-5 sm:py-6'}`
+          : isLightNavbar
+            ? `border-b border-slate-200 bg-white/95 shadow-sm backdrop-blur-xl ${scrolled ? 'py-3.5' : 'py-5 sm:py-6'}`
+            : scrolled
+              ? 'border-b border-white/10 bg-slate-950/85 py-3.5 shadow-2xl backdrop-blur-xl'
+              : 'bg-transparent py-5 sm:py-6'
+      }`}
     >
       <div className="max-w-[1440px] mx-auto px-5 sm:px-8 lg:px-12 flex items-center justify-between gap-4">
 
         {/* Left: Brand Logo */}
         <div className="flex-shrink-0 transition-transform duration-300 hover:scale-105">
-          <TripMakerLogo inverted={!isDestinationRoute} />
+          <TripMakerLogo inverted={!isLightNavbar} />
         </div>
 
         {/* Center: Clean Horizontal Text Links (No capsules or boxes) */}
@@ -96,7 +114,7 @@ export default function Navbar({ onBookNow }) {
                   aria-expanded={destinationsOpen}
                   aria-haspopup="true"
                   onClick={() => setDestinationsOpen((open) => !open)}
-                  className={`flex items-center gap-1.5 text-sm transition-colors duration-200 ${isDestinationRoute
+                  className={`flex items-center gap-1.5 text-sm transition-colors duration-200 ${isLightNavbar
                       ? 'font-semibold text-[#e84a28]'
                       : 'font-normal text-white/75 hover:text-white'
                     }`}
@@ -126,10 +144,10 @@ export default function Navbar({ onBookNow }) {
                 end={item.path === '/'}
                 className={({ isActive }) =>
                   `text-sm transition-colors duration-200 tracking-normal ${isActive
-                    ? isDestinationRoute
+                    ? isLightNavbar
                       ? 'font-semibold text-slate-950'
                       : 'text-white font-semibold'
-                    : isDestinationRoute
+                    : isLightNavbar
                       ? 'font-normal text-slate-700 hover:text-slate-950'
                       : 'text-white/75 hover:text-white font-normal'
                   }`
@@ -147,7 +165,7 @@ export default function Navbar({ onBookNow }) {
           <button
             type="button"
             onClick={handleLoginClick}
-            className={`rounded-full px-6 py-2 text-sm font-medium backdrop-blur-md transition-all duration-200 active:scale-95 ${isDestinationRoute
+            className={`rounded-full px-6 py-2 text-sm font-medium backdrop-blur-md transition-all duration-200 active:scale-95 ${isLightNavbar
                 ? 'border border-slate-300 bg-white text-slate-800 hover:bg-slate-100'
                 : 'border border-white/60 bg-white/[0.08] text-white hover:bg-white/20'
               }`}
@@ -159,7 +177,7 @@ export default function Navbar({ onBookNow }) {
           <button
             type="button"
             onClick={handleBookNowClick}
-            className={`rounded-full px-6 py-2 text-sm font-bold shadow-md shadow-black/10 transition-all duration-200 active:scale-95 ${isDestinationRoute
+            className={`rounded-full px-6 py-2 text-sm font-bold shadow-md shadow-black/10 transition-all duration-200 active:scale-95 ${isLightNavbar
                 ? 'bg-[#ff5938] text-white hover:bg-[#e84a28]'
                 : 'bg-white text-slate-900 hover:bg-white/90'
               }`}
@@ -173,7 +191,7 @@ export default function Navbar({ onBookNow }) {
           <button
             type="button"
             onClick={handleBookNowClick}
-            className={`rounded-full px-4 py-1.5 text-xs font-bold shadow-sm transition-transform active:scale-95 ${isDestinationRoute
+            className={`rounded-full px-4 py-1.5 text-xs font-bold shadow-sm transition-transform active:scale-95 ${isLightNavbar
                 ? 'bg-[#ff5938] text-white'
                 : 'bg-white text-slate-900'
               }`}
@@ -184,7 +202,7 @@ export default function Navbar({ onBookNow }) {
           <button
             type="button"
             onClick={() => setMobileOpen(!mobileOpen)}
-            className={`flex h-10 w-10 items-center justify-center rounded-full border backdrop-blur-md transition-transform focus:outline-none active:scale-90 ${isDestinationRoute
+            className={`flex h-10 w-10 items-center justify-center rounded-full border backdrop-blur-md transition-transform focus:outline-none active:scale-90 ${isLightNavbar
                 ? 'border-slate-300 bg-white text-slate-800'
                 : 'border-white/20 bg-white/10 text-white'
               }`}

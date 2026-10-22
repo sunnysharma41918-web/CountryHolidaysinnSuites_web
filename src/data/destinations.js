@@ -103,6 +103,7 @@ const destinationRegions = {
   Dubai: 'United Arab Emirates',
   Georgia: 'Georgia',
   Istanbul: 'Turkey',
+  Alleppey: 'Kerala, India',
   'Kuala Lumpur': 'Malaysia',
   London: 'United Kingdom',
   Malaysia: 'Malaysia',
@@ -178,11 +179,20 @@ export const destinations = [
     .map((name) => ({
       slug: toDestinationSlug(name),
       name,
-      description: `Explore ${name} and find a comfortable base for discovering its local highlights and nearby experiences.`,
+      description:
+        name === 'Alleppey'
+          ? 'Cruise Kerala’s palm-lined backwaters, discover quiet canals, and experience a slower side of coastal India.'
+          : `Explore ${name} and find a comfortable base for discovering its local highlights and nearby experiences.`,
       image:
-        'https://images.unsplash.com/photo-1564507592333-c60657eea523?auto=format&fit=crop&w=1200&q=80',
+        name === 'Alleppey'
+          ? 'https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?auto=format&fit=crop&w=1600&q=85'
+          : 'https://images.unsplash.com/photo-1564507592333-c60657eea523?auto=format&fit=crop&w=1200&q=80',
       resortDestination: name,
       region: destinationRegions[name] || 'India',
+      ...(name === 'Alleppey' && {
+        knowYourDestination:
+          'Alleppey, also known as Alappuzha, is known for its calm backwaters, canals, and houseboat journeys. Take time to enjoy the waterways and the relaxed pace of Kerala’s coast.',
+      }),
     })),
 ]
 

@@ -1,4 +1,4 @@
-import { Routes, Route } from 'react-router-dom'
+import { Routes, Route, Navigate } from 'react-router-dom'
 import HomePage from '../pages/HomePage'
 import ResortsPage from '../pages/ResortsPage'
 import VacationPackagesPage from '../pages/VacationPackagesPage'
@@ -16,6 +16,7 @@ export default function AppRoutes() {
       <Route path="/" element={<HomePage />} />
       <Route path="/destinations" element={<DestinationsPage />} />
       <Route path="/destinations/category/:category" element={<DestinationCategoryPage />} />
+      <Route path="/destinations/alleppe" element={<Navigate to="/destinations/alleppey" replace />} />
       <Route path="/destinations/:slug" element={<DestinationPropertiesPage />} />
       <Route path="/vacation-packages" element={<VacationPackagesPage />} />
       <Route path="/activity" element={<ExperiencesPage />} />

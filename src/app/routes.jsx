@@ -9,6 +9,7 @@ import DestinationCategoryPage from '../pages/DestinationCategoryPage'
 import ExperiencesPage from '../pages/ExperiencesPage'
 import AboutPage from '../pages/AboutPage'
 import ContactPage from '../pages/ContactPage'
+import BlogPage from '../pages/BlogPage'
 
 export default function AppRoutes() {
   return (
@@ -20,7 +21,7 @@ export default function AppRoutes() {
       <Route path="/destinations/:slug" element={<DestinationPropertiesPage />} />
       <Route path="/vacation-packages" element={<VacationPackagesPage />} />
       <Route path="/activity" element={<ExperiencesPage />} />
-      <Route path="/blog" element={<ExperiencesPage />} />
+      <Route path="/blog" element={<Navigate to="/about" replace />} />
       <Route path="/contact" element={<ContactPage />} />
       <Route path="/about" element={<AboutPage />} />
       <Route path="/resorts" element={<ResortsPage />} />

@@ -1,79 +1,130 @@
-import { useState } from 'react'
-import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
+import { useRef, useState } from 'react'
+import { motion, useInView, useReducedMotion } from 'framer-motion'
 import { ArrowUpRight } from 'lucide-react'
 
 const EASE = [0.16, 1, 0.3, 1]
 const HEADING_FONT = { fontFamily: "'Outfit', sans-serif" }
-const FADE_MASK =
-  'linear-gradient(to right, transparent, black 8%, black 92%, transparent)'
+const FADE_MASK = 'linear-gradient(to right, transparent, black 8%, black 92%, transparent)'
+
+/* ------------------------------------------------------------------
+   LOGOS: every image in src/assets/images/partners (and the older
+   src/assets/images/Hotels folder, if it still exists) is picked up
+   automatically by Vite. Files are matched to a partner by file name
+   (e.g. "booking.png", "Radisson-Blu.svg", "tripadvisor.webp").
+   Any logo that matches nobody is added to the travel partners row.
+   NOTE: the glob path is relative to THIS file. Adjust the ../../ if
+   the component lives at a different depth.
+------------------------------------------------------------------- */
+const logoFiles = import.meta.glob(
+  '../../assets/images/{partners,Hotels}/*.{png,jpg,jpeg,webp,svg,avif,PNG,JPG,JPEG,WEBP,SVG}',
+  { eager: true, import: 'default' },
+)
+
+const norm = (s) => s.toLowerCase().replace(/[^a-z0-9]/g, '')
+const pretty = (s) =>
+  s
+    .replace(/[-_]+/g, ' ')
+    .replace(/\b\w/g, (c) => c.toUpperCase())
+    .trim()
+
+const LOGOS = Object.entries(logoFiles).map(([path, url]) => {
+  const file = path.split('/').pop().replace(/\.[^.]+$/, '')
+  return { key: norm(file), file, url }
+})
+
+const findLogo = (keys) => {
+  const exact = LOGOS.find((l) => keys.includes(l.key))
+  if (exact) return exact.url
+  const loose = LOGOS.find((l) => keys.some((k) => k.length >= 4 && l.key.includes(k)))
+  return loose ? loose.url : ''
+}
 
 /* ------------------------------------------------------------------
    DATA
-   `logo` → path to an SVG/PNG in /public/logos (e.g. '/logos/radisson.svg').
-   Any logo you add is auto-tinted (white on dark, black on light), so
-   use a single-colour or transparent-background file. While `logo` is
-   empty, a clean wordmark is shown instead.
 ------------------------------------------------------------------- */
-const PREFERRED_PARTNERS = [
+const PREFERRED_BASE = [
   {
     name: 'Four Points by Sheraton',
     location: '',
-    logo: '',
+    keys: ['fourpoints', 'fourpointsbysheraton', 'sheraton'],
     image:
-      'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=1200&q=80',
+      'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=1400&q=80',
   },
   {
     name: 'Roseate House',
     location: 'New Delhi',
-    logo: '',
+    keys: ['roseate', 'roseatehouse'],
     image:
-      'https://images.unsplash.com/photo-1564501049412-61c2a3083791?auto=format&fit=crop&w=1200&q=80',
+      'https://images.unsplash.com/photo-1564501049412-61c2a3083791?auto=format&fit=crop&w=1400&q=80',
   },
   {
     name: 'Radisson Blu',
     location: '',
-    logo: '',
+    keys: ['radisson', 'radissonblu'],
     image:
-      'https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?auto=format&fit=crop&w=1200&q=80',
+      'https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?auto=format&fit=crop&w=1400&q=80',
   },
   {
     name: 'Prime Plaza Hotel',
     location: 'Sanur, Bali',
-    logo: '',
+    keys: ['primeplaza', 'primeplazahotel'],
     image:
-      'https://images.unsplash.com/photo-1537996194471-e657df975ab4?auto=format&fit=crop&w=1200&q=80',
+      'https://images.unsplash.com/photo-1537996194471-e657df975ab4?auto=format&fit=crop&w=1400&q=80',
   },
   {
     name: 'White Woods Resort & Spa',
     location: '',
-    logo: '',
+    keys: ['whitewoods', 'whitewoodsresort', 'whitewoodsresortspa'],
     image:
-      'https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?auto=format&fit=crop&w=1200&q=80',
+      'https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?auto=format&fit=crop&w=1400&q=80',
   },
 ]
 
-const TRAVEL_PARTNERS = [
-  { name: 'Booking.com', kind: 'Booking platform', logo: '' },
-  { name: 'Travel Boutique Online', kind: 'Booking platform', logo: '' },
-  { name: 'trivago', kind: 'Rate comparison', logo: '' },
-  { name: 'VIA.com', kind: 'Booking platform', logo: '' },
-  { name: 'goibibo', kind: 'Booking platform', logo: '' },
-  { name: 'Tripadvisor India', kind: 'Reviews and rates', logo: '' },
+const TRAVEL_BASE = [
+  { name: 'Booking.com', keys: ['booking', 'bookingcom'] },
+  { name: 'Travel Boutique Online', keys: ['travelboutique', 'travelboutiqueonline', 'tbo'] },
+  { name: 'trivago', keys: ['trivago'] },
+  { name: 'VIA.com', keys: ['via', 'viacom'] },
+  { name: 'goibibo', keys: ['goibibo'] },
+  { name: 'Tripadvisor India', keys: ['tripadvisor', 'tripadvisorindia'] },
 ]
 
+const withLogo = (p) => ({ ...p, logo: findLogo(p.keys) })
+
+const PREFERRED = PREFERRED_BASE.map(withLogo)
+const TRAVEL_MAIN = TRAVEL_BASE.map(withLogo)
+const usedLogos = new Set([...PREFERRED, ...TRAVEL_MAIN].map((p) => p.logo).filter(Boolean))
+const seenExtra = new Set()
+const EXTRA = LOGOS.filter((l) => {
+  if (usedLogos.has(l.url) || seenExtra.has(l.key)) return false
+  seenExtra.add(l.key)
+  return true
+}).map((l) => ({ name: pretty(l.file), logo: l.url }))
+const TRAVEL = [...TRAVEL_MAIN, ...EXTRA]
+
+/* repeat a short list so one slider half always spans a wide screen */
+const fill = (list, min = 8) => {
+  let out = list
+  while (out.length < min) out = [...out, ...list]
+  return out
+}
+
 /* ------------------------------------------------------------------
-   SHARED PIECES
+   SMALL PIECES
 ------------------------------------------------------------------- */
 
-/* Heading line that slides up out of a mask */
+/* Heading line that slides up out of a mask.
+   The in-view check sits on the clipping wrapper so it can't get stuck. */
 function RevealLine({ children, delay = 0 }) {
+  const ref = useRef(null)
+  const inView = useInView(ref, { once: true, amount: 0.3 })
+  const reduce = useReducedMotion()
   return (
-    <span className="block overflow-hidden pb-[0.08em]">
+    <span ref={ref} className="block overflow-hidden pb-[0.08em]">
       <motion.span
         className="block"
-        initial={{ y: '110%' }}
-        whileInView={{ y: 0 }}
-        viewport={{ once: true, margin: '-10%' }}
+        initial={reduce ? false : { y: '110%' }}
+        animate={{ y: reduce || inView ? 0 : '110%' }}
         transition={{ duration: 1, delay, ease: EASE }}
       >
         {children}
@@ -83,70 +134,51 @@ function RevealLine({ children, delay = 0 }) {
 }
 
 /* Signature pill button with rotating arrow badge */
-function PillButton({ href, children, tone = 'dark' }) {
-  const isDarkSection = tone === 'dark'
+function PillButton({ href, children }) {
   return (
     <a
       href={href}
-      className={`group flex shrink-0 items-center gap-3 rounded-full py-1.5 pl-6 pr-1.5 text-sm font-semibold shadow-lg shadow-black/10 transition-transform duration-300 hover:scale-[1.03] active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 ${isDarkSection
-        ? 'bg-[#ff5938] text-slate-950 focus-visible:ring-[#ff5938] focus-visible:ring-offset-slate-950'
-        : 'bg-slate-950 text-[#ff5938] focus-visible:ring-slate-950 focus-visible:ring-offset-[#f7f7f5]'
-        }`}
+      className="group inline-flex shrink-0 items-center gap-3 rounded-full bg-[#096c27] py-1.5 pl-6 pr-1.5 text-sm font-semibold text-white shadow-lg shadow-[#096c27]/15 transition-transform duration-300 hover:scale-[1.03] hover:bg-[#06501b] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#096c27] focus-visible:ring-offset-2 active:scale-95"
+      style={HEADING_FONT}
     >
       {children}
-      <span
-        className={`flex h-10 w-10 items-center justify-center rounded-full transition-transform duration-300 group-hover:rotate-45 ${isDarkSection ? 'bg-slate-950 text-[#ff5938]' : 'bg-[#ff5938] text-slate-950'
-          }`}
-      >
+      <span className="flex h-10 w-10 items-center justify-center rounded-full bg-[#b3d565] text-[#096c27] transition-transform duration-300 group-hover:rotate-45">
         <ArrowUpRight className="h-4 w-4 stroke-[2.5]" />
       </span>
     </a>
   )
 }
 
-/* Logo image (auto-tinted) or wordmark fallback. Colour comes from the parent. */
-function Logo({ item, tone, size = 'md' }) {
+/* Real logo image, or a wordmark if the file is missing / fails to load */
+function Logo({ item, className = '' }) {
   const [failed, setFailed] = useState(false)
-  const imgHeight = size === 'lg' ? 'h-12' : 'h-7'
 
   if (item.logo && !failed) {
-    const tint =
-      tone === 'dark'
-        ? 'brightness-0 invert opacity-70 group-hover:invert-0 group-hover:opacity-100'
-        : 'brightness-0 opacity-60 group-hover:opacity-100'
     return (
       <img
         src={item.logo}
         alt={item.name}
         loading="lazy"
         onError={() => setFailed(true)}
-        className={`${imgHeight} w-auto max-w-[11rem] object-contain transition duration-500 ${tint}`}
+        className={`w-auto object-contain ${className}`}
       />
     )
   }
 
   return (
-    <span className="flex items-center gap-3">
+    <span className="flex items-center gap-2.5" style={HEADING_FONT}>
       <span
         aria-hidden
-        className={`flex shrink-0 items-center justify-center rounded-full border border-current font-semibold ${size === 'lg' ? 'h-12 w-12 text-lg' : 'h-8 w-8 text-sm'
-          }`}
-        style={HEADING_FONT}
+        className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-current text-sm font-semibold"
       >
         {item.name.charAt(0)}
       </span>
-      <span
-        className={`whitespace-nowrap font-semibold tracking-[-0.03em] ${size === 'lg' ? 'text-[clamp(1.5rem,2.4vw,2.2rem)]' : 'text-lg'
-          }`}
-        style={HEADING_FONT}
-      >
-        {item.name}
-      </span>
+      <span className="whitespace-nowrap text-base font-semibold tracking-[-0.03em]">{item.name}</span>
     </span>
   )
 }
 
-/* Infinite slider. Pauses on hover, stops for reduced motion. */
+/* Infinite logo slider (pauses on hover) */
 function Marquee({ children, duration = 40, reverse = false }) {
   return (
     <div
@@ -160,8 +192,8 @@ function Marquee({ children, duration = 40, reverse = false }) {
           animationDirection: reverse ? 'reverse' : 'normal',
         }}
       >
-        <div className="flex shrink-0 gap-3 pr-3 sm:gap-4 sm:pr-4">{children}</div>
-        <div aria-hidden className="flex shrink-0 gap-3 pr-3 sm:gap-4 sm:pr-4">
+        <div className="flex shrink-0 gap-3 pr-3">{children}</div>
+        <div aria-hidden className="flex shrink-0 gap-3 pr-3">
           {children}
         </div>
       </div>
@@ -169,30 +201,52 @@ function Marquee({ children, duration = 40, reverse = false }) {
   )
 }
 
+/* One labelled mini scroller */
+function LogoRow({ label, items, duration, reverse }) {
+  return (
+    <div className="flex flex-col gap-2 lg:flex-row lg:items-center lg:gap-6">
+      <span
+        className="flex shrink-0 items-center gap-2 text-sm font-medium text-[#096c27] lg:w-44"
+        style={HEADING_FONT}
+      >
+        <span className="h-2 w-2 animate-pulse rounded-full bg-[#096c27] ring-1 ring-[#096c27]/30 motion-reduce:animate-none" />
+        {label}
+        <span className="text-[#0b1f12]/50">{items.length}</span>
+      </span>
+      <div className="min-w-0 flex-1">
+        <Marquee duration={duration} reverse={reverse}>
+          {fill(items).map((p, i) => (
+            <div
+              key={`${p.name}-${i}`}
+              className="group flex h-[clamp(2.75rem,6.5svh,4rem)] items-center rounded-full border border-[#096c27]/15 bg-white px-6 text-[#0b1f12] shadow-sm transition-colors duration-300 hover:border-[#096c27]"
+            >
+              <Logo
+                item={p}
+                className="h-[clamp(1.25rem,3.4svh,2rem)] max-w-[9rem] opacity-80 grayscale transition duration-500 group-hover:opacity-100 group-hover:grayscale-0"
+              />
+            </div>
+          ))}
+        </Marquee>
+      </div>
+    </div>
+  )
+}
+
 /* Blueprint header: label row + title row */
-function SectionHeader({ tone, label, meta, title, text, cta }) {
-  const dark = tone === 'dark'
+function SectionHeader({ label, meta, title, text, cta }) {
   return (
     <>
-      <div
-        className={`flex shrink-0 items-center justify-between border-t pt-3 text-sm ${dark ? 'border-white/80' : 'border-slate-950'
-          }`}
-      >
-        <span className="flex items-center gap-2 font-medium">
-          <span
-            className={`h-2 w-2 animate-pulse rounded-full bg-[#ff5938] ${dark ? '' : 'ring-1 ring-slate-950'
-              }`}
-          />
+      <div className="flex shrink-0 items-center justify-between border-t border-[#096c27]/25 pt-3 text-sm">
+        <span className="flex items-center gap-2 font-medium text-[#096c27]">
+          <span className="h-2 w-2 animate-pulse rounded-full bg-[#096c27] ring-1 ring-[#096c27]/30 motion-reduce:animate-none" />
           {label}
         </span>
-        <span className={`hidden sm:block ${dark ? 'text-white/55' : 'text-slate-500'}`}>
-          {meta}
-        </span>
+        <span className="hidden text-[#0b1f12]/60 sm:block">{meta}</span>
       </div>
 
       <div className="flex shrink-0 flex-col justify-between gap-5 md:flex-row md:items-end">
         <h2
-          className="text-[clamp(2.25rem,min(5.4vw,8vh),5rem)] font-semibold leading-[0.98] tracking-[-0.04em]"
+          className="text-[clamp(2.25rem,min(5.4vw,8svh),5rem)] font-semibold leading-[0.98] tracking-[-0.04em] text-[#0b1f12]"
           style={HEADING_FONT}
         >
           {title.map((line, i) => (
@@ -202,10 +256,7 @@ function SectionHeader({ tone, label, meta, title, text, cta }) {
           ))}
         </h2>
         <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:gap-6">
-          <p
-            className={`max-w-md text-sm leading-relaxed sm:text-base ${dark ? 'text-white/60' : 'text-slate-600'
-              }`}
-          >
+          <p className="max-w-md text-sm leading-relaxed text-[#0b1f12]/75 sm:text-base" style={HEADING_FONT}>
             {text}
           </p>
           {cta}
@@ -216,206 +267,16 @@ function SectionHeader({ tone, label, meta, title, text, cta }) {
 }
 
 /* ------------------------------------------------------------------
-   1. PREFERRED HOTELS (dark)
-------------------------------------------------------------------- */
-function PreferredHotels() {
-  const [active, setActive] = useState(0)
-  const reduce = useReducedMotion()
-  const current = PREFERRED_PARTNERS[active]
-  const duration = reduce ? 0 : 1
-
-  return (
-    <section
-      id="partners"
-      className="relative w-full overflow-hidden bg-slate-950 text-white lg:h-[100svh]"
-    >
-      <div className="pointer-events-none absolute -right-40 top-10 h-[28rem] w-[28rem] rounded-full bg-[#ff5938]/10 blur-3xl" />
-
-      <div className="relative mx-auto flex h-full max-w-[1440px] flex-col gap-6 px-4 py-10 sm:px-8 lg:gap-5 lg:px-12 lg:py-8">
-        <SectionHeader
-          tone="dark"
-          label="Hotels we work with"
-          meta={`${PREFERRED_PARTNERS.length} preferred stays`}
-          title={['Our preferred', 'partners']}
-          text="Hotels and resorts where we book your stays, chosen for comfort, service and location."
-          cta={<PillButton href="#contact">Plan your stay</PillButton>}
-        />
-
-        {/* Body: preview image + hotel list */}
-        <div className="grid min-h-0 flex-1 grid-cols-1 gap-6 lg:grid-cols-12 lg:gap-10">
-          {/* Preview */}
-          <div className="relative aspect-[4/3] overflow-hidden rounded-[28px] bg-slate-900 lg:col-span-5 lg:aspect-auto lg:min-h-0">
-            <AnimatePresence initial={false}>
-              <motion.img
-                key={current.name}
-                src={current.image}
-                alt={current.name}
-                initial={{ opacity: 0, scale: reduce ? 1 : 1.12 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration, ease: EASE }}
-                className="absolute inset-0 h-full w-full object-cover"
-              />
-            </AnimatePresence>
-            <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/10 to-transparent" />
-            <div className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-4 p-5 sm:p-6">
-              <AnimatePresence mode="wait" initial={false}>
-                <motion.div
-                  key={current.name}
-                  initial={{ opacity: 0, y: reduce ? 0 : 12 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: reduce ? 0 : 0.5, ease: EASE }}
-                >
-                  <p
-                    className="text-[clamp(1.4rem,2.2vw,2rem)] font-semibold leading-tight tracking-[-0.03em]"
-                    style={HEADING_FONT}
-                  >
-                    {current.name}
-                  </p>
-                  {current.location && (
-                    <p className="mt-1 text-sm text-white/70">{current.location}</p>
-                  )}
-                </motion.div>
-              </AnimatePresence>
-              <span className="flex shrink-0 items-center gap-2 rounded-full bg-[#ff5938] px-3 py-1.5 text-xs font-semibold text-slate-950">
-                <span className="h-1.5 w-1.5 rounded-full bg-slate-950" />
-                Preferred partner
-              </span>
-            </div>
-          </div>
-
-          {/* List */}
-          <ul className="flex min-h-0 flex-col lg:col-span-7">
-            {PREFERRED_PARTNERS.map((p, i) => {
-              const isActive = i === active
-              return (
-                <li key={p.name} className="flex min-h-0 flex-1">
-                  <button
-                    type="button"
-                    onMouseEnter={() => setActive(i)}
-                    onFocus={() => setActive(i)}
-                    onClick={() => setActive(i)}
-                    aria-current={isActive}
-                    className="group relative flex min-h-[4.5rem] w-full items-center justify-between gap-4 overflow-hidden border-t border-white/15 px-1 text-left transition-colors duration-300 last:border-b hover:text-slate-950 focus-visible:text-slate-950 focus-visible:outline-none lg:px-4"
-                  >
-                    {/* brand-accent sweep from the bottom */}
-                    <span
-                      aria-hidden
-                      className="absolute inset-0 translate-y-full bg-[#ff5938] transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:translate-y-0 group-focus-visible:translate-y-0 motion-reduce:transition-none"
-                    />
-                    <span className="relative flex min-w-0 items-center gap-4">
-                      <span
-                        className={`h-2 w-2 shrink-0 rounded-full transition-all duration-500 group-hover:scale-[2] group-hover:bg-slate-950 group-focus-visible:bg-slate-950 ${isActive ? 'bg-[#ff5938]' : 'bg-white/25'
-                          }`}
-                      />
-                      <span
-                        className={`truncate text-[clamp(1.25rem,min(2.8vw,4.4vh),2.5rem)] font-semibold leading-tight tracking-[-0.02em] transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:translate-x-2 ${isActive ? 'text-white' : 'text-white/55'
-                          } group-hover:text-slate-950 group-focus-visible:text-slate-950`}
-                        style={HEADING_FONT}
-                      >
-                        {p.name}
-                      </span>
-                    </span>
-                    <span className="relative flex shrink-0 items-center gap-4">
-                      {p.location && (
-                        <span className="hidden text-sm text-white/55 transition-colors duration-300 group-hover:text-slate-950/70 sm:block">
-                          {p.location}
-                        </span>
-                      )}
-                      <span className="flex h-10 w-10 items-center justify-center rounded-full border border-white/15 transition-all duration-300 group-hover:rotate-45 group-hover:border-slate-950 group-hover:bg-slate-950 group-hover:text-[#ff5938]">
-                        <ArrowUpRight className="h-4 w-4 stroke-[2.5]" />
-                      </span>
-                    </span>
-                  </button>
-                </li>
-              )
-            })}
-          </ul>
-        </div>
-
-        {/* Hotel brand slider */}
-        <div className="shrink-0">
-          <Marquee duration={32}>
-            {[...PREFERRED_PARTNERS, ...PREFERRED_PARTNERS].map((p, i) => (
-              <div
-                key={`${p.name}-${i}`}
-                className="group flex h-14 items-center rounded-full border border-white/15 px-6 text-white/70 transition-colors duration-300 hover:border-[#ff5938] hover:text-[#ff5938]"
-              >
-                <Logo item={p} tone="dark" />
-              </div>
-            ))}
-          </Marquee>
-        </div>
-      </div>
-    </section>
-  )
-}
-
-/* ------------------------------------------------------------------
-   2. TRAVEL PLATFORMS (light)
-------------------------------------------------------------------- */
-function TravelPlatforms() {
-  const rowOne = [...TRAVEL_PARTNERS, ...TRAVEL_PARTNERS]
-  const rowTwo = [...TRAVEL_PARTNERS].reverse().concat([...TRAVEL_PARTNERS].reverse())
-
-  const card = (p, i) => (
-    <article
-      key={`${p.name}-${i}`}
-      className="group relative flex h-[clamp(9rem,24vh,15rem)] w-[17rem] shrink-0 flex-col justify-between overflow-hidden rounded-[28px] border border-slate-950/15 bg-white/60 p-5 text-slate-950 sm:w-[22rem] sm:p-6"
-    >
-      {/* brand-accent sweep from the bottom */}
-      <span
-        aria-hidden
-        className="absolute inset-0 translate-y-full bg-[#ff5938] transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:translate-y-0 motion-reduce:transition-none"
-      />
-      <div className="relative flex items-start justify-between">
-        <span className="flex items-center gap-2 text-sm font-medium text-slate-600 transition-colors duration-300 group-hover:text-slate-950">
-          <span className="h-2 w-2 rounded-full bg-[#ff5938] ring-1 ring-slate-950 transition-colors duration-300 group-hover:bg-slate-950" />
-          {p.kind}
-        </span>
-        <span className="flex h-10 w-10 items-center justify-center rounded-full bg-slate-950 text-[#ff5938] transition-transform duration-300 group-hover:rotate-45">
-          <ArrowUpRight className="h-4 w-4 stroke-[2.5]" />
-        </span>
-      </div>
-      <div className="relative">
-        <Logo item={p} tone="light" size="lg" />
-      </div>
-    </article>
-  )
-
-  return (
-    <section
-      id="travel-partners"
-      className="relative w-full overflow-hidden bg-[#f7f7f5] text-slate-950 lg:h-[100svh]"
-    >
-      <div className="mx-auto flex h-full max-w-[1440px] flex-col gap-6 px-4 py-10 sm:px-8 lg:gap-5 lg:px-12 lg:py-8">
-        <SectionHeader
-          tone="light"
-          label="Platforms we book through"
-          meta={`${TRAVEL_PARTNERS.length} travel platforms`}
-          title={['Our travel', 'partners']}
-          text="Six well-known travel platforms that help us find rooms and rates for your trip."
-          cta={<PillButton href="#contact" tone="light">Get a quote</PillButton>}
-        />
-
-        <div className="flex min-h-0 flex-1 flex-col justify-center gap-3 sm:gap-4">
-          <Marquee duration={48}>{rowOne.map(card)}</Marquee>
-          <Marquee duration={56} reverse>
-            {rowTwo.map(card)}
-          </Marquee>
-        </div>
-      </div>
-    </section>
-  )
-}
-
-/* ------------------------------------------------------------------
-   EXPORT
+   PARTNERS
+   Top: expanding hotel photo panels (#f3f8e6).
+   Bottom: mini scrollers for hotel partners + travel partners (#f3f8e6).
+   The whole block is exactly one screen tall on desktop.
 ------------------------------------------------------------------- */
 export default function PartnersSection() {
+  const [active, setActive] = useState(0)
+
   return (
-    <>
+    <section id="partners" className="relative flex w-full flex-col overflow-hidden bg-[#f3f8e6] py-12 sm:py-16 lg:h-[100svh] lg:py-0">
       <style>{`
         @keyframes partners-marquee {
           from { transform: translateX(0); }
@@ -433,8 +294,127 @@ export default function PartnersSection() {
           .partners-marquee-track { animation: none; }
         }
       `}</style>
-      <PreferredHotels />
-      <TravelPlatforms />
-    </>
+
+      {/* ---------- hotels (#f3f8e6) ---------- */}
+      <div className="relative flex min-h-0 flex-1 flex-col overflow-hidden bg-[#f3f8e6] text-[#0b1f12]">
+        <div className="pointer-events-none absolute -right-40 top-10 h-[28rem] w-[28rem] rounded-full bg-[#096c27]/5 blur-3xl" />
+
+        <div className="relative mx-auto flex h-full min-h-0 w-full max-w-[1440px] flex-col gap-6 px-4 sm:px-8 lg:gap-[clamp(0.75rem,2.5svh,1.5rem)] lg:px-12 lg:py-[clamp(1rem,3.5svh,2rem)]">
+          <SectionHeader
+            label="Hotels we work with"
+            meta={`${PREFERRED.length} preferred stays`}
+            title={['Our preferred', 'partners']}
+            text="Hotels and resorts where we book your stays, chosen for comfort, service and location."
+            cta={<PillButton href="#contact">Plan your stay</PillButton>}
+          />
+
+          <div className="flex min-h-0 flex-1 flex-col gap-3 lg:flex-row">
+            {PREFERRED.map((p, i) => {
+              const on = i === active
+              return (
+                <button
+                  key={p.name}
+                  type="button"
+                  aria-pressed={on}
+                  aria-label={p.name}
+                  onMouseEnter={() => setActive(i)}
+                  onFocus={() => setActive(i)}
+                  onClick={() => setActive(i)}
+                  className={`group relative isolate overflow-hidden rounded-[24px] sm:rounded-[28px] bg-[#06501b] text-left transition-[flex-grow,height] duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#096c27] focus-visible:ring-offset-2 focus-visible:ring-offset-[#f3f8e6] motion-reduce:transition-none lg:min-w-0 lg:basis-0 ${
+                    on ? 'h-72 sm:h-80 lg:h-auto lg:grow-[6]' : 'h-16 sm:h-[4.75rem] lg:h-auto lg:grow'
+                  }`}
+                >
+                  <img
+                    src={p.image}
+                    alt=""
+                    loading="lazy"
+                    className={`absolute inset-0 -z-10 h-full w-full object-cover transition-transform duration-[1200ms] ease-[cubic-bezier(0.16,1,0.3,1)] motion-reduce:transition-none ${
+                      on ? 'scale-100' : 'scale-110'
+                    }`}
+                  />
+                  <span
+                    aria-hidden
+                    className="absolute inset-0 -z-10 bg-gradient-to-t from-[#0b1f12]/90 via-[#0b1f12]/20 to-[#0b1f12]/30"
+                  />
+                  <span
+                    aria-hidden
+                    className={`absolute inset-0 -z-10 bg-[#06501b] transition-opacity duration-700 ${
+                      on ? 'opacity-0' : 'opacity-60'
+                    }`}
+                  />
+
+                  {/* collapsed label: row on mobile, vertical on desktop */}
+                  <span
+                    className={`absolute inset-0 flex items-center justify-between gap-4 px-5 transition-opacity duration-500 lg:hidden ${
+                      on ? 'opacity-0' : 'opacity-100 delay-300 motion-reduce:delay-0'
+                    }`}
+                  >
+                    <span className="truncate text-lg font-semibold tracking-[-0.02em]" style={HEADING_FONT}>
+                      {p.name}
+                    </span>
+                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-white/30">
+                      <ArrowUpRight className="h-4 w-4 stroke-[2.5]" />
+                    </span>
+                  </span>
+                  <span
+                    className={`absolute inset-0 hidden flex-col items-center justify-between py-5 transition-opacity duration-500 lg:flex ${
+                      on ? 'opacity-0' : 'opacity-100 delay-300 motion-reduce:delay-0'
+                    }`}
+                  >
+                    <span className="flex h-9 w-9 items-center justify-center rounded-full border border-white/30">
+                      <ArrowUpRight className="h-4 w-4 stroke-[2.5]" />
+                    </span>
+                    <span
+                      className="rotate-180 whitespace-nowrap text-[clamp(1rem,1.7vw,1.5rem)] font-semibold tracking-[-0.02em] text-white/90 [writing-mode:vertical-rl]"
+                      style={HEADING_FONT}
+                    >
+                      {p.name}
+                    </span>
+                  </span>
+
+                  {/* open state */}
+                  <span
+                    className={`absolute inset-0 flex flex-col justify-between p-5 transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] sm:p-6 lg:p-8 ${
+                      on
+                        ? 'translate-y-0 opacity-100 delay-300 motion-reduce:delay-0'
+                        : 'pointer-events-none translate-y-4 opacity-0'
+                    }`}
+                  >
+                    <span className="flex items-start justify-end gap-3">
+                      <span className="flex shrink-0 items-center gap-2 rounded-full bg-[#b3d565] px-3.5 py-1.5 text-xs font-semibold text-[#0b1f12]">
+                        <span className="h-1.5 w-1.5 rounded-full bg-[#096c27]" />
+                        Preferred partner
+                      </span>
+                    </span>
+
+                    <span className="block">
+                      <span
+                        className="block text-[clamp(1.6rem,min(3.2vw,5svh),3rem)] font-semibold leading-[1.02] tracking-[-0.03em] text-white"
+                        style={HEADING_FONT}
+                      >
+                        {p.name}
+                      </span>
+                      {p.location && (
+                        <span className="mt-2 block text-sm text-white/80" style={HEADING_FONT}>
+                          {p.location}
+                        </span>
+                      )}
+                    </span>
+                  </span>
+                </button>
+              )
+            })}
+          </div>
+        </div>
+      </div>
+
+      {/* ---------- mini scrollers (#f3f8e6) ---------- */}
+      <div className="shrink-0 border-t border-[#096c27]/10 bg-[#f3f8e6] py-5 text-[#0b1f12] lg:py-[clamp(0.6rem,2svh,1.25rem)]">
+        <div className="mx-auto flex max-w-[1440px] flex-col gap-3 px-4 sm:px-8 lg:gap-[clamp(0.4rem,1.2svh,0.75rem)] lg:px-12">
+          <LogoRow label="Hotel partners" items={PREFERRED} duration={36} />
+          <LogoRow label="Travel partners" items={TRAVEL} duration={44} reverse />
+        </div>
+      </div>
+    </section>
   )
 }

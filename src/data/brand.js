@@ -3,11 +3,17 @@ export const brand = {
   tagline: 'DISCOVER. EXPLORE. EXPERIENCE.',
   description:
     "Whether you're craving a beach escape, a thrilling mountain track, or a cultural city tour, we've got the perfect getaway for you.",
-  location: 'Hallstatt, Austria & Global Destinations',
-  phone: '+1 (800) 874-7625',
+  location: 'New Delhi & Global Destinations',
+  phone: '8130701133',
+  customerCare: '8130701133',
   email: 'info@countryholidaysinnsuites.com',
-  whatsapp: '+1 (800) 874-7625',
-  address: 'Hauptstraße 12, 4830 Hallstatt, Austria',
+  customerCareEmail: 'customercare@countryholidaysinnsuites.com',
+  whatsapp: '8130701133',
+  address: '126, 1st Floor, Devika Tower 6, Nehru Place, New Delhi - 110019',
+  membershipEnquiry: {
+    phone: '8130701133',
+    email: 'info@countryholidaysinnsuites.com',
+  },
   socials: {
     instagram: 'https://instagram.com',
     facebook: 'https://facebook.com',

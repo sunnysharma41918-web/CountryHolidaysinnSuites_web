@@ -3,8 +3,8 @@ export const footerLinks = {
     { label: 'Home', path: '/' },
     { label: 'About Us', path: '/about' },
     { label: 'Destinations', path: '/destinations' },
-    { label: 'Tours', path: '/tours' },
-    { label: 'Travel Blog', path: '/blog' },
+    { label: 'Vacation Packages', path: '/vacation-packages' },
+    { label: 'Activities & Experiences', path: '/activity' },
   ],
   destinations: [
     { label: 'Poland, Tatra Mountains', path: '/destinations' },

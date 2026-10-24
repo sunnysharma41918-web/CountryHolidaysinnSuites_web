@@ -186,19 +186,8 @@ export default function Navbar({ onBookNow }) {
           </button>
         </div>
 
-        {/* Mobile Controls (< sm) */}
+        {/* Mobile Controls (< lg) */}
         <div className="flex items-center gap-2.5 lg:hidden">
-          <button
-            type="button"
-            onClick={handleBookNowClick}
-            className={`rounded-full px-4 py-1.5 text-xs font-bold shadow-sm transition-transform active:scale-95 ${isLightNavbar
-                ? 'bg-[#ff5938] text-white'
-                : 'bg-white text-slate-900'
-              }`}
-          >
-            Sign up
-          </button>
-
           <button
             type="button"
             onClick={() => setMobileOpen(!mobileOpen)}
@@ -216,10 +205,10 @@ export default function Navbar({ onBookNow }) {
 
       {/* Mobile Drawer Menu */}
       <div
-        className={`lg:hidden overflow-hidden transition-all duration-500 ease-in-out ${mobileOpen ? 'max-h-[80vh] opacity-100 mt-3' : 'max-h-0 opacity-0 mt-0 pointer-events-none'
+        className={`lg:hidden overflow-hidden transition-all duration-500 ease-in-out ${mobileOpen ? 'max-h-[85vh] opacity-100 mt-3' : 'max-h-0 opacity-0 mt-0 pointer-events-none'
           }`}
       >
-        <div className="mx-4 max-h-[80vh] overflow-y-auto rounded-3xl border border-white/15 bg-slate-950/95 p-5 shadow-2xl backdrop-blur-2xl sm:mx-8">
+        <div className="mx-3 flex max-h-[85vh] flex-col gap-2 overflow-y-auto rounded-3xl border border-white/15 bg-slate-950/95 p-4 shadow-2xl backdrop-blur-2xl sm:mx-6 sm:p-5">
           {navigation.map((item) => (
             item.label === 'DESTINATIONS' ? (
               <div key={item.label} className="rounded-2xl border border-white/10 p-3">
@@ -243,7 +232,7 @@ export default function Navbar({ onBookNow }) {
                 to={item.path}
                 onClick={() => setMobileOpen(false)}
                 className={({ isActive }) =>
-                  `px-4 py-2.5 rounded-2xl text-sm transition-all duration-200 ${isActive
+                  `block px-4 py-2.5 rounded-2xl text-sm transition-all duration-200 ${isActive
                     ? 'bg-white text-slate-900 font-bold shadow-sm'
                     : 'text-white/80 hover:text-white hover:bg-white/10'
                   }`

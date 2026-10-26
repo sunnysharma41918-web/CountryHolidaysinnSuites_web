@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
-import { ArrowUpRight, Heart } from 'lucide-react'
+import { ArrowUpRight, Calendar, Heart, MapPin } from 'lucide-react'
 
 const EASE = [0.16, 1, 0.3, 1]
 
@@ -10,7 +10,7 @@ export const DESTINATIONS = [
     name: 'Bali',
     region: 'Indonesia',
     category: 'Island',
-    tagline: 'Rice terraces, temples and surf.',
+    tagline: 'Rice terraces, sacred water temples and tropical surf.',
     bestTime: 'Apr – Oct',
     image:
       'https://images.unsplash.com/photo-1537996194471-e657df975ab4?auto=format&fit=crop&w=900&q=80',
@@ -19,18 +19,18 @@ export const DESTINATIONS = [
     id: 'kashmir',
     name: 'Kashmir',
     region: 'Jammu & Kashmir, India',
-    category: 'Mountains',
-    tagline: 'Houseboats, snow peaks and saffron fields.',
+    category: 'Himalayas',
+    tagline: 'Dal lake houseboats, snow peaks and pine meadows.',
     bestTime: 'Mar – Oct',
     image:
-      'https://images.unsplash.com/photo-1566837945700-30057527ade0?auto=format&fit=crop&w=900&q=80',
+      'https://images.unsplash.com/photo-1595815771614-ade9d652a65d?auto=format&fit=crop&w=900&q=80',
   },
   {
     id: 'dubai',
     name: 'Dubai',
     region: 'United Arab Emirates',
-    category: 'City',
-    tagline: 'Skyline views, desert dunes and shopping.',
+    category: 'Metropolis',
+    tagline: 'Futuristic skylines, desert dunes and luxury retreats.',
     bestTime: 'Nov – Mar',
     image:
       'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?auto=format&fit=crop&w=900&q=80',
@@ -39,8 +39,8 @@ export const DESTINATIONS = [
     id: 'maldives',
     name: 'Maldives',
     region: 'Indian Ocean',
-    category: 'Island',
-    tagline: 'Overwater villas and glassy lagoons.',
+    category: 'Atoll & Lagoon',
+    tagline: 'Overwater luxury villas and turquoise coral lagoons.',
     bestTime: 'Nov – Apr',
     image:
       'https://images.unsplash.com/photo-1514282401047-d79a71a590e8?auto=format&fit=crop&w=900&q=80',
@@ -52,107 +52,100 @@ export default function RecreationSection({ onBookTrip }) {
   const toggleLike = (id) => setLiked((prev) => ({ ...prev, [id]: !prev[id] }))
 
   return (
-    <section
-      id="recreation"
-      className="relative w-full overflow-hidden bg-[#f3f8e6] text-[#0b1f12] py-12 sm:py-16 lg:h-[100svh] lg:py-0"
-    >
-      <div className="mx-auto flex h-full max-w-[1440px] flex-col gap-6 px-4 sm:px-8 lg:gap-6 lg:px-12 lg:py-8">
-        {/* Header */}
-        <div className="flex shrink-0 items-end justify-between gap-6 border-t border-[#096c27]/25 pt-3">
-          <div className="min-w-0">
-            <span className="flex items-center gap-2 text-sm font-medium text-[#096c27]">
-              <span className="h-2 w-2 animate-pulse rounded-full bg-[#096c27] ring-1 ring-[#096c27]/30" />
+    <section id="recreation" className="relative w-full bg-[#f3f8e6] text-[#0b1f12] py-20 sm:py-28">
+      <div className="mx-auto max-w-7xl px-4 sm:px-8 lg:px-12">
+        {/* Section Header */}
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between border-b border-[#096c27]/20 pb-8">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#096c27]">
               Where travelers go
-            </span>
-            <motion.h2
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: '-60px' }}
-              transition={{ duration: 0.9, ease: EASE }}
-              className="mt-2 max-w-3xl text-[clamp(1.75rem,min(5vw,7.5vh),4.5rem)] font-semibold leading-[1] tracking-[-0.04em] text-[#0b1f12]"
-              style={{ fontFamily: "'Outfit', sans-serif" }}
-            >
+            </p>
+            <h2 className="mt-2 font-montserrat text-3xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-[#0b1f12]">
               Our most-loved destinations
-            </motion.h2>
+            </h2>
           </div>
-          <p className="hidden max-w-xs text-sm leading-relaxed text-[#0b1f12]/75 md:block">
+          <p className="max-w-xs text-xs sm:text-sm leading-relaxed text-[#0b1f12]/75">
             Four places our travelers love most, with stays and trips we plan end to end.
           </p>
         </div>
 
-        {/* Four arch cards */}
-        <div className="grid min-h-0 flex-1 grid-cols-1 gap-y-12 sm:grid-cols-2 sm:gap-x-6 sm:gap-y-12 lg:grid-cols-4 lg:grid-rows-1 lg:gap-x-6 lg:gap-y-0">
+        {/* Four Arched Destination Cards */}
+        <div className="mt-12 grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4 sm:gap-6">
           {DESTINATIONS.map((d, i) => {
             const isLiked = liked[d.id]
             return (
               <motion.article
                 key={d.id}
-                initial={{ opacity: 0, y: 40 }}
+                initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: '-20px' }}
-                transition={{ duration: 0.8, delay: i * 0.1, ease: EASE }}
-                className={`group flex min-h-0 flex-col ${
-                  i % 2 === 1 ? 'lg:h-[calc(100%-2rem)] lg:self-end' : 'lg:h-full'
-                }`}
+                viewport={{ once: true, amount: 0.2 }}
+                transition={{ duration: 0.7, delay: i * 0.1, ease: EASE }}
+                className="group flex flex-col"
               >
-                {/* Arch photo */}
-                <div className="relative h-[340px] sm:h-[380px] lg:h-auto lg:min-h-0 lg:flex-1">
-                  <div className="absolute inset-0 overflow-hidden rounded-b-3xl rounded-t-[999px] bg-[#06501b] shadow-md">
-                    <img
-                      src={d.image}
-                      alt={`${d.name}, ${d.region}`}
-                      loading="lazy"
-                      className="h-full w-full object-cover transition-transform duration-[900ms] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-110 motion-reduce:transition-none"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-[#0b1f12]/80 via-transparent to-[#0b1f12]/20" />
-                  </div>
+                {/* Arch Photo Container */}
+                <div className="relative aspect-[3/4] w-full overflow-hidden rounded-b-3xl rounded-t-[999px] bg-[#06501b] shadow-md transition-all duration-500 hover:shadow-xl">
+                  <img
+                    src={d.image}
+                    alt={`${d.name}, ${d.region}`}
+                    loading="lazy"
+                    className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#0b1f12]/85 via-black/20 to-transparent" />
 
-                  <span className="absolute bottom-3 left-3 rounded-full bg-white/20 px-3 py-1 text-[11px] font-medium backdrop-blur-md sm:bottom-4 sm:left-4 sm:px-3.5 sm:py-1.5 sm:text-xs text-white">
+                  {/* Category Pill */}
+                  <span className="absolute bottom-4 left-4 rounded-full bg-white/20 px-3 py-1 text-[11px] font-semibold uppercase tracking-wider text-white backdrop-blur-md ring-1 ring-white/20">
                     {d.category}
                   </span>
 
+                  {/* Save / Favorite Button */}
                   <button
                     type="button"
                     onClick={() => toggleLike(d.id)}
                     aria-pressed={!!isLiked}
                     aria-label={`Save ${d.name}`}
-                    className="absolute right-3 top-[22%] flex h-9 w-9 items-center justify-center rounded-full bg-white/20 backdrop-blur-md transition-all duration-300 hover:bg-white hover:text-red-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white active:scale-90 sm:right-4 sm:h-10 sm:w-10"
+                    className="absolute right-4 top-5 flex h-9 w-9 items-center justify-center rounded-full bg-black/25 text-white backdrop-blur-md transition-all duration-300 hover:bg-white hover:text-red-500 active:scale-95"
                   >
                     <Heart className={`h-4 w-4 ${isLiked ? 'fill-red-500 text-red-500' : 'text-white'}`} />
                   </button>
 
-                  {/* Book button overlapping the arch's bottom edge */}
+                  {/* Book / Explore Trigger */}
                   <button
                     type="button"
                     onClick={() => onBookTrip && onBookTrip(d)}
-                    aria-label={`Book trip to ${d.name}`}
-                    className="absolute -bottom-6 right-3 z-10 flex h-12 w-12 items-center justify-center rounded-full border-4 border-[#f3f8e6] bg-[#096c27] text-white shadow-md transition-all duration-500 hover:rotate-45 hover:bg-[#b3d565] hover:text-[#096c27] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#096c27] active:scale-90 sm:right-5 sm:h-14 sm:w-14"
+                    aria-label={`Plan trip to ${d.name}`}
+                    className="absolute bottom-3 right-3 flex h-11 w-11 items-center justify-center rounded-full bg-white text-[#096c27] shadow-lg transition-transform duration-300 hover:scale-110 hover:bg-[#096c27] hover:text-white"
                   >
                     <ArrowUpRight className="h-5 w-5 stroke-[2.5]" />
                   </button>
                 </div>
 
-                {/* Info */}
-                <div className="mt-3 shrink-0 pr-14 sm:mt-4 sm:pr-16">
-                  <p className="truncate text-xs font-medium text-[#096c27]">{d.region}</p>
-                  <h3
-                    className="mt-0.5 text-[clamp(1.5rem,min(2.6vw,5vh),2.75rem)] font-semibold leading-none tracking-[-0.03em] text-[#0b1f12] transition-colors duration-300 group-hover:text-[#096c27]"
-                    style={{ fontFamily: "'Outfit', sans-serif" }}
-                  >
+                {/* Card Details */}
+                <div className="mt-4 flex flex-col">
+                  <div className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-[#096c27]">
+                    <MapPin className="h-3.5 w-3.5" />
+                    <span className="truncate">{d.region}</span>
+                  </div>
+
+                  <h3 className="mt-1 font-montserrat text-2xl font-bold tracking-tight text-[#0b1f12] transition-colors group-hover:text-[#096c27]">
                     {d.name}
                   </h3>
-                  <p className="mt-2 hidden line-clamp-2 text-sm leading-snug text-[#0b1f12]/75 sm:block">
+
+                  <p className="mt-1.5 line-clamp-2 text-xs sm:text-sm leading-relaxed text-[#0b1f12]/75">
                     {d.tagline}
                   </p>
-                  <p className="mt-1.5 text-xs text-[#0b1f12]/70 sm:mt-2">
-                    Best time <span className="font-semibold text-[#0b1f12]">{d.bestTime}</span>
-                    {(d.duration || d.price) && (
-                      <span>
-                        {' '}
-                        · {[d.duration, d.price && `from ${d.price}`].filter(Boolean).join(' · ')}
-                      </span>
-                    )}
-                  </p>
+
+                  <div className="mt-3 flex items-center justify-between border-t border-[#096c27]/15 pt-2.5 text-xs text-[#0b1f12]/70">
+                    <span className="inline-flex items-center gap-1 font-medium">
+                      <Calendar className="h-3.5 w-3.5 text-[#096c27]" /> Best: {d.bestTime}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => onBookTrip && onBookTrip(d)}
+                      className="font-semibold text-[#096c27] hover:underline"
+                    >
+                      Plan Trip &rarr;
+                    </button>
+                  </div>
                 </div>
               </motion.article>
             )

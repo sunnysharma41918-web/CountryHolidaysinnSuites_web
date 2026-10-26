@@ -19,7 +19,7 @@ const LIME = '#c5f82a'
 const SLIDE_SECS = 6.5 // time each destination stays on screen
 
 const display = { fontFamily: "'Bebas Neue', Impact, sans-serif" }
-const heading = { fontFamily: "'Outfit', system-ui, sans-serif" }
+const heading = { fontFamily: "'Montserrat', sans-serif" }
 const script = { fontFamily: "'Caveat', cursive" }
 
 const photo = (id, w) =>

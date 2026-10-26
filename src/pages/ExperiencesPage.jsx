@@ -66,11 +66,36 @@ const WHY = [
 ]
 
 const CATEGORIES = [
-  { name: 'Adventure', span: 'lg:col-span-5', bg: '#b3d565', fg: '#0b1f12' },
-  { name: 'Water Sports', span: 'lg:col-span-7', bg: '#096c27', fg: '#ffffff' },
-  { name: 'Culture & Heritage', span: 'lg:col-span-4', bg: '#f3f8e6', fg: '#0b1f12' },
-  { name: 'Wellness & Spa', span: 'lg:col-span-4', bg: '#ffffff', fg: '#0b1f12' },
-  { name: 'Wildlife & Nature', span: 'lg:col-span-4', bg: '#06501b', fg: '#ffffff' },
+  {
+    name: 'Adventure',
+    span: 'lg:col-span-5',
+    image: 'https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=1200&q=80',
+    fallbackBg: '#1f4827',
+  },
+  {
+    name: 'Water Sports',
+    span: 'lg:col-span-7',
+    image: 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?auto=format&fit=crop&w=1200&q=80',
+    fallbackBg: '#096c27',
+  },
+  {
+    name: 'Culture & Heritage',
+    span: 'lg:col-span-4',
+    image: 'https://images.unsplash.com/photo-1524492412937-b28074a5d7da?auto=format&fit=crop&w=1200&q=80',
+    fallbackBg: '#3a2d1d',
+  },
+  {
+    name: 'Wellness & Spa',
+    span: 'lg:col-span-4',
+    image: 'https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=1200&q=80',
+    fallbackBg: '#1b3a2b',
+  },
+  {
+    name: 'Wildlife & Nature',
+    span: 'lg:col-span-4',
+    image: 'https://images.unsplash.com/photo-1516426122078-c23e76319801?auto=format&fit=crop&w=1200&q=80',
+    fallbackBg: '#06501b',
+  },
 ]
 
 const ACTIVITIES = [
@@ -97,6 +122,46 @@ const ACTIVITIES = [
     locations: ['Andaman', 'Maldives', 'Red Sea'],
     gradient: 'linear-gradient(135deg,#0e5c26 0%,#06501b 55%,#0b1f12 100%)',
     image: scubaImage,
+  },
+  {
+    id: 'trekking',
+    title: 'Himalayan Ridge Trek',
+    category: 'Adventure',
+    locations: ['Manali', 'Ladakh', 'Tatra Mountains'],
+    gradient: 'linear-gradient(135deg,#1f4827 0%,#0b1f12 100%)',
+    image: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1200&q=80',
+  },
+  {
+    id: 'paragliding',
+    title: 'Tandem Paragliding Flight',
+    category: 'Adventure',
+    locations: ['Bir Billing', 'Interlaken', 'Pokhara'],
+    gradient: 'linear-gradient(135deg,#2f683a 0%,#0b1f12 100%)',
+    image: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&q=80',
+  },
+  {
+    id: 'heritage-tour',
+    title: 'Royal Palace Architecture',
+    category: 'Culture & Heritage',
+    locations: ['Agra', 'Jaipur', 'Udaipur'],
+    gradient: 'linear-gradient(135deg,#4a3828 0%,#1b130e 100%)',
+    image: 'https://images.unsplash.com/photo-1564507592333-c60657eea523?auto=format&fit=crop&w=1200&q=80',
+  },
+  {
+    id: 'ayurveda-spa',
+    title: 'Ayurvedic Wellness Retreat',
+    category: 'Wellness & Spa',
+    locations: ['Alleppey', 'Rishikesh', 'Bali'],
+    gradient: 'linear-gradient(135deg,#1b3a2b 0%,#091e14 100%)',
+    image: 'https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=1200&q=80',
+  },
+  {
+    id: 'wildlife-safari',
+    title: 'Royal Tiger Jungle Safari',
+    category: 'Wildlife & Nature',
+    locations: ['Ranthambore', 'Corbett', 'Bandhavgarh'],
+    gradient: 'linear-gradient(135deg,#06501b 0%,#04260d 100%)',
+    image: 'https://images.unsplash.com/photo-1516426122078-c23e76319801?auto=format&fit=crop&w=1200&q=80',
   },
 ]
 
@@ -134,7 +199,7 @@ function SectionHead({ eyebrow, title, accent, copy }) {
         {eyebrow}
       </p>
       <div className="lg:col-span-9">
-        <h2 className="m-0 font-nunito text-[clamp(36px,6.8vw,110px)] font-light uppercase leading-[0.9] tracking-[-0.05em] text-[#0b1f12]">
+        <h2 className="m-0 font-poppins text-[clamp(36px,6.8vw,110px)] font-light uppercase leading-[0.9] tracking-[-0.05em] text-[#0b1f12]">
           {title} <span className="font-normal italic text-[#096c27]">{accent}</span>
         </h2>
         {copy && <p className="mb-0 mt-5 max-w-[520px] font-sans text-[16px] leading-relaxed text-[#0b1f12]/75">{copy}</p>}
@@ -161,7 +226,7 @@ export default function RoadTripHome() {
 
   return (
     <PageTransition>
-      <main className="relative overflow-hidden bg-white text-[#0b1f12] antialiased selection:bg-[#b3d565] selection:text-[#0b1f12]">
+      <main className="page-activity relative overflow-hidden bg-white text-[#0b1f12] antialiased selection:bg-[#b3d565] selection:text-[#0b1f12]">
         {/* ============================ HERO ============================ */}
         <section className="relative isolate flex min-h-[100svh] w-full flex-col overflow-hidden bg-[#096c27] text-white">
           {/* Video Layer */}
@@ -200,7 +265,7 @@ export default function RoadTripHome() {
               {HERO_COPY}
             </p>
 
-            <h1 className="m-0 text-center font-nunito text-[clamp(48px,min(13.5vw,23svh),220px)] font-light uppercase leading-[0.85] tracking-[-0.055em] text-white">
+            <h1 className="m-0 text-center font-poppins text-[clamp(48px,min(13.5vw,23svh),220px)] font-light uppercase leading-[0.85] tracking-[-0.055em] text-white">
               <Rise text={HERO.top} reduced={reduced} className="block" />
               <Rise text={HERO.bottom} start={0.15} reduced={reduced} className="block italic text-[#b3d565]" />
             </h1>
@@ -233,11 +298,11 @@ export default function RoadTripHome() {
                   style={{ background: w.bg, color: w.fg }}
                   className={`flex min-h-[320px] flex-col justify-between rounded-[2rem] border p-7 shadow-sm transition-shadow duration-300 hover:shadow-xl sm:min-h-[380px] sm:p-8 ${w.border}`}
                 >
-                  <span className={`font-nunito text-[64px] font-light leading-none tracking-[-0.06em] ${w.numClass}`}>
+                  <span className={`font-poppins text-[64px] font-light leading-none tracking-[-0.06em] ${w.numClass}`}>
                     {pad(i + 1)}
                   </span>
                   <div>
-                    <h3 className="m-0 font-nunito text-[clamp(24px,2.4vw,34px)] font-light uppercase leading-[0.98] tracking-[-0.04em]">
+                    <h3 className="m-0 font-poppins text-[clamp(24px,2.4vw,34px)] font-light uppercase leading-[0.98] tracking-[-0.04em]">
                       {w.t}
                     </h3>
                     <p className={`mb-0 mt-3 font-sans text-[15px] leading-relaxed ${w.dark ? 'text-white/80' : 'text-[#0b1f12]/75'}`}>
@@ -273,21 +338,41 @@ export default function RoadTripHome() {
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true, amount: 0.3 }}
                     transition={{ duration: 0.8, ease: EASE, delay: i * 0.06 }}
-                    whileHover={reduced ? undefined : { scale: 0.985 }}
-                    style={{ background: c.bg, color: c.fg }}
-                    className={`group relative flex min-h-[220px] flex-col justify-between overflow-hidden rounded-[2rem] border border-[#096c27]/15 p-7 text-left transition-all duration-300 focus:outline-none focus-visible:ring-4 focus-visible:ring-[#b3d565]/60 sm:min-h-[260px] sm:p-8 ${c.span} ${
-                      on ? 'ring-4 ring-[#096c27] shadow-xl' : 'hover:shadow-md'
+                    whileHover={reduced ? undefined : { scale: 0.99 }}
+                    style={{ backgroundColor: c.fallbackBg || '#06501b' }}
+                    className={`group relative flex min-h-[230px] flex-col justify-between overflow-hidden rounded-[2rem] border p-7 text-left transition-all duration-500 focus:outline-none focus-visible:ring-4 focus-visible:ring-[#b3d565]/60 sm:min-h-[270px] sm:p-8 ${c.span} ${
+                      on
+                        ? 'border-[#b3d565] ring-4 ring-[#096c27] shadow-2xl scale-[1.01]'
+                        : 'border-white/15 hover:border-white/40 hover:shadow-xl'
                     }`}
                   >
-                    <div className="flex items-start justify-between">
-                      <span className="text-[11px] font-semibold uppercase tracking-[0.2em] opacity-80">
+                    {/* Background image */}
+                    {c.image && (
+                      <img
+                        src={c.image}
+                        alt={c.name}
+                        loading="lazy"
+                        className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+                      />
+                    )}
+
+                    {/* Gradient & Brand atmosphere overlay */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/45 to-black/30 transition-opacity duration-300 group-hover:from-black/95" />
+                    <div className="absolute inset-0 bg-[#096c27]/20 mix-blend-multiply" />
+
+                    {/* Header: counter badge + arrow button */}
+                    <div className="relative z-10 flex items-start justify-between">
+                      <span className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-black/45 px-3.5 py-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-white/95 backdrop-blur-md">
+                        <span className="h-1.5 w-1.5 rounded-full bg-[#b3d565]" />
                         {pad(n)} {n === 1 ? 'experience' : 'experiences'}
                       </span>
-                      <span className="grid h-11 w-11 place-items-center rounded-full border border-current transition-transform duration-500 group-hover:rotate-45">
+                      <span className="grid h-11 w-11 place-items-center rounded-full border border-white/30 bg-white/10 text-white backdrop-blur-md transition-all duration-500 group-hover:rotate-45 group-hover:bg-[#b3d565] group-hover:text-[#0b1f12]">
                         <ArrowUpRight className="h-4 w-4" />
                       </span>
                     </div>
-                    <h3 className="m-0 font-nunito text-[clamp(28px,3.6vw,56px)] font-light uppercase leading-[0.92] tracking-[-0.045em]">
+
+                    {/* Category Title */}
+                    <h3 className="relative z-10 m-0 font-poppins text-[clamp(28px,3.6vw,56px)] font-light uppercase leading-[0.92] tracking-[-0.045em] text-white drop-shadow-md">
                       {c.name}
                     </h3>
                   </motion.button>
@@ -337,13 +422,13 @@ export default function RoadTripHome() {
 
                       <span
                         aria-hidden
-                        className="pointer-events-none absolute right-3 top-1/3 select-none font-nunito text-[clamp(120px,14vw,220px)] font-light leading-none tracking-[-0.07em] text-transparent [-webkit-text-stroke:1.5px_rgba(179,213,101,0.35)] transition-transform duration-700 group-hover:-translate-y-3"
+                        className="pointer-events-none absolute right-3 top-1/3 select-none font-poppins text-[clamp(120px,14vw,220px)] font-light leading-none tracking-[-0.07em] text-transparent [-webkit-text-stroke:1.5px_rgba(179,213,101,0.35)] transition-transform duration-700 group-hover:-translate-y-3"
                       >
                         {pad(i + 1)}
                       </span>
 
                       <div className="relative z-10">
-                        <h3 className="m-0 font-nunito text-[clamp(28px,3vw,44px)] font-light uppercase leading-[0.95] tracking-[-0.04em] text-white">
+                        <h3 className="m-0 font-poppins text-[clamp(28px,3vw,44px)] font-light uppercase leading-[0.95] tracking-[-0.04em] text-white">
                           {a.title}
                         </h3>
                         <ul className="m-0 mt-4 flex list-none flex-wrap gap-2 p-0">
@@ -380,7 +465,7 @@ export default function RoadTripHome() {
                   transition={{ duration: 0.4, ease: EASE }}
                   className="mt-12 rounded-[2rem] border border-[#096c27]/25 bg-white p-10 sm:p-14"
                 >
-                  <p className="m-0 font-nunito text-[clamp(32px,5vw,72px)] font-light uppercase leading-[0.92] tracking-[-0.05em] text-[#0b1f12]">
+                  <p className="m-0 font-poppins text-[clamp(32px,5vw,72px)] font-light uppercase leading-[0.92] tracking-[-0.05em] text-[#0b1f12]">
                     Coming <span className="italic text-[#096c27]">soon.</span>
                   </p>
                   <p className="mb-0 mt-4 max-w-[380px] font-sans text-[15px] leading-relaxed text-[#0b1f12]/70">
@@ -393,29 +478,29 @@ export default function RoadTripHome() {
         </section>
 
         {/* ============================ CTA ============================ */}
-        <section className="relative isolate overflow-hidden bg-[#096c27] text-white px-5 py-24 sm:px-8 sm:py-32 lg:px-12">
-          {/* Atmosphere and Concentric Rings */}
-          <div aria-hidden className="pointer-events-none absolute -bottom-40 left-1/2 h-[420px] w-[620px] -translate-x-1/2 rounded-full bg-[#b3d565]/25 blur-[130px]" />
-          <div aria-hidden className="pointer-events-none absolute -right-[10%] -top-[30%] h-[50vw] w-[50vw] rounded-full border border-white/10" />
+        <section className="relative isolate overflow-hidden bg-white text-[#0b1f12] px-5 py-24 sm:px-8 sm:py-32 lg:px-12 border-t border-[#096c27]/10">
+          {/* Subtle Atmosphere & Rings */}
+          <div aria-hidden className="pointer-events-none absolute -bottom-40 left-1/2 h-[420px] w-[620px] -translate-x-1/2 rounded-full bg-[#f3f8e6] blur-[100px]" />
+          <div aria-hidden className="pointer-events-none absolute -right-[10%] -top-[30%] h-[50vw] w-[50vw] rounded-full border border-[#096c27]/10" />
 
           <div className="relative z-10 mx-auto flex max-w-[1600px] flex-col items-start gap-10">
-            <h2 className="m-0 font-nunito text-[clamp(44px,9.5vw,160px)] font-light uppercase leading-[0.88] tracking-[-0.055em] text-white">
+            <h2 className="m-0 font-poppins text-[clamp(44px,9.5vw,160px)] font-light uppercase leading-[0.88] tracking-[-0.055em] text-[#0b1f12]">
               Start the
               <br />
-              <span className="italic text-[#b3d565]">adventure.</span>
+              <span className="italic text-[#096c27]">adventure.</span>
             </h2>
             <div className="flex w-full flex-wrap items-center justify-between gap-6">
               <button
                 type="button"
                 onClick={() => enquire('Custom activity & experience package')}
-                className="group inline-flex items-center gap-4 rounded-full bg-[#b3d565] py-2 pl-8 pr-2 text-[15px] font-semibold text-[#0b1f12] shadow-lg transition-all duration-300 hover:bg-[#c6e67e] hover:shadow-[0_0_40px_-6px_#b3d565] focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
+                className="group inline-flex items-center gap-4 rounded-full bg-[#096c27] py-2 pl-8 pr-2 text-[15px] font-semibold text-white shadow-lg shadow-[#096c27]/20 transition-all duration-300 hover:bg-[#06501b] hover:shadow-xl hover:shadow-[#096c27]/30 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#096c27]"
               >
                 <span>Plan your experience</span>
-                <span className="grid h-11 w-11 place-items-center rounded-full bg-[#096c27] text-white transition-transform duration-500 group-hover:rotate-[360deg]">
+                <span className="grid h-11 w-11 place-items-center rounded-full bg-[#b3d565] text-[#0b1f12] transition-transform duration-500 group-hover:rotate-[360deg]">
                   <ArrowUpRight className="h-4 w-4" />
                 </span>
               </button>
-              <p className="m-0 max-w-[340px] font-sans text-sm font-light leading-relaxed text-white/80">
+              <p className="m-0 max-w-[340px] font-sans text-sm font-light leading-relaxed text-[#0b1f12]/75">
                 Tell us where you are headed and what you would love to try. Our travel desk will curate every detail.
               </p>
             </div>

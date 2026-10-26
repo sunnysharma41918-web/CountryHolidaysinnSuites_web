@@ -78,8 +78,7 @@ const CARD_FACTS = {
 }
 
 const CSS = `
-@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500;1,600&display=swap');
-.cv-display { font-family: 'Cormorant Garamond', Georgia, 'Times New Roman', serif; }
+.cv-display { font-family: 'Epilogue', sans-serif; }
 @keyframes cv-shine { to { background-position: -200% 0; } }
 .cv-shimmer { background: linear-gradient(90deg,#096c27 0%,#7fb83a 50%,#096c27 100%); background-size: 200% 100%;
   -webkit-background-clip: text; background-clip: text; color: transparent; animation: cv-shine 4.5s linear infinite; }
@@ -542,7 +541,7 @@ export default function VacationPackagesPage() {
 
   return (
     <PageTransition>
-      <div ref={rootRef} className="relative w-full overflow-x-clip bg-[#faf6ea] font-sans text-[#10201a] antialiased selection:bg-[#b3d565] selection:text-[#10201a]">
+      <div ref={rootRef} className="page-packages relative w-full overflow-x-clip bg-[#faf6ea] font-sans text-[#10201a] antialiased selection:bg-[#b3d565] selection:text-[#10201a]">
         <style>{CSS}</style>
         <div data-progress aria-hidden="true" className="fixed inset-x-0 top-0 z-[70] h-[3px] bg-[#096c27]" />
 

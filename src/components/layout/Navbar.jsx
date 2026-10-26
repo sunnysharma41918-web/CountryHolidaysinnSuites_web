@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { NavLink, useLocation } from 'react-router-dom'
+import { NavLink, Link, useLocation } from 'react-router-dom'
 import { Menu, X, ArrowUpRight, ChevronDown } from 'lucide-react'
 import TripMakerLogo from '../ui/TripMakerLogo'
 import { navigation } from '../../data/navigation'
@@ -8,13 +8,14 @@ import DestinationMenuLinks from './DestinationMenuLinks'
 export default function Navbar({ onBookNow }) {
   const { pathname } = useLocation()
   const isDestinationRoute = pathname.startsWith('/destinations')
-  const isDestinationDetailRoute =
-    isDestinationRoute && pathname !== '/destinations' && !pathname.startsWith('/destinations/category/')
+  const isResortRoute = pathname.startsWith('/resorts')
+  const isDarkSolidNavbar = isDestinationRoute || isResortRoute
+
   const [mobileOpen, setMobileOpen] = useState(false)
   const [destinationsOpen, setDestinationsOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
   const [destinationsSectionVisible, setDestinationsSectionVisible] = useState(false)
-  const isLightNavbar = !isDestinationDetailRoute && (isDestinationRoute || destinationsSectionVisible)
+  const isLightNavbar = !isDarkSolidNavbar && destinationsSectionVisible
 
   // Scroll detection to adapt background on scroll
   useEffect(() => {
@@ -60,18 +61,6 @@ export default function Navbar({ onBookNow }) {
     }
   }
 
-  const handleLoginClick = () => {
-    setMobileOpen(false)
-    window.dispatchEvent(
-      new CustomEvent('open-booking-modal', {
-        detail: {
-          destination: 'Member Portal Login',
-          persons: '1 Person',
-          days: 'Member Access',
-        },
-      })
-    )
-  }
 
   // Convert ALL CAPS labels into clean Title Case like the reference design
   const formatLabel = (label) => {
@@ -85,7 +74,7 @@ export default function Navbar({ onBookNow }) {
   return (
     <header
       className={`fixed inset-x-0 top-0 z-50 font-sans transition-all duration-300 ${
-        isDestinationDetailRoute
+        isDarkSolidNavbar
           ? `border-b border-white/10 bg-black/95 shadow-2xl backdrop-blur-xl ${scrolled ? 'py-3.5' : 'py-5 sm:py-6'}`
           : isLightNavbar
             ? `border-b border-slate-200 bg-white/95 shadow-sm backdrop-blur-xl ${scrolled ? 'py-3.5' : 'py-5 sm:py-6'}`
@@ -106,7 +95,9 @@ export default function Navbar({ onBookNow }) {
           aria-label="Primary Navigation"
           className="hidden lg:flex items-center gap-7 xl:gap-9"
         >
-          {navigation.map((item) => (
+          {navigation
+            .filter((item) => item.label !== 'CONTACT')
+            .map((item) => (
             item.label === 'DESTINATIONS' ? (
               <div key={item.label} className="relative">
                 <button
@@ -159,31 +150,19 @@ export default function Navbar({ onBookNow }) {
           ))}
         </nav>
 
-        {/* Right: Outlined 'Login' + Solid 'Sign up' Pill Buttons */}
-        <div className="hidden sm:flex items-center gap-3">
-          {/* Outlined Pill: Login */}
-          <button
-            type="button"
-            onClick={handleLoginClick}
-            className={`rounded-full px-6 py-2 text-sm font-medium backdrop-blur-md transition-all duration-200 active:scale-95 ${isLightNavbar
-                ? 'border border-slate-300 bg-white text-slate-800 hover:bg-slate-100'
-                : 'border border-white/60 bg-white/[0.08] text-white hover:bg-white/20'
-              }`}
+        {/* Right: Single 'Contact Us' Pill Button */}
+        <div className="hidden sm:flex items-center">
+          <Link
+            to="/contact"
+            className={`rounded-full px-6 py-2.5 text-sm font-semibold tracking-wide transition-all duration-200 active:scale-95 flex items-center gap-1.5 shadow-md ${
+              isLightNavbar
+                ? 'bg-[#ff5938] text-white hover:bg-[#e84a28] shadow-[#ff5938]/25'
+                : 'bg-white text-slate-900 hover:bg-white/90 shadow-black/10'
+            }`}
           >
-            Login
-          </button>
-
-          {/* Solid White Pill: Sign up */}
-          <button
-            type="button"
-            onClick={handleBookNowClick}
-            className={`rounded-full px-6 py-2 text-sm font-bold shadow-md shadow-black/10 transition-all duration-200 active:scale-95 ${isLightNavbar
-                ? 'bg-[#ff5938] text-white hover:bg-[#e84a28]'
-                : 'bg-white text-slate-900 hover:bg-white/90'
-              }`}
-          >
-            Sign up
-          </button>
+            <span>Contact Us</span>
+            <ArrowUpRight className="w-4 h-4" />
+          </Link>
         </div>
 
         {/* Mobile Controls (< lg) */}
@@ -209,7 +188,9 @@ export default function Navbar({ onBookNow }) {
           }`}
       >
         <div className="mx-3 flex max-h-[85vh] flex-col gap-2 overflow-y-auto rounded-3xl border border-white/15 bg-slate-950/95 p-4 shadow-2xl backdrop-blur-2xl sm:mx-6 sm:p-5">
-          {navigation.map((item) => (
+          {navigation
+            .filter((item) => item.label !== 'CONTACT')
+            .map((item) => (
             item.label === 'DESTINATIONS' ? (
               <div key={item.label} className="rounded-2xl border border-white/10 p-3">
                 <NavLink
@@ -243,23 +224,16 @@ export default function Navbar({ onBookNow }) {
             )
           ))}
 
-          {/* Mobile Action Buttons */}
-          <div className="mt-3 pt-3 border-t border-white/10 flex items-center gap-3">
-            <button
-              type="button"
-              onClick={handleLoginClick}
-              className="flex-1 py-3 rounded-full border border-white/50 bg-white/10 text-white font-medium text-xs text-center transition active:scale-95"
+          {/* Mobile Action Button */}
+          <div className="mt-3 pt-3 border-t border-white/10 flex">
+            <Link
+              to="/contact"
+              onClick={() => setMobileOpen(false)}
+              className="w-full py-3 rounded-full bg-white text-slate-900 font-bold text-xs text-center shadow-lg transition active:scale-95 flex items-center justify-center gap-1.5"
             >
-              Login
-            </button>
-            <button
-              type="button"
-              onClick={handleBookNowClick}
-              className="flex-1 py-3 rounded-full bg-white text-slate-900 font-bold text-xs text-center shadow-lg transition active:scale-95 flex items-center justify-center gap-1.5"
-            >
-              <span>Sign up</span>
+              <span>Contact Us</span>
               <ArrowUpRight className="w-3.5 h-3.5 stroke-[2.5]" />
-            </button>
+            </Link>
           </div>
         </div>
       </div>

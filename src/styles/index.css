@@ -68,3 +68,68 @@ textarea {
   font-optical-sizing: auto;
   font-style: normal;
 }
+
+/* ==========================================================================
+   PAGE-SPECIFIC GOOGLE FONT TYPOGRAPHY SYSTEM
+   HOME -> Montserrat
+   ABOUT -> Mulish (Muli)
+   DESTINATIONS -> Sora
+   VACATION PACKAGES -> Epilogue
+   ACTIVITY -> Poppins
+   Body & small text combines with clean modern Plus Jakarta Sans
+   ========================================================================== */
+
+/* HOME: Montserrat for titles & headings */
+.page-home h1,
+.page-home h2,
+.page-home h3,
+.page-home h4,
+.page-home .font-display,
+.page-home .hero-heading,
+.font-montserrat {
+  font-family: 'Montserrat', sans-serif !important;
+}
+
+/* ABOUT: Mulish (Muli) for titles & headings */
+.page-about h1,
+.page-about h2,
+.page-about h3,
+.page-about h4,
+.page-about .font-display,
+.page-about .font-nunito,
+.font-mulish {
+  font-family: 'Mulish', 'Muli', sans-serif !important;
+}
+
+/* DESTINATIONS: Sora for titles & headings */
+.page-destinations h1,
+.page-destinations h2,
+.page-destinations h3,
+.page-destinations h4,
+.page-destinations .font-display,
+.font-sora {
+  font-family: 'Sora', sans-serif !important;
+}
+
+/* VACATION PACKAGES: Epilogue for titles & headings */
+.page-packages h1,
+.page-packages h2,
+.page-packages h3,
+.page-packages h4,
+.page-packages .cv-display,
+.page-packages .font-display,
+.font-epilogue {
+  font-family: 'Epilogue', sans-serif !important;
+}
+
+/* ACTIVITY: Poppins for titles & headings */
+.page-activity h1,
+.page-activity h2,
+.page-activity h3,
+.page-activity h4,
+.page-activity .font-nunito,
+.page-activity .font-display,
+.font-poppins {
+  font-family: 'Poppins', sans-serif !important;
+}
+

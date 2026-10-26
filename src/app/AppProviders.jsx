@@ -1,5 +1,10 @@
 import { BrowserRouter } from 'react-router-dom'
+import { AuthProvider } from '../context/AuthContext'
 
 export default function AppProviders({ children }) {
-  return <BrowserRouter>{children}</BrowserRouter>
+  return (
+    <BrowserRouter>
+      <AuthProvider>{children}</AuthProvider>
+    </BrowserRouter>
+  )
 }

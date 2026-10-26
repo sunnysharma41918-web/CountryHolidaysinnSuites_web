@@ -8,7 +8,7 @@ const EASE = [0.16, 1, 0.3, 1]
 const VIEW = { once: true, amount: 0.05 }
 
 /* Brand logo mark from /public */
-const LOGO_SRC = '/logo.png'
+const LOGO_SRC = '/logo-white.png'
 
 /*  Palette
     emerald  #0f3d22   deep forest  #07241a   ivory  #fbf7ee
@@ -124,6 +124,7 @@ const COLUMNS = [
       { label: 'Contact', to: '/contact' },
       { label: 'Member portal', href: 'https://member.countryholidaysinnsuites.com/' },
       { label: 'Redeem voucher', href: 'https://www.countryholidaysinnsuites.com/chis/voucher' },
+      { label: 'Admin portal', to: '/admin/login' },
       { label: 'Terms of use', to: '/terms' },
     ],
   },

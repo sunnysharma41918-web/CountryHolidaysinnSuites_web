@@ -1,4 +1,4 @@
-import { useRef } from 'react'
+import { useRef, useState, useEffect } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { motion, useReducedMotion, useScroll, useTransform } from 'framer-motion'
 import { ArrowDown, ArrowLeft, ArrowUpRight, MapPin } from 'lucide-react'
@@ -6,6 +6,7 @@ import PageTransition from '../components/layout/PageTransition'
 import ResortCard from '../components/ui/ResortCard'
 import { getDestinationBySlug } from '../data/destinations'
 import { resorts } from '../data/resorts'
+import { api } from '../services/api'
 
 const EASE = [0.16, 1, 0.3, 1]
 
@@ -50,9 +51,32 @@ export default function DestinationPropertiesPage() {
   const textOpacity = useTransform(scrollYProgress, [0, 0.7], [1, 0])
 
   const destination = getDestinationBySlug(slug)
-  const destinationResorts = destination
-    ? resorts.filter((resort) => resort.destination === destination.resortDestination)
-    : []
+  const [destinationResorts, setDestinationResorts] = useState(() =>
+    destination
+      ? resorts.filter((resort) => resort.destination === destination.resortDestination)
+      : []
+  )
+
+  useEffect(() => {
+    let mounted = true
+    if (!destination?.resortDestination) return
+
+    const loadDestinationStays = async () => {
+      try {
+        const res = await api.getProperties({ destination: destination.resortDestination })
+        if (mounted && res && res.properties && res.properties.length > 0) {
+          setDestinationResorts(res.properties)
+        }
+      } catch (err) {
+        console.warn('Using baseline stays for destination:', err)
+      }
+    }
+
+    loadDestinationStays()
+    return () => {
+      mounted = false
+    }
+  }, [destination?.resortDestination])
 
   const scrollToStays = () =>
     staysRef.current?.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' })
@@ -93,7 +117,7 @@ export default function DestinationPropertiesPage() {
 
   return (
     <PageTransition>
-      <div className="bg-[#f9f4ee]">
+      <div className="page-destinations bg-[#f9f4ee]">
         {/* ================= 1. intro (full screen) ================= */}
         <section ref={heroRef} className="box-border min-h-[100svh] px-3 pb-4 pt-[5.5rem] sm:px-5 sm:pb-5 sm:pt-[6.5rem] lg:h-[100svh]">
           <div className="relative isolate mx-auto h-full min-h-[calc(100svh-6.5rem)] max-w-[96rem] overflow-hidden rounded-[2rem] bg-midnight sm:rounded-[2.75rem]">

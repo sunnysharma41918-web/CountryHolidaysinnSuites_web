@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import { X, Calendar, Users, MapPin, CheckCircle, ShieldCheck, Sparkles, CreditCard } from 'lucide-react'
+import { X, Calendar, Users, MapPin, CheckCircle, ShieldCheck, Sparkles, CreditCard, Loader2 } from 'lucide-react'
+import { sendEmail } from '../../services/emailService'
 
 export default function BookingModal({ isOpen, onClose, initialData = {} }) {
   if (!isOpen) return null
@@ -9,6 +10,10 @@ export default function BookingModal({ isOpen, onClose, initialData = {} }) {
   const [days, setDays] = useState(initialData.days || '3 Nights 2 Days')
   const [includeGuide, setIncludeGuide] = useState(true)
   const [includeSpa, setIncludeSpa] = useState(false)
+  const [name, setName] = useState('')
+  const [email, setEmail] = useState('')
+  const [phone, setPhone] = useState('')
+  const [loading, setLoading] = useState(false)
   const [submitted, setSubmitted] = useState(false)
 
   // Price calculation
@@ -18,13 +23,32 @@ export default function BookingModal({ isOpen, onClose, initialData = {} }) {
   const spaFee = includeSpa ? 250 : 0
   const total = basePricePerPerson * numPersons + guideFee + spaFee
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
+    setLoading(true)
+
+    await sendEmail({
+      name: name || 'Valued Traveler',
+      from_name: name || 'Valued Traveler',
+      email: email,
+      from_email: email,
+      reply_to: email,
+      phone: phone || 'Not provided',
+      destination,
+      persons,
+      days,
+      total_price: `$${total.toLocaleString()}`,
+      include_guide: includeGuide ? 'Yes' : 'No',
+      include_spa: includeSpa ? 'Yes' : 'No',
+      message: `Reservation & Estimate for ${destination}. Group: ${persons}, Duration: ${days}, Total: $${total.toLocaleString()}. Addons: Guide (${includeGuide ? 'Yes' : 'No'}), Spa (${includeSpa ? 'Yes' : 'No'}). Phone: ${phone || 'N/A'}`,
+    })
+
+    setLoading(false)
     setSubmitted(true)
     setTimeout(() => {
       setSubmitted(false)
       onClose()
-    }, 3500)
+    }, 4000)
   }
 
   return (
@@ -164,25 +188,65 @@ export default function BookingModal({ isOpen, onClose, initialData = {} }) {
               </div>
             </div>
 
-            {/* Contact input */}
-            <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">
-                Your Contact Email
-              </label>
-              <input
-                type="email"
-                required
-                placeholder="name@example.com"
-                className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#ff5938]"
-              />
+            {/* Contact inputs */}
+            <div className="space-y-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    Your Name
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    placeholder="Full Name"
+                    className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#ff5938]"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    Phone Number
+                  </label>
+                  <input
+                    type="tel"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                    placeholder="+91 / Mobile"
+                    className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#ff5938]"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 mb-1">
+                  Your Contact Email
+                </label>
+                <input
+                  type="email"
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="name@example.com"
+                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#ff5938]"
+                />
+              </div>
             </div>
 
             {/* Submit button */}
             <button
               type="submit"
-              className="w-full py-3.5 rounded-full bg-[#ff5938] hover:bg-[#e84a28] text-white font-bold text-sm shadow-lg shadow-[#ff5938]/30 transition transform hover:-translate-y-0.5 active:translate-y-0"
+              disabled={loading}
+              className="w-full py-3.5 rounded-full bg-[#ff5938] hover:bg-[#e84a28] disabled:opacity-60 text-white font-bold text-sm shadow-lg shadow-[#ff5938]/30 transition transform hover:-translate-y-0.5 active:translate-y-0 flex items-center justify-center gap-2"
             >
-              Confirm Reservation & Receive Itinerary
+              {loading ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <span>Submitting Inquiry...</span>
+                </>
+              ) : (
+                <span>Confirm Reservation & Receive Itinerary</span>
+              )}
             </button>
           </form>
         )}

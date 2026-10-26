@@ -145,7 +145,7 @@ export default function DestinationCategoryPage() {
 
   return (
     <PageTransition>
-      <div className="bg-[#f9f4ee]">
+      <div className="page-destinations bg-[#f9f4ee]">
         {/* ================= 1. intro (full screen) ================= */}
         <section ref={heroRef} className="box-border min-h-[100svh] px-3 pb-4 pt-[5.5rem] sm:px-5 sm:pb-5 sm:pt-[6.5rem] lg:h-[100svh]">
           <div className="relative isolate mx-auto h-full min-h-[calc(100svh-6.5rem)] max-w-[96rem] overflow-hidden rounded-[2rem] bg-midnight sm:rounded-[2.75rem]">

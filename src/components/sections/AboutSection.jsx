@@ -11,7 +11,7 @@ import { Compass, Award, ShieldCheck, HeartHandshake, ArrowUpRight, Star } from 
 import { Link } from 'react-router-dom'
 
 const EASE = [0.16, 1, 0.3, 1]
-const HEADING_FONT = { fontFamily: "'Outfit', sans-serif" }
+const HEADING_FONT = { fontFamily: "'Montserrat', sans-serif" }
 
 const STATEMENT =
   'We pair high-altitude expeditions with five-star stays, so the hard days always end somewhere worth arriving.'

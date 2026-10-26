@@ -30,7 +30,7 @@ export default function HomePage() {
 
   return (
     <PageTransition>
-      <div className="w-full overflow-hidden bg-[#f3f8e6]">
+      <div className="page-home w-full overflow-hidden bg-[#f3f8e6]">
         {/* 1. Hero Section */}
         <HeroSection />
 

@@ -9,11 +9,12 @@ import AppRoutes from './routes'
 
 function AppLayout({ bookingModalOpen, setBookingModalOpen, modalData, setModalData }) {
   const { pathname } = useLocation()
+  const isAdminRoute = pathname.startsWith('/admin')
   const isLandingPage = pathname === '/'
-  const [loading, setLoading] = useState(isLandingPage)
+  const [loading, setLoading] = useState(isLandingPage && !isAdminRoute)
 
   useEffect(() => {
-    if (!isLandingPage) {
+    if (isAdminRoute || !isLandingPage) {
       setLoading(false)
       return undefined
     }
@@ -21,7 +22,16 @@ function AppLayout({ bookingModalOpen, setBookingModalOpen, modalData, setModalD
     setLoading(true)
     const timer = window.setTimeout(() => setLoading(false), 1600)
     return () => window.clearTimeout(timer)
-  }, [isLandingPage, pathname])
+  }, [isLandingPage, pathname, isAdminRoute])
+
+  // Dedicated clean viewport for Admin Panel (no public navbar/footer interference)
+  if (isAdminRoute) {
+    return (
+      <div className="min-h-screen bg-[#f8fafc] text-slate-800 antialiased font-sans">
+        <AppRoutes />
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-screen bg-[#f3f8e6] text-slate-800 antialiased font-sans">

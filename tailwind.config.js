@@ -26,6 +26,11 @@ export default {
         sans: ['"Plus Jakarta Sans"', 'Inter', 'system-ui', 'sans-serif'],
         display: ['Outfit', '"Plus Jakarta Sans"', 'sans-serif'],
         nunito: ['"Nunito"', 'sans-serif'],
+        montserrat: ['"Montserrat"', 'sans-serif'],
+        mulish: ['"Mulish"', '"Muli"', 'sans-serif'],
+        sora: ['"Sora"', 'sans-serif'],
+        epilogue: ['"Epilogue"', 'sans-serif'],
+        poppins: ['"Poppins"', 'sans-serif'],
       },
       boxShadow: {
         soft: '0 10px 30px -5px rgba(0, 0, 0, 0.05), 0 4px 10px -2px rgba(0, 0, 0, 0.03)',

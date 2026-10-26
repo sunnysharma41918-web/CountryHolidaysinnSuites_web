@@ -138,7 +138,7 @@ function Sec({ id, labelledby, className = '', children }) {
   )
 }
 
-const H2 = 'font-nunito font-light leading-[0.95] tracking-[-0.05em]'
+const H2 = 'font-mulish font-light leading-[0.95] tracking-[-0.05em]'
 
 /** Masked line reveal. */
 function Lines({ lines, className = '', accentClass = '', as: Tag = 'h2', id }) {
@@ -295,7 +295,7 @@ export default function AboutPage() {
 
   return (
     <PageTransition>
-      <div ref={rootRef} className="relative w-full overflow-x-clip bg-white text-[#0b1f12] antialiased selection:bg-[#b3d565] selection:text-[#0b1f12]">
+      <div ref={rootRef} className="page-about relative w-full overflow-x-clip bg-white text-[#0b1f12] antialiased selection:bg-[#b3d565] selection:text-[#0b1f12]">
         <div data-progress aria-hidden="true" className="fixed inset-x-0 top-0 z-[70] h-[3px] bg-[#b3d565]" />
 
         {/* side navigation */}
@@ -499,11 +499,11 @@ export default function AboutPage() {
         </Sec>
 
         {/* ============ 7. CTA ============ */}
-        <Sec id="enquire" labelledby="cta-title" className="isolate bg-[#f3f8e6] text-[#0b1f12]">
+        <Sec id="enquire" labelledby="cta-title" className="isolate bg-white text-[#0b1f12] border-t border-[#096c27]/10">
           <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10">
-            <div className="absolute -right-[10%] -top-[30%] h-[55vw] w-[55vw] rounded-full border border-[#096c27]/15" />
-            <div className="absolute -right-[2%] -top-[18%] h-[38vw] w-[38vw] rounded-full border border-[#096c27]/15" />
-            <div className="absolute -bottom-[40%] -left-[10%] h-[50vw] w-[50vw] rounded-full bg-[#096c27]/5 blur-3xl" />
+            <div className="absolute -right-[10%] -top-[30%] h-[55vw] w-[55vw] rounded-full border border-[#096c27]/10" />
+            <div className="absolute -right-[2%] -top-[18%] h-[38vw] w-[38vw] rounded-full border border-[#096c27]/10" />
+            <div className="absolute -bottom-[40%] -left-[10%] h-[50vw] w-[50vw] rounded-full bg-[#f3f8e6] blur-3xl" />
           </div>
           <Lines id="cta-title" lines={["Let's simplify", 'your next trip.']} accentClass="italic text-[#096c27]" className="text-[clamp(2.35rem,min(9.5vw,18svh),10.5rem)] leading-[0.9] tracking-[-0.055em] text-[#0b1f12]" />
           <div data-fade className="mt-8 flex flex-wrap items-center gap-4 lg:mt-12">

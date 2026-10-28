@@ -2,7 +2,7 @@ import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
-import { ArrowRight, ArrowUpRight, Award, HeartHandshake, MapPin, PhoneCall, Plus, ShieldCheck, Users } from 'lucide-react'
+import { ArrowUpRight, Award, HeartHandshake, MapPin, PhoneCall, ShieldCheck, Users } from 'lucide-react'
 import PageTransition from '../components/layout/PageTransition'
 import { brand } from '../data/brand'
 import heroModel from '../assets/images/chis-hero-model.png'
@@ -14,67 +14,48 @@ import establishedImg from '../assets/images/Established.jpg'
 if (typeof window !== 'undefined') gsap.registerPlugin(ScrollTrigger)
 const useIsoLayoutEffect = typeof window !== 'undefined' ? useLayoutEffect : useEffect
 
-/* CHIS palette: green #096c27 · leaf #b3d565 · white · ink #0b1f12 · mist #f3f8e6 (colours unchanged) */
-
-const HERO_IMG = heroModel
-const STORY_IMGS = [
-  'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=1400&q=85',
-  'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?auto=format&fit=crop&w=1400&q=85',
-  '/hero-mountain.jpg',
-]
-
-/* darker shadows */
-const SH = 'shadow-[0_28px_60px_-20px_rgba(6,40,16,0.55)]'
-const SH_SM = 'shadow-[0_12px_28px_-10px_rgba(6,40,16,0.45)]'
-
-const SECTIONS = [
-  { id: 'top', label: 'Start' },
-  { id: 'who', label: 'Who we are' },
-  { id: 'numbers', label: 'Numbers' },
-  { id: 'story', label: 'Story' },
-  { id: 'drives', label: 'Purpose' },
-  { id: 'unique', label: 'Why CHIS' },
-  { id: 'enquire', label: 'Contact' },
-]
-
-const reduced = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches
-const scrollToId = (id) => document.getElementById(id)?.scrollIntoView({ behavior: reduced() ? 'auto' : 'smooth', block: 'start' })
-const fmt = (v, plain) => (plain ? String(Math.round(v)) : Math.round(v).toLocaleString('en-US'))
+/* CHIS palette: green #096c27 · deep #06501b · leaf #b3d565 · ink #0b1f12 · mist #f3f8e6 */
 
 const STATEMENT =
-  'Country Holidays Inn and Suites Pvt. Ltd. is a travel company, established on December 21st, 2016 with one goal: budget travel packages for customers worldwide.'
-const OBJECTIVE =
-  'The prime objective in starting the company was to provide mesmerizing travel options with customized economical benefits to travellers, right under one roof. In short, CHIS was established to make its mark in providing the choicest hassle-free luxury travel experiences, which everyone can afford with ease.'
+  'Since December 21st, 2016, Country Holidays Inn and Suites has worked toward one goal: budget travel packages for customers worldwide, with mesmerizing options and customized economical benefits under one roof.'
 
-const STORY = [
-  { tab: '2016', kicker: 'December 21st, 2016', title: 'It began with one simple goal.', body: 'Country Holidays Inn and Suites was established to provide budget travel packages to customers worldwide. We started our journey with only 20 employees onboard.' },
-  { tab: 'Our people', kicker: 'The CHIS family', title: 'People are our backbone.', body: 'We consider CHIS our own family. Our employees work here with absolute dedication, united by the same passion, the same sincerity and the same mission, and we celebrate that togetherness year after year. They are a significant reason for our continuous growth.' },
-  { tab: 'Today', kicker: 'Today', title: 'A family of 500+, across the globe.', body: 'With passion and diligence we have surpassed our vision. CHIS now spans 250 travel associates and 3,500 tie-up collaborative properties, and remains a time-saving option for customers whose only passion is travel.' },
+const OBJECTIVE =
+  'CHIS was established to provide hassle-free luxury travel experiences that everyone can afford with ease.'
+
+const TIMELINE = [
+  { year: '2016', title: 'It began with one simple goal', body: 'Country Holidays Inn and Suites was established on 21st December 2016 to provide budget travel packages to customers worldwide. We started with only 20 employees onboard.', image: establishedImg },
+  { year: 'Our people', title: 'People are our backbone', body: 'We consider CHIS our own family. Our employees work with absolute dedication, united by the same passion, sincerity and mission, and we celebrate that togetherness year after year.', image: employeesImg },
+  { year: 'Today', title: 'A family of 500+, across the globe', body: 'CHIS now spans 250 travel associates and 3,500 tie-up collaborative properties, and remains a time-saving option for customers whose only passion is travel.', image: propertiesImg },
 ]
 
 const STATS = [
-  { to: 500, suffix: '+', label: 'Employees', sub: 'Grown from a team of 20', image: employeesImg, badge: 'Our Team' },
-  { to: 3500, suffix: '+', label: 'Collaborative properties', sub: 'Tie-up stays & resorts', image: propertiesImg, badge: 'Resorts & Stays' },
-  { to: 250, label: 'Travel associates', sub: 'Across the globe', image: associatesImg, badge: 'Global Network' },
-  { to: 2016, plain: true, label: 'Established', sub: 'On 21st December', image: establishedImg, badge: 'Founded 2016' },
+  { to: 500, suffix: '+', label: 'Employees' },
+  { to: 3500, suffix: '+', label: 'Collaborative properties' },
+  { to: 250, suffix: '', label: 'Travel associates' },
+  { to: 2016, suffix: '', label: 'Established', plain: true },
 ]
 
 const PANELS = [
-  { label: 'Our value', title: 'We simplify the travel experience.', body: "Mesmerizing travel options with customized economical benefits, right under one roof. That's the promise behind everything we build.", theme: 'bg-[#b3d565] text-[#0b1f12]' },
-  { label: 'Mission', title: 'Care and Convenience.', body: "'Care and Convenience' is the true spirit behind all our endeavors and services. We at Country Holidays Inn & Suites are driven by the zest to provide unmatched quality services and unparalleled travel experiences to all our precious customers. Our sense of hospitality lies foremost in seeing our customers happy and helping them create more and more meaningful memories with us, across their lifetime. The prime mission we strive for is simply to create bonds of trust and reliability, for everyone who has a dream to travel well.", theme: 'bg-white text-[#0b1f12]' },
-  { label: 'Vision', title: 'Trust and reliability, across the globe.', body: "Apart from having more than 3,500 destinations under our belt and providing quality services to our esteemed customers and members, our vision is to expand our network of trust and reliability across the globe, stand tall with more domestic and international resorts in the coming future, and create new benchmarks for leisure and pleasure holidaying. We are committed to continuously improving our operations and enhancing our customers' experience.", theme: 'border border-white/30 bg-[#06501b] text-white' },
+  { label: 'Our value', title: 'We simplify the travel experience.', body: "Mesmerizing travel options with customized economical benefits, right under one roof. That's the promise behind everything we build.", image: associatesImg },
+  { label: 'Mission', title: 'Care and Convenience.', body: "The true spirit behind all our services. We are driven by the zest to provide unmatched quality and unparalleled travel experiences, and to help customers create meaningful memories with us across their lifetime. Our mission is to build bonds of trust and reliability for everyone who dreams of travelling well.", image: employeesImg },
+  { label: 'Vision', title: 'Trust and reliability, across the globe.', body: 'With more than 3,500 destinations under our belt, we aim to expand our network of trust across the globe, stand tall with more domestic and international resorts, and set new benchmarks for leisure holidaying.', image: propertiesImg },
 ]
 
 const UNIQUE = [
-  { icon: Award, title: 'Award-winning', subtitle: 'Excellence recognized', body: 'Consistently ranked among the best agencies in Delhi NCR with Certificates of Excellence, Incorporation and Appreciation. Named multiple years running as one of the "Best Places to Work".', badge: 'Delhi NCR Top Rated', bg: 'bg-[#f3f8e6]', iconBg: 'bg-[#096c27] text-[#b3d565]' },
-  { icon: Users, title: 'Passionate workers', subtitle: '500+ global associates', body: 'Country Holidays Inn & Suites has built its reputation on dedicated service and endurance. Our employees are passionately engaged in driving every journey to its optimum.', badge: 'People-First Culture', bg: 'bg-white', iconBg: 'bg-[#b3d565] text-[#096c27]' },
-  { icon: ShieldCheck, title: 'Upright stance', subtitle: 'Integrity & resilience', body: 'Strategically positioned to diversify vacations, member needs and premium experiences across 3,500+ collaborative properties with transparency and reliability.', badge: 'Verified Standards', bg: 'bg-[#f3f8e6]', iconBg: 'bg-[#096c27] text-white' },
-  { icon: HeartHandshake, title: 'Acquaintance', subtitle: 'Lifelong family bonds', body: 'We treat our travelers as cherished family members, not mere customers. Our sincere affection and lifelong care reflect how deeply connected we are with every journey.', badge: 'Heartfelt Hospitality', bg: 'bg-[#096c27] text-white', iconBg: 'bg-[#b3d565] text-[#096c27]', dark: true },
+  { icon: Award, title: 'Award-winning', sub: 'Excellence recognized', body: 'Ranked among the best agencies in Delhi NCR, with Certificates of Excellence, Incorporation and Appreciation, and named a "Best Place to Work" multiple years running.' },
+  { icon: Users, title: 'Passionate workers', sub: '500+ global associates', body: 'Our reputation rests on dedicated service and endurance. Our people are passionately engaged in driving every journey to its optimum.' },
+  { icon: ShieldCheck, title: 'Upright stance', sub: 'Integrity & resilience', body: 'Diverse vacations, member needs and premium experiences across 3,500+ collaborative properties, delivered with transparency and reliability.' },
+  { icon: HeartHandshake, title: 'Acquaintance', sub: 'Lifelong family bonds', body: 'We treat travellers as cherished family, not mere customers. Our sincere affection and lifelong care shape every journey.' },
 ]
+
+const MARQUEE = ['Budget travel packages', 'Care and convenience', '3,500+ collaborative properties', '250 travel associates', 'Since 2016']
+
+const reduced = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches
+const fmt = (v, plain) => (plain ? String(Math.round(v)) : Math.round(v).toLocaleString('en-US'))
 
 /* ------------------------------ pieces ------------------------------ */
 
-function Magnetic({ children, strength = 0.35 }) {
+function Magnetic({ children, strength = 0.3 }) {
   const ref = useRef(null)
   useEffect(() => {
     const el = ref.current
@@ -99,110 +80,51 @@ function Magnetic({ children, strength = 0.35 }) {
   return <div ref={ref} className="inline-block">{children}</div>
 }
 
-/** Background geometric concentric rings matching CHIS brand motif */
-function BgRings({ position = 'top-right', className = '' }) {
-  const configs = {
-    'top-right': {
-      wrap: '-right-[14%] -top-[25%] h-[56vw] w-[56vw]',
-      glow: '-right-[5%] -top-[10%]',
-    },
-    'top-left': {
-      wrap: '-left-[14%] -top-[25%] h-[56vw] w-[56vw]',
-      glow: '-left-[5%] -top-[10%]',
-    },
-    'bottom-right': {
-      wrap: '-right-[14%] -bottom-[25%] h-[56vw] w-[56vw]',
-      glow: '-right-[5%] -bottom-[10%]',
-    },
-  }
-  const c = configs[position] || configs['top-right']
-
+/** Masked line-by-line headline reveal */
+function Lines({ lines, id, as: Tag = 'h2', className = '', accent = '' }) {
   return (
-    <div aria-hidden="true" className={`pointer-events-none absolute inset-0 -z-10 overflow-hidden ${className}`}>
-      <div className={`absolute h-[38vw] w-[38vw] rounded-full bg-[#b3d565]/10 blur-3xl ${c.glow}`} />
-      <div className={`absolute ${c.wrap}`}>
-        <div className="absolute inset-0 rounded-full border border-[#096c27]/15" />
-        <div className="absolute inset-[14%] rounded-full border border-[#096c27]/15" />
-        <div className="absolute inset-[28%] rounded-full border border-[#096c27]/15" />
-      </div>
-    </div>
-  )
-}
-
-/** Responsive section container: natural flow on mobile/tablet, single-viewport on desktop */
-function Sec({ id, labelledby, className = '', children }) {
-  return (
-    <section id={id} data-sec aria-labelledby={labelledby} className={`relative isolate flex min-h-[100svh] w-full flex-col overflow-hidden py-14 sm:py-20 lg:h-[100svh] lg:py-0 ${className}`}>
-      <div className="mx-auto flex h-full min-h-0 w-full max-w-[90rem] flex-col justify-center px-4 pb-6 pt-10 sm:px-8 sm:pt-16 lg:px-12">{children}</div>
-    </section>
-  )
-}
-
-const H2 = 'font-mulish font-light leading-[0.95] tracking-[-0.05em]'
-
-/** Masked line reveal. */
-function Lines({ lines, className = '', accentClass = '', as: Tag = 'h2', id }) {
-  return (
-    <Tag id={id} className={`${H2} ${className}`} data-lines="">
-      {lines.map((line, i) => (
-        <span key={line} className="-mb-[0.12em] block overflow-hidden pb-[0.12em]">
-          <span data-line className={`block ${i === lines.length - 1 ? accentClass : ''}`}>{line}</span>
+    <Tag id={id} data-lines="" className={`font-mulish font-light tracking-[-0.055em] ${className}`}>
+      {lines.map((l, i) => (
+        <span key={l} className="-mb-[0.1em] block overflow-hidden pb-[0.1em]">
+          <span data-line className={`block ${i === lines.length - 1 ? accent : ''}`}>{l}</span>
         </span>
       ))}
     </Tag>
   )
 }
 
-function Pill({ children, onClick, to, dark, className = '' }) {
-  const cls = `group inline-flex items-center gap-3 rounded-full py-2 pl-7 pr-2 text-sm font-semibold ${SH_SM} transition-transform hover:scale-[1.02] focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 ${dark ? 'bg-[#096c27] text-white' : 'bg-[#b3d565] text-[#0b1f12]'} ${className}`
+function Pill({ children, to, onClick, tone = 'leaf' }) {
+  const tones = {
+    leaf: ['bg-[#b3d565] text-[#0b1f12]', 'bg-[#096c27] text-white'],
+    ink: ['bg-[#0b1f12] text-white', 'bg-[#b3d565] text-[#0b1f12]'],
+  }[tone]
+  const cls = `group inline-flex items-center gap-4 rounded-full py-2 pl-7 pr-2 text-sm font-semibold transition-transform duration-300 hover:scale-[1.03] focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 ${tones[0]}`
   const icon = (
-    <span className={`grid h-10 w-10 place-items-center rounded-full transition-transform duration-500 group-hover:rotate-[360deg] ${dark ? 'bg-[#b3d565] text-[#096c27]' : 'bg-[#096c27] text-white'}`}>
-      <ArrowUpRight className="h-4 w-4" aria-hidden="true" />
+    <span className={`grid h-11 w-11 place-items-center overflow-hidden rounded-full ${tones[1]}`}>
+      <ArrowUpRight className="h-4 w-4 transition-transform duration-500 group-hover:rotate-45" aria-hidden="true" />
     </span>
   )
-  return to ? <Link to={to} className={cls}>{children}{icon}</Link> : <button type="button" onClick={onClick} className={cls}>{children}{icon}</button>
+  return to
+    ? <Link to={to} className={cls}>{children}{icon}</Link>
+    : <button type="button" onClick={onClick} className={cls}>{children}{icon}</button>
 }
 
-function Count({ s, className = '' }) {
+function Marquee({ items, className = '', dataKey = 'data-marq' }) {
+  const row = [...items, ...items]
   return (
-    <div className={`font-nunito font-light leading-none tracking-[-0.05em] ${className}`}>
-      <span data-count data-to={s.to} data-plain={s.plain ? '1' : '0'}>{fmt(s.to, s.plain)}</span>
-      {s.suffix && <span className="opacity-70">{s.suffix}</span>}
-    </div>
-  )
-}
-
-/* Value / Mission / Vision: one panel open at a time, in any screen size. */
-function ValuePanels() {
-  const [active, setActive] = useState(1)
-  return (
-    <div className="flex min-h-0 flex-1 flex-col gap-3 lg:flex-row lg:gap-4">
-      {PANELS.map((p, i) => {
-        const on = active === i
-        return (
-          <article
-            key={p.label}
-            data-rise
-            tabIndex={0}
-            onMouseEnter={() => setActive(i)}
-            onFocus={() => setActive(i)}
-            onClick={() => setActive(i)}
-            aria-expanded={on}
-            className={`relative flex min-h-0 basis-0 cursor-pointer flex-col justify-between overflow-hidden rounded-[1.75rem] p-5 transition-[flex-grow] duration-[800ms] ease-[cubic-bezier(0.16,1,0.3,1)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#096c27] sm:p-7 ${SH} ${on ? 'grow-[5] lg:grow-[2.6]' : 'grow-[1]'} ${p.theme}`}
-          >
-            <div className="flex items-start justify-between gap-3">
-              <span className="text-xs font-semibold opacity-70">{p.label}</span>
-              <span className={`grid h-9 w-9 shrink-0 place-items-center rounded-full border border-current transition-transform duration-700 ${on ? 'rotate-45' : ''}`}>
-                <Plus className="h-4 w-4" aria-hidden="true" />
+    <div className={`overflow-hidden whitespace-nowrap ${className}`} aria-hidden="true">
+      <div {...{ [dataKey]: '' }} className="flex w-max will-change-transform">
+        {[0, 1].map((k) => (
+          <div key={k} className="flex shrink-0 items-center">
+            {row.map((t, i) => (
+              <span key={`${k}-${i}`} className="flex items-center">
+                <span className="px-6">{t}</span>
+                <span className="h-2 w-2 rounded-full bg-current opacity-60" />
               </span>
-            </div>
-            <div className="min-h-0">
-              <h3 className="font-nunito text-[clamp(1.3rem,2.4vw,2.5rem)] font-light leading-[1.05] tracking-[-0.04em]">{p.title}</h3>
-              {on && <p className="mt-3 text-[12.5px] leading-relaxed opacity-85 sm:text-sm lg:min-w-[22rem]">{p.body}</p>}
-            </div>
-          </article>
-        )
-      })}
+            ))}
+          </div>
+        ))}
+      </div>
     </div>
   )
 }
@@ -211,10 +133,7 @@ function ValuePanels() {
 
 export default function AboutPage() {
   const rootRef = useRef(null)
-  const [active, setActive] = useState(0)
-  const [ch, setCh] = useState(0)
-  const [paused, setPaused] = useState(false)
-  const firstCh = useRef(true)
+  const [open, setOpen] = useState(0)
 
   const handleOpenBooking = (destination = 'General Inquiry') =>
     window.dispatchEvent(new CustomEvent('open-booking-modal', { detail: { destination, persons: '2 Persons', days: 'Membership & Holiday Consultation' } }))
@@ -225,33 +144,46 @@ export default function AboutPage() {
     const $ = (s) => gsap.utils.toArray(s, root)
     const mm = gsap.matchMedia(root)
 
-    const spy = $('[data-sec]').map((el, i) =>
-      ScrollTrigger.create({ trigger: el, start: 'top 55%', end: 'bottom 55%', onToggle: (s) => s.isActive && setActive(i) }),
-    )
-
     mm.add('(prefers-reduced-motion: no-preference)', () => {
+      /* page progress */
       gsap.set('[data-progress]', { scaleX: 0, transformOrigin: '0% 50%' })
       gsap.to('[data-progress]', { scaleX: 1, ease: 'none', scrollTrigger: { trigger: root, start: 'top top', end: 'bottom bottom', scrub: 0.3 } })
 
       /* masked headline lines */
       $('[data-lines]').forEach((el) =>
-        gsap.from(el.querySelectorAll('[data-line]'), { yPercent: 115, duration: 1.3, ease: 'expo.out', stagger: 0.12, delay: el.id === 'about-title' ? 0.15 : 0, scrollTrigger: { trigger: el, start: 'top 88%', once: true } }),
+        gsap.from(el.querySelectorAll('[data-line]'), { yPercent: 120, rotate: 3, duration: 1.4, ease: 'expo.out', stagger: 0.12, delay: el.id === 'about-title' ? 0.2 : 0, scrollTrigger: { trigger: el, start: 'top 88%', once: true } }),
       )
 
+      /* generic fades */
       const fades = $('[data-fade]')
-      gsap.set(fades, { opacity: 0, y: 28 })
-      ScrollTrigger.batch(fades, { start: 'top 92%', once: true, onEnter: (b) => gsap.to(b, { opacity: 1, y: 0, duration: 1, ease: 'expo.out', stagger: 0.1 }) })
+      gsap.set(fades, { opacity: 0, y: 30 })
+      ScrollTrigger.batch(fades, { start: 'top 92%', once: true, onEnter: (b) => gsap.to(b, { opacity: 1, y: 0, duration: 1.1, ease: 'expo.out', stagger: 0.1 }) })
 
-      const rise = $('[data-rise]')
-      gsap.set(rise, { opacity: 0, y: 60 })
-      ScrollTrigger.batch(rise, { start: 'top 92%', once: true, onEnter: (b) => gsap.to(b, { opacity: 1, y: 0, duration: 1.2, ease: 'expo.out', stagger: 0.14 }) })
+      /* marquees */
+      $('[data-marq]').forEach((el, i) => gsap.to(el, { xPercent: -50, duration: 38, ease: 'none', repeat: -1, ...(i % 2 ? { } : {}) }))
+      $('[data-marq]').forEach((el) =>
+        ScrollTrigger.create({ trigger: el, start: 'top bottom', end: 'bottom top', onUpdate: (s) => gsap.to(el, { timeScale: 1 + Math.abs(s.getVelocity()) / 400, overwrite: 'auto' }) }),
+      )
 
-      /* hero: image reveal */
-      gsap.from('[data-hero-img]', { y: 50, opacity: 0, duration: 1.4, ease: 'expo.out', delay: 0.2 })
-      gsap.to('[data-hero-rings]', { scale: 1.2, rotation: 18, ease: 'none', scrollTrigger: { trigger: '[data-hero]', start: 'top top', end: 'bottom top', scrub: true } })
+      /* hero */
+      gsap.from('[data-hero-img]', { y: 120, opacity: 0, scale: 0.94, duration: 1.8, ease: 'expo.out', delay: 0.3 })
+      gsap.from('[data-hero-chip]', { y: 24, opacity: 0, duration: 1, ease: 'expo.out', stagger: 0.12, delay: 1 })
+      gsap.to('[data-hero-img]', { yPercent: 10, ease: 'none', scrollTrigger: { trigger: '[data-hero]', start: 'top top', end: 'bottom top', scrub: true } })
+      gsap.to('[data-hero-rings]', { scale: 1.25, rotation: 24, ease: 'none', scrollTrigger: { trigger: '[data-hero]', start: 'top top', end: 'bottom top', scrub: true } })
+      gsap.to('[data-hero-title]', { yPercent: -14, opacity: 0.2, ease: 'none', scrollTrigger: { trigger: '[data-hero]', start: 'top top', end: 'bottom top', scrub: true } })
 
-      /* statement: words light up once */
-      gsap.fromTo($('[data-sw]'), { opacity: 0.14 }, { opacity: 1, ease: 'none', stagger: 0.05, duration: 0.6, scrollTrigger: { trigger: '[data-statement]', start: 'top 80%', once: true } })
+      /* statement scrubs word by word */
+      gsap.fromTo($('[data-sw]'), { opacity: 0.12 }, { opacity: 1, ease: 'none', stagger: 0.06, scrollTrigger: { trigger: '[data-statement]', start: 'top 80%', end: 'bottom 45%', scrub: 0.5 } })
+
+      /* timeline line draws with scroll; images unmask + parallax */
+      gsap.fromTo('[data-tl-line]', { scaleY: 0 }, { scaleY: 1, transformOrigin: '50% 0%', ease: 'none', scrollTrigger: { trigger: '[data-tl]', start: 'top 65%', end: 'bottom 70%', scrub: true } })
+      $('[data-tl-item]').forEach((item) => {
+        const wrap = item.querySelector('[data-tl-img]')
+        const img = wrap.querySelector('img')
+        gsap.fromTo(wrap, { clipPath: 'inset(0 0 100% 0)' }, { clipPath: 'inset(0 0 0% 0)', duration: 1.4, ease: 'expo.out', scrollTrigger: { trigger: item, start: 'top 75%', once: true } })
+        gsap.fromTo(img, { scale: 1.35 }, { scale: 1, ease: 'none', scrollTrigger: { trigger: item, start: 'top bottom', end: 'bottom top', scrub: true } })
+        gsap.from(item.querySelectorAll('[data-tl-text] > *'), { y: 40, opacity: 0, duration: 1.1, ease: 'expo.out', stagger: 0.1, scrollTrigger: { trigger: item, start: 'top 72%', once: true } })
+      })
 
       /* count-up */
       $('[data-count]').forEach((el) => {
@@ -259,11 +191,26 @@ export default function AboutPage() {
         const plain = el.dataset.plain === '1'
         const o = { v: plain ? 1990 : 0 }
         el.textContent = fmt(o.v, plain)
-        ScrollTrigger.create({
-          trigger: el, start: 'top 92%', once: true,
-          onEnter: () => gsap.to(o, { v: to, duration: 2.2, ease: 'power3.out', onUpdate: () => { el.textContent = fmt(o.v, plain) } }),
-        })
+        ScrollTrigger.create({ trigger: el, start: 'top 92%', once: true, onEnter: () => gsap.to(o, { v: to, duration: 2.4, ease: 'power3.out', onUpdate: () => { el.textContent = fmt(o.v, plain) } }) })
       })
+
+      /* stacking cards: each card shrinks back as the next one slides over it */
+      const stack = $('[data-stack]')
+      stack.forEach((card, i) => {
+        if (i === stack.length - 1) return
+        gsap.to(card, { scale: 0.93, opacity: 0.55, transformOrigin: '50% 0%', ease: 'none', scrollTrigger: { trigger: stack[i + 1], start: 'top 75%', end: 'top 15%', scrub: true } })
+      })
+
+      /* why rows */
+      const rows = $('[data-row]')
+      gsap.set(rows, { opacity: 0, y: 50 })
+      ScrollTrigger.batch(rows, { start: 'top 92%', once: true, onEnter: (b) => gsap.to(b, { opacity: 1, y: 0, duration: 1.1, ease: 'expo.out', stagger: 0.12 }) })
+
+      /* spinning badge */
+      gsap.to('[data-spin]', { rotation: 360, duration: 18, ease: 'none', repeat: -1, transformOrigin: '50% 50%' })
+
+      /* CTA */
+      gsap.from('[data-cta-pill]', { scale: 0.6, opacity: 0, duration: 1.2, ease: 'elastic.out(1, 0.6)', scrollTrigger: { trigger: '[data-cta]', start: 'top 55%', once: true } })
 
       return () => $('[data-count]').forEach((el) => { el.textContent = fmt(Number(el.dataset.to), el.dataset.plain === '1') })
     })
@@ -274,42 +221,17 @@ export default function AboutPage() {
     return () => {
       clearTimeout(t)
       window.removeEventListener('load', refresh)
-      spy.forEach((s) => s.kill())
       mm.revert()
     }
   }, [])
-
-  /* story: auto-advances, pauses on hover/focus */
-  useEffect(() => {
-    if (paused || reduced()) return undefined
-    const id = setInterval(() => setCh((c) => (c + 1) % STORY.length), 7000)
-    return () => clearInterval(id)
-  }, [paused, ch])
-  useEffect(() => {
-    if (firstCh.current) { firstCh.current = false; return }
-    if (reduced()) return
-    gsap.fromTo('[data-ch-text]', { y: 22, opacity: 0 }, { y: 0, opacity: 1, duration: 0.9, ease: 'expo.out', stagger: 0.08, overwrite: 'auto' })
-  }, [ch])
-
-  const s = STORY[ch]
 
   return (
     <PageTransition>
       <div ref={rootRef} className="page-about relative w-full overflow-x-clip bg-white text-[#0b1f12] antialiased selection:bg-[#b3d565] selection:text-[#0b1f12]">
         <div data-progress aria-hidden="true" className="fixed inset-x-0 top-0 z-[70] h-[3px] bg-[#b3d565]" />
 
-        {/* side navigation */}
-        <nav aria-label="Page sections" className="fixed right-4 top-1/2 z-[60] hidden -translate-y-1/2 flex-col items-end gap-3 lg:flex">
-          {SECTIONS.map((x, i) => (
-            <button key={x.id} type="button" onClick={() => scrollToId(x.id)} aria-label={`Go to ${x.label}`} aria-current={active === i} className="group flex items-center gap-3 focus:outline-none">
-              <span className={`rounded-full bg-[#0b1f12] px-2.5 py-1 text-xs font-semibold text-white transition-all duration-300 ${active === i ? 'translate-x-0 opacity-100' : 'translate-x-2 opacity-0 group-hover:translate-x-0 group-hover:opacity-100 group-focus-visible:opacity-100'}`}>{x.label}</span>
-              <span className={`block rounded-full bg-[#0b1f12] shadow-[0_2px_6px_rgba(6,40,16,0.5)] transition-all duration-300 group-focus-visible:ring-2 group-focus-visible:ring-[#096c27] ${active === i ? 'h-7 w-2' : 'h-2 w-2 opacity-40 group-hover:opacity-100'}`} />
-            </button>
-          ))}
-        </nav>
-
-        {/* ============ 1. HERO ============ */}
-        <section id="top" data-sec data-hero aria-labelledby="about-title" className="relative isolate flex min-h-[100svh] w-full flex-col overflow-hidden bg-[#096c27] text-white pt-16 sm:pt-20 lg:h-[100svh] lg:pt-0">
+        {/* ============ HERO ============ */}
+        <section id="top" data-hero aria-labelledby="about-title" className="relative isolate flex min-h-[100svh] w-full flex-col overflow-hidden bg-[#096c27] pt-20 text-white">
           <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10">
             <div className="absolute -right-[15%] -top-[25%] h-[60vw] w-[60vw] rounded-full bg-[#b3d565]/20 blur-3xl" />
             <div data-hero-rings className="absolute right-[-12%] top-[8%] h-[52vw] w-[52vw]">
@@ -320,207 +242,207 @@ export default function AboutPage() {
             <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,#06501b_0%,transparent_55%)]" />
           </div>
 
-          <div className="mx-auto grid min-h-0 w-full max-w-[90rem] flex-1 items-end gap-6 px-4 pt-10 sm:px-8 sm:pt-16 lg:grid-cols-12 lg:gap-8 lg:px-12 lg:pt-20">
-            <div className="pb-8 pt-4 sm:pb-14 lg:col-span-7 lg:pb-16">
-              <Lines as="h1" id="about-title" lines={['Travel,', 'simplified.']} accentClass="italic text-[#b3d565]" className="text-[clamp(2.5rem,min(8.5vw,13svh),9rem)] leading-[0.9] tracking-[-0.055em]" />
-              <p data-fade className="mt-4 max-w-xl text-sm font-light leading-relaxed text-white/85 sm:mt-5 sm:text-base lg:mt-8 lg:text-lg">
-                Country Holidays Inn &amp; Suites is a time-saving option for people whose only passion is travel: mesmerizing options and customized economical benefits, all under one roof.
+          <div className="mx-auto grid w-full max-w-[96rem] flex-1 items-end gap-6 px-5 sm:px-10 lg:grid-cols-12 lg:px-14">
+            <div data-hero-title className="pb-10 pt-8 lg:col-span-7 lg:pb-20">
+              <Lines as="h1" id="about-title" lines={['Travel,', 'simplified.']} accent="italic text-[#b3d565]" className="text-[clamp(3.2rem,min(12vw,20svh),12rem)] leading-[0.86]" />
+              <p data-fade className="mt-6 max-w-lg text-sm font-light leading-relaxed text-white/85 sm:text-base lg:mt-9 lg:text-lg">
+                A time-saving option for people whose only passion is travel: mesmerizing options and customized economical benefits, all under one roof.
               </p>
-              <div data-fade className="mt-6 flex flex-wrap items-center gap-3 lg:mt-9">
+              <div data-fade className="mt-8 flex flex-wrap items-center gap-3">
                 <Magnetic><Pill to="/vacation-packages">View vacation packages</Pill></Magnetic>
-                <Magnetic strength={0.25}>
-                  <button type="button" onClick={() => handleOpenBooking('Membership Consultation')} className="inline-flex items-center gap-2.5 rounded-full border border-white/40 px-6 py-3 text-sm font-medium transition-colors hover:border-[#b3d565] hover:text-[#b3d565] focus:outline-none focus-visible:ring-2 focus-visible:ring-white">
+                <Magnetic strength={0.2}>
+                  <button type="button" onClick={() => handleOpenBooking('Membership Consultation')} className="inline-flex items-center gap-2.5 rounded-full border border-white/40 px-6 py-3.5 text-sm font-medium transition-colors hover:border-[#b3d565] hover:text-[#b3d565] focus:outline-none focus-visible:ring-2 focus-visible:ring-white">
                     <PhoneCall className="h-4 w-4" aria-hidden="true" /> Talk to us
                   </button>
                 </Magnetic>
               </div>
             </div>
 
-            <div className="relative mx-auto flex h-full min-h-0 w-full items-end justify-center lg:col-span-5 lg:justify-end">
-              <div className="relative flex items-end justify-center lg:justify-end">
-                <img
-                  data-hero-img
-                  src={HERO_IMG}
-                  alt="CHIS holiday model"
-                  className="pointer-events-none select-none block h-auto max-h-[46svh] sm:max-h-[62svh] lg:max-h-[74svh] w-auto max-w-full object-contain object-bottom"
-                />
+            <div className="relative flex h-full items-end justify-center lg:col-span-5 lg:justify-end">
+              <div data-hero-chip className="absolute left-0 top-[18%] z-10 rounded-2xl border border-white/20 bg-white/10 px-4 py-3 backdrop-blur-md sm:left-4">
+                <p className="font-nunito text-2xl font-light tracking-tight">3,500+</p>
+                <p className="text-[11px] text-white/80">collaborative properties</p>
               </div>
+              <div data-hero-chip className="absolute bottom-[22%] right-0 z-10 rounded-2xl bg-[#b3d565] px-4 py-3 text-[#0b1f12] shadow-[0_20px_40px_-15px_rgba(0,0,0,0.5)]">
+                <p className="font-nunito text-2xl font-light tracking-tight">500+</p>
+                <p className="text-[11px]">people in the CHIS family</p>
+              </div>
+              <img data-hero-img src={heroModel} alt="CHIS holiday model" className="pointer-events-none block h-auto max-h-[52svh] w-auto max-w-full select-none object-contain object-bottom sm:max-h-[64svh] lg:max-h-[76svh]" />
             </div>
           </div>
+
+          <Marquee items={MARQUEE} className="border-t border-white/20 bg-[#06501b] py-4 font-nunito text-sm font-light tracking-wide text-white/85 sm:text-base" />
         </section>
 
-        {/* ============ 2. WHO WE ARE ============ */}
-        <Sec id="who" labelledby="who-title" className="bg-white">
-          <BgRings position="top-right" />
-          <h2 id="who-title" className="sr-only">Who we are</h2>
-          <div className="grid min-h-0 items-center gap-6 lg:grid-cols-12 lg:gap-12">
-            <p data-statement className="font-nunito text-[clamp(1.4rem,min(3.4vw,5.5svh),3.75rem)] font-light leading-[1.12] tracking-[-0.035em] lg:col-span-7">
+        {/* ============ 1. STORY LINE ============ */}
+        <section id="story" aria-labelledby="story-title" className="relative bg-white px-5 py-24 sm:px-10 sm:py-36 lg:px-14">
+          <div className="mx-auto max-w-[80rem]">
+            <Lines id="story-title" lines={['Our story line.']} accent="italic text-[#096c27]" className="text-[clamp(2.6rem,min(8vw,13svh),8rem)] leading-[0.9]" />
+            <p data-statement className="mt-10 max-w-5xl font-nunito text-[clamp(1.4rem,3.2vw,3.1rem)] font-light leading-[1.15] tracking-[-0.035em]">
               {STATEMENT.split(' ').map((w, i) => (
                 <span key={i} data-sw className="inline-block pr-[0.25em]">{w}</span>
               ))}
             </p>
-            <div data-rise className={`rounded-[2rem] bg-[#f3f8e6] p-6 sm:p-9 lg:col-span-5 ${SH}`}>
-              <p className="font-nunito text-xl font-light tracking-[-0.03em] text-[#096c27] sm:text-2xl">Why we started</p>
-              <p className="mt-3 text-[13px] leading-relaxed text-[#0b1f12]/75 sm:mt-4 sm:text-base">{OBJECTIVE}</p>
-            </div>
-          </div>
-        </Sec>
 
-        {/* ============ 3. NUMBERS ============ */}
-        <Sec id="numbers" labelledby="numbers-title" className="bg-white">
-          <BgRings position="top-left" />
-          <div className="flex shrink-0 flex-wrap items-end justify-between gap-3 pb-5 sm:pb-8">
-            <Lines id="numbers-title" lines={['Numbers that', 'tell our story.']} accentClass="italic text-[#096c27]" className="text-[clamp(1.85rem,min(5.4vw,8.5svh),5.5rem)]" />
-            <p data-fade className="max-w-xs text-sm text-[#0b1f12]/65">Since 21st December 2016, one goal: budget travel packages for customers worldwide.</p>
-          </div>
-          <div className="grid min-h-0 flex-1 grid-cols-1 gap-3.5 sm:grid-cols-2 sm:gap-4 lg:grid-cols-4 lg:gap-5">
-            {STATS.map((x) => (
-              <div
-                key={x.label}
-                data-rise
-                className={`group relative isolate flex min-h-[170px] sm:min-h-0 flex-col justify-between overflow-hidden rounded-[1.75rem] p-5 sm:p-7 text-white ${SH}`}
-              >
-                {/* Full-bleed background photo */}
-                <img
-                  src={x.image}
-                  alt={x.label}
-                  className="pointer-events-none absolute inset-0 -z-20 h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
-                />
-
-                {/* Dark emerald-to-black gradient overlay for readability & luxury depth */}
-                <div
-                  aria-hidden="true"
-                  className="pointer-events-none absolute inset-0 -z-10 bg-gradient-to-t from-[#04190b]/95 via-[#062410]/60 to-[#021007]/35 transition-opacity duration-300 group-hover:via-[#062410]/50"
-                />
-
-                {/* Glass badge chip */}
-                <div className="flex items-center justify-between">
-                  <span className="flex items-center gap-1.5 rounded-full border border-white/20 bg-black/40 px-3 py-1 text-[11px] font-medium tracking-wide text-white/95 backdrop-blur-md">
-                    <span className="h-1.5 w-1.5 rounded-full bg-[#b3d565]" aria-hidden="true" />
-                    {x.badge}
-                  </span>
-                </div>
-
-                {/* Counter & descriptive titles */}
-                <div className="relative pt-6">
-                  <Count s={x} className="text-[clamp(2.25rem,min(6vw,10svh),6.5rem)] font-light text-white drop-shadow-[0_4px_16px_rgba(0,0,0,0.6)]" />
-                  <p className="mt-2 text-sm font-semibold tracking-wide text-[#b3d565] sm:text-base">{x.label}</p>
-                  <p className="mt-0.5 text-xs leading-snug text-white/80 sm:text-sm">{x.sub}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </Sec>
-
-        {/* ============ 4. STORY ============ */}
-        <Sec id="story" labelledby="story-title" className="bg-[#f3f8e6]">
-          <BgRings position="bottom-right" />
-          <div onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)} onFocus={() => setPaused(true)} onBlur={() => setPaused(false)} className="flex min-h-0 flex-1 flex-col gap-4 lg:gap-6">
-            <Lines id="story-title" lines={['From a team of 20 to a global family.']} accentClass="italic text-[#096c27]" className="shrink-0 text-[clamp(1.6rem,min(4.2vw,7.5svh),4.5rem)]" />
-
-            <div className="flex min-h-0 flex-1 flex-col gap-6 lg:grid lg:grid-cols-12 lg:grid-rows-1 lg:gap-10">
-              <div data-rise className={`relative min-h-0 h-64 sm:h-80 lg:h-full overflow-hidden rounded-[1.75rem] bg-[#dfe9cf] lg:col-span-6 ${SH}`}>
-                {STORY_IMGS.map((src, i) => (
-                  <img key={src} src={src} alt="" loading="lazy" className={`absolute inset-0 h-full w-full object-cover transition-all duration-[1200ms] ease-out ${ch === i ? 'scale-100 opacity-100' : 'scale-110 opacity-0'}`} />
+            <div data-tl className="relative mt-24 sm:mt-32">
+              <span aria-hidden="true" className="absolute left-3 top-0 h-full w-px bg-[#096c27]/15 md:left-1/2" />
+              <span data-tl-line aria-hidden="true" className="absolute left-3 top-0 h-full w-[2px] -translate-x-[0.5px] bg-[#096c27] md:left-1/2" />
+              <ol>
+                {TIMELINE.map((t, i) => (
+                  <li key={t.year} data-tl-item className="relative grid gap-8 py-12 pl-10 md:grid-cols-2 md:gap-24 md:py-20 md:pl-0">
+                    <span aria-hidden="true" className="absolute left-3 top-14 h-3.5 w-3.5 -translate-x-1/2 rounded-full border-[3px] border-white bg-[#096c27] ring-1 ring-[#096c27] md:left-1/2 md:top-24" />
+                    <div data-tl-img className={`overflow-hidden rounded-[1.5rem] shadow-[0_30px_60px_-25px_rgba(6,40,16,0.6)] ${i % 2 ? 'md:order-2' : ''}`}>
+                      <img src={t.image} alt="" loading="lazy" className="aspect-[4/3] w-full object-cover" />
+                    </div>
+                    <div data-tl-text className={`flex flex-col justify-center ${i % 2 ? 'md:items-end md:text-right' : ''}`}>
+                      <p className="font-nunito text-4xl font-light italic tracking-[-0.04em] text-[#096c27] sm:text-6xl">{t.year}</p>
+                      <h3 className="mt-4 font-nunito text-xl font-semibold tracking-[-0.02em] sm:text-2xl">{t.title}</h3>
+                      <p className="mt-3 max-w-md text-sm leading-relaxed text-[#0b1f12]/70 sm:text-base">{t.body}</p>
+                    </div>
+                  </li>
                 ))}
-                <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-[#06501b]/90 to-transparent p-5 pt-16 text-xs font-semibold text-white sm:p-7">
-                  {String(ch + 1).padStart(2, '0')} / {String(STORY.length).padStart(2, '0')} · CHIS since 2016
+              </ol>
+            </div>
+
+            <dl className="mt-16 grid grid-cols-2 gap-x-6 gap-y-10 border-t border-[#096c27]/20 pt-12 lg:grid-cols-4">
+              {STATS.map((s) => (
+                <div key={s.label} data-fade className="flex flex-col-reverse">
+                  <dt className="mt-2 text-xs font-medium text-[#0b1f12]/65 sm:text-sm">{s.label}</dt>
+                  <dd className="font-nunito text-[clamp(2.6rem,6vw,5.5rem)] font-light leading-none tracking-[-0.05em] text-[#096c27]">
+                    <span data-count data-to={s.to} data-plain={s.plain ? '1' : '0'}>{fmt(s.to, s.plain)}</span>{s.suffix}
+                  </dd>
+                </div>
+              ))}
+            </dl>
+          </div>
+        </section>
+
+        {/* ============ 2. VALUE, MISSION & VISION (sticky stacking cards) ============ */}
+        <section id="purpose" aria-labelledby="purpose-title" className="relative bg-[#0b1f12] text-white">
+          <div className="mx-auto grid max-w-[90rem] gap-12 px-5 py-24 sm:px-10 lg:grid-cols-12 lg:gap-16 lg:px-14 lg:py-36">
+            <div className="lg:col-span-4">
+              <div className="lg:sticky lg:top-28">
+                <Lines id="purpose-title" lines={['Value, mission', 'and vision.']} accent="italic text-[#b3d565]" className="text-[clamp(2.4rem,min(5.2vw,10svh),5.2rem)] leading-[0.92]" />
+                <p data-fade className="mt-6 max-w-sm text-sm leading-relaxed text-white/65">{OBJECTIVE}</p>
+                <div data-fade className="mt-8">
+                  <Magnetic><Pill onClick={() => handleOpenBooking('Membership Consultation')}>Talk to us</Pill></Magnetic>
                 </div>
               </div>
+            </div>
 
-              <div className="flex min-h-0 flex-col justify-between gap-4 lg:col-span-6">
-                <div role="tablist" aria-label="Our story chapters" className="flex shrink-0 gap-2 overflow-x-auto pb-1 [scrollbar-width:none]">
-                  {STORY.map((c, i) => (
+            <div className="lg:col-span-8">
+              {PANELS.map((p, i) => {
+                const theme = [
+                  'bg-[#b3d565] text-[#0b1f12]',
+                  'bg-white text-[#0b1f12]',
+                  'bg-[#096c27] text-white',
+                ][i]
+                return (
+                  <article
+                    key={p.label}
+                    data-stack
+                    style={{ top: `${6 + i * 1.25}rem` }}
+                    className={`sticky mb-6 grid overflow-hidden rounded-[2rem] shadow-[0_30px_60px_-25px_rgba(0,0,0,0.7)] md:grid-cols-5 lg:min-h-[28rem] ${theme}`}
+                  >
+                    <div className="relative h-52 md:col-span-2 md:h-auto">
+                      <img src={p.image} alt="" loading="lazy" className="absolute inset-0 h-full w-full object-cover" />
+                    </div>
+                    <div className="flex flex-col justify-between gap-10 p-7 sm:p-10 md:col-span-3">
+                      <span className="w-fit rounded-full border border-current px-3.5 py-1 text-xs font-semibold opacity-80">{p.label}</span>
+                      <div>
+                        <h3 className="font-nunito text-[clamp(1.8rem,3vw,3.1rem)] font-light leading-[1.02] tracking-[-0.045em]">{p.title}</h3>
+                        <p className="mt-4 max-w-lg text-[13px] leading-relaxed opacity-80 sm:text-sm">{p.body}</p>
+                      </div>
+                    </div>
+                  </article>
+                )
+              })}
+            </div>
+          </div>
+        </section>
+
+        {/* ============ 3. WHY CHIS + CTA ============ */}
+        <section id="unique" aria-labelledby="unique-title" className="relative bg-[#f3f8e6]">
+          <div className="mx-auto max-w-[90rem] px-5 pb-24 pt-24 sm:px-10 sm:pt-36 lg:px-14">
+            <div className="flex flex-wrap items-end justify-between gap-6">
+              <Lines id="unique-title" lines={['Four reasons', 'people choose CHIS.']} accent="italic text-[#096c27]" className="text-[clamp(2.4rem,min(7vw,12svh),7rem)] leading-[0.9]" />
+              <p data-fade className="max-w-xs text-sm leading-relaxed text-[#0b1f12]/70">Transparent hospitality, an award-winning workforce and heartfelt care.</p>
+            </div>
+
+            <ul className="mt-14 sm:mt-20">
+              {UNIQUE.map((u, i) => {
+                const Icon = u.icon
+                const on = open === i
+                return (
+                  <li key={u.title} data-row className="border-t border-[#096c27]/25 last:border-b">
                     <button
-                      key={c.tab}
                       type="button"
-                      role="tab"
-                      aria-selected={ch === i}
-                      onClick={() => setCh(i)}
-                      className={`shrink-0 rounded-full px-4 py-2 text-xs font-semibold transition-all duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#096c27] sm:text-sm ${ch === i ? `bg-[#096c27] text-white ${SH_SM}` : 'bg-white text-[#096c27] hover:bg-[#dfe9cf]'}`}
+                      aria-expanded={on}
+                      onMouseEnter={() => setOpen(i)}
+                      onFocus={() => setOpen(i)}
+                      onClick={() => setOpen(i)}
+                      className="group flex w-full items-center gap-4 py-6 text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-[#096c27] sm:gap-6 sm:py-9"
                     >
-                      {c.tab}
+                      <span className={`grid h-12 w-12 shrink-0 place-items-center rounded-full transition-colors duration-500 sm:h-14 sm:w-14 ${on ? 'bg-[#096c27] text-[#b3d565]' : 'bg-white text-[#096c27]'}`}>
+                        <Icon className="h-5 w-5 sm:h-6 sm:w-6" aria-hidden="true" />
+                      </span>
+                      <span className={`flex-1 font-nunito text-[clamp(1.8rem,5vw,4.6rem)] font-light leading-none tracking-[-0.05em] transition-all duration-500 ${on ? 'translate-x-2 text-[#096c27]' : 'text-[#0b1f12]'}`}>{u.title}</span>
+                      <span className="hidden text-xs font-semibold text-[#096c27] md:block">{u.sub}</span>
+                      <ArrowUpRight className={`h-6 w-6 shrink-0 text-[#096c27] transition-transform duration-500 ${on ? 'rotate-45' : ''}`} aria-hidden="true" />
                     </button>
-                  ))}
-                </div>
-                <div className="min-h-0 py-2 sm:py-3" aria-live="polite">
-                  <p data-ch-text className="text-xs font-semibold text-[#096c27]">{s.kicker}</p>
-                  <h3 data-ch-text className="mt-2 font-nunito text-[clamp(1.4rem,min(3.2vw,5.5svh),3.5rem)] font-light leading-[1.05] tracking-[-0.04em]">{s.title}</h3>
-                  <p data-ch-text className="mt-3 max-w-lg text-[13px] leading-relaxed text-[#0b1f12]/75 sm:text-base">{s.body}</p>
-                </div>
-                <div className="h-[3px] w-full shrink-0 bg-[#096c27]/15" aria-hidden="true">
-                  <div className="h-full bg-[#096c27] transition-[width] duration-700 ease-out" style={{ width: `${((ch + 1) / STORY.length) * 100}%` }} />
+                    <div className={`grid transition-[grid-template-rows] duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] ${on ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'}`}>
+                      <div className="overflow-hidden">
+                        <p className="max-w-xl pb-8 text-sm leading-relaxed text-[#0b1f12]/70 sm:pl-[4.75rem] sm:text-base">{u.body}</p>
+                      </div>
+                    </div>
+                  </li>
+                )
+              })}
+            </ul>
+          </div>
+
+          {/* CTA */}
+          <div data-cta id="enquire" className="relative isolate overflow-hidden bg-[#096c27] px-5 py-24 text-white sm:px-10 sm:py-32 lg:px-14">
+            <div aria-hidden="true" className="pointer-events-none absolute -left-[12%] -top-[45%] -z-10 h-[55vw] w-[55vw] rounded-full border border-white/15" />
+            <div aria-hidden="true" className="pointer-events-none absolute -bottom-[40%] -right-[8%] -z-10 h-[45vw] w-[45vw] rounded-full bg-[#b3d565]/15 blur-3xl" />
+            <div className="mx-auto grid max-w-[90rem] items-center gap-14 lg:grid-cols-12">
+              <div className="lg:col-span-8">
+                <Lines id="cta-title" lines={["Let's simplify", 'your next trip.']} accent="italic text-[#b3d565]" className="text-[clamp(2.8rem,min(9.5vw,17svh),9.5rem)] leading-[0.88]" />
+                <p data-fade className="mt-8 max-w-md text-sm leading-relaxed text-white/80 sm:text-base">
+                  Tell us where you want to go and we will match it with one of 3,500+ collaborative properties, at a price that works for you.
+                </p>
+                <div data-fade className="mt-8">
+                  <Magnetic strength={0.2}>
+                    <Link to="/contact" className="inline-flex items-center rounded-full border border-white/40 px-7 py-3.5 text-sm font-semibold transition-colors hover:border-[#b3d565] hover:text-[#b3d565] focus:outline-none focus-visible:ring-2 focus-visible:ring-white">
+                      Contact our office
+                    </Link>
+                  </Magnetic>
                 </div>
               </div>
-            </div>
-          </div>
-        </Sec>
 
-        {/* ============ 5. VALUE / MISSION / VISION ============ */}
-        <Sec id="drives" labelledby="drives-title" className="bg-[#f3f8e6] text-[#0b1f12]">
-          <BgRings position="top-left" />
-          <div className="flex min-h-0 flex-1 flex-col gap-4 sm:gap-6">
-            <div className="flex shrink-0 flex-wrap items-end justify-between gap-3">
-              <Lines id="drives-title" lines={['Value, mission and vision.']} accentClass="italic text-[#096c27]" className="text-[clamp(1.8rem,min(5.4vw,8.5svh),5.5rem)] text-[#0b1f12]" />
-              <p data-fade className="text-sm text-[#0b1f12]/70">Tap or hover a panel to open it.</p>
+              <div className="flex justify-center lg:col-span-4 lg:justify-end">
+                <Magnetic strength={0.15}>
+                  <button type="button" data-cta-pill onClick={() => handleOpenBooking('Custom Holiday Consultation')} aria-label="Plan your vacation" className="relative grid h-60 w-60 place-items-center rounded-full bg-[#b3d565] text-[#0b1f12] transition-transform duration-500 hover:scale-105 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-[#096c27] sm:h-72 sm:w-72">
+                    <svg data-spin viewBox="0 0 200 200" aria-hidden="true" className="absolute inset-0 h-full w-full">
+                      <defs><path id="chis-circ" d="M100,100 m-80,0 a80,80 0 1,1 160,0 a80,80 0 1,1 -160,0" /></defs>
+                      <text fontSize="13" fontWeight="600" fill="currentColor" textLength="496" lengthAdjust="spacing">
+                        <textPath href="#chis-circ">Plan your vacation • Plan your vacation • </textPath>
+                      </text>
+                    </svg>
+                    <ArrowUpRight className="h-14 w-14" aria-hidden="true" />
+                  </button>
+                </Magnetic>
+              </div>
             </div>
-            <ValuePanels />
-          </div>
-        </Sec>
 
-        {/* ============ 6. WHY WE ARE UNIQUE ============ */}
-        <Sec id="unique" labelledby="unique-title" className="bg-white">
-          <BgRings position="top-right" />
-          <div className="flex shrink-0 flex-wrap items-end justify-between gap-4 pb-4 sm:pb-6">
-            <Lines id="unique-title" lines={['Four reasons people choose CHIS.']} accentClass="italic text-[#096c27]" className="max-w-3xl text-[clamp(1.8rem,min(4.8vw,8svh),5rem)]" />
-            <p data-fade className="hidden max-w-xs text-sm leading-relaxed text-[#0b1f12]/70 md:block">Transparent hospitality, an award-winning workforce, and heartfelt care.</p>
+            {(brand?.address || brand?.phone) && (
+              <div className="mx-auto mt-16 flex max-w-[90rem] flex-wrap gap-x-10 gap-y-3 border-t border-white/20 pt-6 text-xs text-white/85 sm:text-sm">
+                {brand?.address && <span className="flex items-center gap-2.5"><MapPin className="h-4 w-4 shrink-0 text-[#b3d565]" aria-hidden="true" />{brand.address}</span>}
+                {brand?.phone && <span className="flex items-center gap-2.5"><PhoneCall className="h-4 w-4 shrink-0 text-[#b3d565]" aria-hidden="true" />{brand.phone}</span>}
+              </div>
+            )}
           </div>
-          <div className="grid min-h-0 flex-1 grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 lg:gap-5">
-            {UNIQUE.map((u) => {
-              const Icon = u.icon
-              return (
-                <article key={u.title} data-rise className={`group flex min-h-0 flex-col justify-between overflow-hidden rounded-[1.75rem] border p-5 transition-transform duration-500 hover:-translate-y-2 sm:p-6 ${SH} ${u.bg} ${u.dark ? 'border-[#096c27]' : 'border-[#0b1f12]/10'}`}>
-                  <div className="min-h-0">
-                    <span className={`grid h-10 w-10 place-items-center rounded-2xl transition-transform duration-700 group-hover:rotate-[360deg] sm:h-12 sm:w-12 ${u.iconBg}`}>
-                      <Icon className="h-5 w-5 sm:h-6 sm:w-6" aria-hidden="true" />
-                    </span>
-                    <p className={`mt-3 text-[11px] font-semibold sm:mt-5 sm:text-xs ${u.dark ? 'text-[#b3d565]' : 'text-[#096c27]'}`}>{u.subtitle}</p>
-                    <h3 className="mt-0.5 font-nunito text-lg font-medium leading-snug tracking-[-0.03em] sm:text-2xl">{u.title}</h3>
-                    <p className={`mt-2 text-[12px] leading-relaxed sm:text-sm ${u.dark ? 'text-white/80' : 'text-[#0b1f12]/75'}`}>{u.body}</p>
-                  </div>
-                  <div className={`mt-4 flex items-center justify-between border-t pt-3 text-[11px] font-semibold sm:text-xs ${u.dark ? 'border-white/15 text-[#b3d565]' : 'border-[#096c27]/15 text-[#096c27]'}`}>
-                    {u.badge}
-                    <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" aria-hidden="true" />
-                  </div>
-                </article>
-              )
-            })}
-          </div>
-        </Sec>
-
-        {/* ============ 7. CTA ============ */}
-        <Sec id="enquire" labelledby="cta-title" className="isolate bg-white text-[#0b1f12] border-t border-[#096c27]/10">
-          <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10">
-            <div className="absolute -right-[10%] -top-[30%] h-[55vw] w-[55vw] rounded-full border border-[#096c27]/10" />
-            <div className="absolute -right-[2%] -top-[18%] h-[38vw] w-[38vw] rounded-full border border-[#096c27]/10" />
-            <div className="absolute -bottom-[40%] -left-[10%] h-[50vw] w-[50vw] rounded-full bg-[#f3f8e6] blur-3xl" />
-          </div>
-          <Lines id="cta-title" lines={["Let's simplify", 'your next trip.']} accentClass="italic text-[#096c27]" className="text-[clamp(2.35rem,min(9.5vw,18svh),10.5rem)] leading-[0.9] tracking-[-0.055em] text-[#0b1f12]" />
-          <div data-fade className="mt-8 flex flex-wrap items-center gap-4 lg:mt-12">
-            <Magnetic><Pill dark onClick={() => handleOpenBooking('Custom Holiday Consultation')}>Plan your vacation</Pill></Magnetic>
-            <Magnetic strength={0.25}>
-              <Link to="/contact" className="inline-flex items-center gap-2.5 rounded-full border border-[#096c27]/50 px-7 py-3.5 text-sm font-semibold text-[#096c27] transition-colors hover:border-[#096c27] hover:bg-[#096c27] hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-[#096c27]">
-                Contact our office <ArrowRight className="h-4 w-4" aria-hidden="true" />
-              </Link>
-            </Magnetic>
-          </div>
-          {(brand?.address || brand?.phone) && (
-            <div data-fade className="mt-8 flex flex-wrap items-center gap-x-8 gap-y-3 border-t border-[#096c27]/25 pt-6 text-xs sm:text-sm text-[#0b1f12]/80 lg:mt-14">
-              {brand?.address && <span className="flex items-center gap-2.5"><MapPin className="h-4 w-4 shrink-0 text-[#096c27]" aria-hidden="true" />{brand.address}</span>}
-              {brand?.phone && <span className="flex items-center gap-2.5"><PhoneCall className="h-4 w-4 shrink-0 text-[#096c27]" aria-hidden="true" />{brand.phone}</span>}
-            </div>
-          )}
-        </Sec>
+        </section>
       </div>
     </PageTransition>
   )

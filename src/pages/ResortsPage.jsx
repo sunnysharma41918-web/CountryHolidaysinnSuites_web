@@ -101,7 +101,7 @@ export default function ResortsPage() {
         {/* ───── Header band ───── */}
         <header className="relative overflow-hidden bg-midnight pb-36 pt-32 text-white sm:pt-36">
           <Contours />
-          <div className="relative mx-auto flex max-w-7xl flex-col gap-8 px-5 sm:px-8 md:flex-row md:items-end md:justify-between lg:px-12">
+          <div className="relative mx-auto flex max-w-[1400px] flex-col gap-8 px-5 sm:px-8 md:flex-row md:items-end md:justify-between lg:px-12">
             <div className="max-w-2xl">
               <h1 className="font-display text-5xl leading-[1.05] sm:text-6xl">
                 Find a stay that fits the landscape.
@@ -129,7 +129,7 @@ export default function ResortsPage() {
           </div>
         </header>
 
-        <div className="mx-auto max-w-7xl px-5 pb-24 sm:px-8 lg:px-12">
+        <div className="mx-auto max-w-[1400px] px-5 pb-24 sm:px-8 lg:px-12">
           {/* ───── Search + destination filter, overlapping the header ───── */}
           <div className="relative z-10 -mt-24 rounded-3xl border border-[#e3dccd] bg-white p-4 shadow-[0_24px_60px_-28px_rgba(10,20,40,0.35)] sm:p-5">
             <div className="relative">

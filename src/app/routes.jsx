@@ -1,5 +1,5 @@
 import { Routes, Route, Navigate } from 'react-router-dom'
-import HomePage from '../pages/HomePage'
+import LandingPage from '../pages/LandingPage'
 import ResortsPage from '../pages/ResortsPage'
 import VacationPackagesPage from '../pages/VacationPackagesPage'
 import ResortDetailsPage from '../pages/ResortDetailsPage'
@@ -27,7 +27,7 @@ export default function AppRoutes() {
   return (
     <Routes>
       {/* ================= PUBLIC WEBSITE ROUTES ================= */}
-      <Route path="/" element={<HomePage />} />
+      <Route path="/" element={<LandingPage />} />
       <Route path="/destinations" element={<DestinationsPage />} />
       <Route path="/destinations/category/:category" element={<DestinationCategoryPage />} />
       <Route path="/destinations/alleppe" element={<Navigate to="/destinations/alleppey" replace />} />
@@ -67,7 +67,7 @@ export default function AppRoutes() {
       </Route>
 
       {/* Fallback */}
-      <Route path="*" element={<HomePage />} />
+      <Route path="*" element={<LandingPage />} />
     </Routes>
   )
 }

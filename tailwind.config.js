@@ -31,6 +31,8 @@ export default {
         sora: ['"Sora"', 'sans-serif'],
         epilogue: ['"Epilogue"', 'sans-serif'],
         poppins: ['"Poppins"', 'sans-serif'],
+        serif: ['"DM Serif Display"', 'Georgia', 'serif'],
+        'dm-serif': ['"DM Serif Display"', 'Georgia', 'serif'],
       },
       boxShadow: {
         soft: '0 10px 30px -5px rgba(0, 0, 0, 0.05), 0 4px 10px -2px rgba(0, 0, 0, 0.03)',

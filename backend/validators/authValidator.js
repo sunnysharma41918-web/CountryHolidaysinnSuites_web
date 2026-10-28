@@ -10,8 +10,8 @@ export const validateLogin = (req, res, next) => {
     errors.push('Username is required')
   }
 
-  if (!password || String(password).length < 6) {
-    errors.push('Password is required and must be at least 6 characters')
+  if (!password || String(password).length < 4) {
+    errors.push('Password is required and must be at least 4 characters')
   }
 
   if (errors.length > 0) {

@@ -34,7 +34,7 @@ function AppLayout({ bookingModalOpen, setBookingModalOpen, modalData, setModalD
   }
 
   return (
-    <div className="min-h-screen bg-[#f3f8e6] text-slate-800 antialiased font-sans">
+    <div className="min-h-screen bg-[#fbfdfa] text-slate-800 antialiased font-sans">
       <Preloader visible={loading} />
       <Navbar
         onBookNow={() => {

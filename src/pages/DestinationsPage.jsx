@@ -56,7 +56,7 @@ export default function DestinationsPage() {
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_80%_20%,rgba(232,74,40,0.15),transparent_50%)]" />
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_20%_80%,rgba(20,50,40,0.6),transparent_60%)]" />
 
-          <div className="relative mx-auto max-w-7xl px-4 sm:px-8 lg:px-12">
+          <div className="relative mx-auto max-w-[1400px] px-4 sm:px-8 lg:px-12">
             <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
               <div className="max-w-3xl">
                 <p className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3.5 py-1.5 text-xs font-semibold uppercase tracking-[0.2em] text-[#f2d7a2] ring-1 ring-white/15 backdrop-blur-md">
@@ -97,7 +97,7 @@ export default function DestinationsPage() {
         </section>
 
         {/* ================= 2. FILTER & SEARCH CONTROL BAR ================= */}
-        <section className="relative z-20 -mt-10 mx-auto max-w-7xl px-4 sm:px-8 lg:px-12">
+        <section className="relative z-20 -mt-10 mx-auto max-w-[1400px] px-4 sm:px-8 lg:px-12">
           <div className="rounded-3xl border border-[#e3dccd] bg-white p-4 shadow-[0_20px_50px_-20px_rgba(10,20,40,0.25)] sm:p-5">
             <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
               {/* Category Selection Tabs */}
@@ -196,7 +196,7 @@ export default function DestinationsPage() {
         </section>
 
         {/* ================= 3. DESTINATIONS CONTENT ================= */}
-        <div className="mx-auto max-w-7xl px-4 py-12 sm:px-8 sm:py-16 lg:px-12">
+        <div className="mx-auto max-w-[1400px] px-4 py-12 sm:px-8 sm:py-16 lg:px-12">
           {/* Active Filter & Count Summary */}
           {searchQuery && (
             <div className="mb-8 flex items-center justify-between text-sm text-midnight/70">

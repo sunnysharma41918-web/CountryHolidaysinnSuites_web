@@ -56,7 +56,7 @@ export default function ContactSection() {
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_50%_50%,transparent_50%,rgba(3,8,12,0.6)_100%)]" />
       </div>
 
-      <div className="relative mx-auto flex min-h-[100svh] w-full max-w-[1600px] flex-col px-5 pb-5 pt-28 sm:px-8 sm:pt-32 lg:px-12">
+      <div className="relative mx-auto flex min-h-[100svh] w-full max-w-[1400px] flex-col px-5 pb-5 pt-28 sm:px-8 sm:pt-32 lg:px-12">
         <div className="grid flex-1 content-center gap-12 py-8 lg:grid-cols-12 lg:gap-14">
           {/* ───────── Left: headline + contact cards ───────── */}
           <div className="flex flex-col gap-8 lg:col-span-7">

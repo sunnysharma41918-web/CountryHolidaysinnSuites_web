@@ -2,22 +2,29 @@ import mongoose from 'mongoose'
 import { Property } from '../models/Property.js'
 import { AuditLog } from '../models/AuditLog.js'
 import { User } from '../models/User.js'
+import { defaultResorts } from '../data/defaultResorts.js'
 
 export const getDashboardStats = async (req, res, next) => {
   try {
     if (mongoose.connection.readyState !== 1) {
+      const total = defaultResorts.length
+      const destinationStats = [...defaultResorts.reduce((acc, r) => {
+        acc.set(r.destination, (acc.get(r.destination) || 0) + 1)
+        return acc
+      }, new Map())].map(([destination, count]) => ({ _id: destination, count }))
+
       return res.status(200).json({
         success: true,
         stats: {
-          totalProperties: 0,
-          publishedCount: 0,
+          totalProperties: total,
+          publishedCount: defaultResorts.filter((r) => r.status === 'published').length,
           draftCount: 0,
           archivedCount: 0,
-          activeCount: 0,
+          activeCount: total,
           inactiveCount: 0,
-          sourceBreakdown: { VIA_OTA: 0, VIA_OTA_EXCHANGE: 0 },
-          totalUsers: 0,
-          destinationStats: [],
+          sourceBreakdown: { VIA_OTA: defaultResorts.filter((r) => r.source === 'VIA_OTA').length, VIA_OTA_EXCHANGE: defaultResorts.filter((r) => r.source === 'VIA_OTA_EXCHANGE').length },
+          totalUsers: 1,
+          destinationStats,
           recentActivity: [],
           isFallback: true,
         },
@@ -52,6 +59,32 @@ export const getDashboardStats = async (req, res, next) => {
       ]),
     ])
 
+    const effectiveTotal = totalProperties || defaultResorts.length
+    const effectivePublished = totalProperties ? publishedCount : defaultResorts.filter((r) => r.status === 'published').length
+    const effectiveActive = totalProperties ? activeCount : defaultResorts.length
+
+    res.status(200).json({
+      success: true,
+      stats: {
+        totalProperties: effectiveTotal,
+        publishedCount: effectivePublished,
+        draftCount,
+        archivedCount,
+        activeCount: effectiveActive,
+        sourceBreakdown: {
+          VIA_OTA: viaOtaCount || defaultResorts.filter((r) => r.source === 'VIA_OTA').length,
+          VIA_OTA_EXCHANGE: viaOtaExchangeCount || defaultResorts.filter((r) => r.source === 'VIA_OTA_EXCHANGE').length,
+        },
+        totalUsers: totalUsers || 1,
+        destinationStats: destinationStats.length ? destinationStats : [...defaultResorts.reduce((acc, r) => {
+          acc.set(r.destination, (acc.get(r.destination) || 0) + 1)
+          return acc
+        }, new Map())].map(([destination, count]) => ({ _id: destination, count })),
+        recentActivity: recentAuditLogs,
+      },
+    })
+    return
+    // (legacy below)
     res.status(200).json({
       success: true,
       stats: {

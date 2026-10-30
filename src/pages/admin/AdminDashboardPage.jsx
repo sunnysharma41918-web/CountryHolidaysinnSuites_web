@@ -94,8 +94,15 @@ export default function AdminDashboardPage() {
       if (e.detail) setOffers(e.detail)
       else setOffers(getStoredOffers())
     }
+    const handlePropsUpdated = () => {
+      fetchDashboardData()
+    }
     window.addEventListener('chis-offers-updated', handleOffersUpdated)
-    return () => window.removeEventListener('chis-offers-updated', handleOffersUpdated)
+    window.addEventListener('chis-properties-updated', handlePropsUpdated)
+    return () => {
+      window.removeEventListener('chis-offers-updated', handleOffersUpdated)
+      window.removeEventListener('chis-properties-updated', handlePropsUpdated)
+    }
   }, [])
 
   const handleToggleOffer = (id) => {
@@ -133,12 +140,13 @@ export default function AdminDashboardPage() {
     )
   }
 
-  const s = stats || {
+  const hasStats = stats && stats.totalProperties > 0
+  const s = hasStats ? stats : {
     totalProperties: recentProperties.length || 7,
-    publishedCount: recentProperties.filter((p) => p.status === 'published').length || 7,
-    draftCount: 0,
-    archivedCount: 0,
-    activeCount: recentProperties.length || 7,
+    publishedCount: recentProperties.filter((p) => p.status === 'published').length || recentProperties.length || 7,
+    draftCount: recentProperties.filter((p) => p.status === 'draft').length || 0,
+    archivedCount: recentProperties.filter((p) => p.status === 'archived').length || 0,
+    activeCount: recentProperties.filter((p) => p.isActive !== false).length || recentProperties.length || 7,
     sourceBreakdown: { VIA_OTA: 4, VIA_OTA_EXCHANGE: 3 },
     destinationStats: [
       { destination: 'Agra', count: 3 },
@@ -544,17 +552,17 @@ export default function AdminDashboardPage() {
                   <div className="flex min-w-0 items-center gap-3.5">
                     <div className="h-12 w-12 shrink-0 overflow-hidden rounded-xl border border-stone-200 bg-stone-100">
                       <img
-                        src={prop.coverImage || prop.gallery?.[0] || '/placeholder.jpg'}
-                        alt={prop.title}
+                        src={prop.coverImage || prop.image || prop.gallery?.[0] || '/hero-mountain.jpg'}
+                        alt={prop.title || prop.name || 'Property'}
                         className="h-full w-full object-cover"
                         onError={(e) => {
-                          e.currentTarget.src = '/tree-logo.png'
+                          e.currentTarget.src = '/hero-mountain.jpg'
                         }}
                       />
                     </div>
                     <div className="min-w-0">
                       <div className="flex flex-wrap items-center gap-2">
-                        <span className="truncate text-sm font-semibold text-stone-900">{prop.title}</span>
+                        <span className="truncate text-sm font-semibold text-stone-900">{prop.title || prop.name}</span>
                         <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-semibold capitalize ${st.chip}`}>
                           <span className={`h-1.5 w-1.5 rounded-full ${st.dot}`} />
                           {prop.status}

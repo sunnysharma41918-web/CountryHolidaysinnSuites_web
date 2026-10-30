@@ -2,6 +2,7 @@ import mongoose from 'mongoose'
 import { Property } from '../models/Property.js'
 import { AuditLog } from '../models/AuditLog.js'
 import { logAudit } from '../services/auditService.js'
+import { defaultResorts } from '../data/defaultResorts.js'
 
 // Slug generator helper
 const slugify = (text) => {
@@ -71,13 +72,25 @@ export const getAdminProperties = async (req, res, next) => {
     sortObj[sortBy] = order === 'asc' ? 1 : -1
 
     if (mongoose.connection.readyState !== 1) {
+      let filtered = [...defaultResorts]
+      if (status && status !== 'All') filtered = filtered.filter((p) => p.status === status)
+      if (source && source !== 'All') filtered = filtered.filter((p) => p.source === source)
+      if (destination && destination !== 'All') filtered = filtered.filter((p) => p.destination?.toLowerCase() === destination.trim().toLowerCase())
+      if (isActive !== undefined && isActive !== 'All') filtered = filtered.filter((p) => String(p.isActive) === String(isActive))
+      if (search && String(search).trim()) {
+        const s = String(search).trim().toLowerCase()
+        filtered = filtered.filter((p) => p.name?.toLowerCase().includes(s) || p.slug?.toLowerCase().includes(s) || p.destination?.toLowerCase().includes(s))
+      }
+      const total = filtered.length
+      const paginated = filtered.slice(skip, skip + limitNum)
+      const totalPages = Math.ceil(total / limitNum) || 1
       return res.status(200).json({
         success: true,
-        count: 0,
-        total: 0,
+        count: paginated.length,
+        total,
         page: pageNum,
-        totalPages: 1,
-        properties: [],
+        totalPages,
+        properties: paginated,
         isFallback: true,
       })
     }
@@ -92,15 +105,24 @@ export const getAdminProperties = async (req, res, next) => {
       Property.countDocuments(query),
     ])
 
-    const totalPages = Math.ceil(total / limitNum) || 1
+    let finalProperties = properties
+    let finalTotal = total
+    let isFallback = false
+    if (total === 0 && (!search || !String(search).trim()) && (!status || status === 'All') && (!destination || destination === 'All')) {
+      finalProperties = defaultResorts.slice(skip, skip + limitNum)
+      finalTotal = defaultResorts.length
+      isFallback = true
+    }
+    const totalPages = Math.ceil(finalTotal / limitNum) || 1
 
     res.status(200).json({
       success: true,
-      count: properties.length,
-      total,
+      count: finalProperties.length,
+      total: finalTotal,
       page: pageNum,
       totalPages,
-      properties,
+      properties: finalProperties,
+      isFallback,
     })
   } catch (error) {
     next(error)

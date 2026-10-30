@@ -1,4 +1,4 @@
-import { resorts, getResortBySlug } from '../data/resorts'
+import { resorts, getResortBySlug, getAllResorts, saveCustomResort } from '../data/resorts'
 
 const API_BASE = import.meta.env.VITE_API_URL || '/api'
 
@@ -46,7 +46,8 @@ export const api = {
     }
 
     // Static fallback
-    let filtered = [...resorts]
+    const allItems = getAllResorts ? getAllResorts() : resorts
+    let filtered = [...allItems]
     if (params.destination && params.destination !== 'All') {
       filtered = filtered.filter(
         (r) => r.destination?.toLowerCase() === params.destination.toLowerCase()
@@ -234,37 +235,49 @@ export const api = {
 
   // Admin Endpoints
   async getDashboardStats() {
+    const all = (typeof getAllResorts === 'function' ? getAllResorts() : resorts) || []
     try {
       const res = await fetch(`${API_BASE}/admin/stats`, {
         method: 'GET',
         headers: getHeaders(false),
         credentials: 'include',
       })
-      return await handleResponse(res)
-    } catch {
-      // Offline fallback computed from local resorts data
-      const total = resorts.length
-      const destinationStats = [...resorts.reduce((acc, r) => {
-        acc.set(r.destination, (acc.get(r.destination) || 0) + 1)
-        return acc
-      }, new Map())].map(([destination, count]) => ({ destination, count }))
-
-      return {
-        success: true,
-        stats: {
-          totalProperties: total,
-          publishedCount: resorts.filter((r) => r.featured).length,
-          draftCount: 0,
-          archivedCount: 0,
-          activeCount: total,
-          inactiveCount: 0,
-          sourceBreakdown: { VIA_OTA: total, VIA_OTA_EXCHANGE: 0 },
-          totalUsers: 1,
-          destinationStats,
-          recentActivity: [],
-          isFallback: true,
-        },
+      if (res.ok) {
+        const data = await res.json()
+        if (data.success && data.stats && data.stats.totalProperties > 0) {
+          return data
+        }
       }
+    } catch {
+      // Offline / dev fallback
+    }
+
+    const total = all.length
+    const destinationStats = [...all.reduce((acc, r) => {
+      if (r.destination) {
+        acc.set(r.destination, (acc.get(r.destination) || 0) + 1)
+      }
+      return acc
+    }, new Map())].map(([destination, count]) => ({ destination, _id: destination, count }))
+
+    return {
+      success: true,
+      stats: {
+        totalProperties: total,
+        publishedCount: all.filter((r) => r.status === 'published' || r.featured).length,
+        draftCount: all.filter((r) => r.status === 'draft').length,
+        archivedCount: all.filter((r) => r.status === 'archived').length,
+        activeCount: all.filter((r) => r.isActive !== false).length,
+        inactiveCount: all.filter((r) => r.isActive === false).length,
+        sourceBreakdown: {
+          VIA_OTA: all.filter((r) => (r.source || 'VIA_OTA') === 'VIA_OTA').length,
+          VIA_OTA_EXCHANGE: all.filter((r) => r.source === 'VIA_OTA_EXCHANGE').length,
+        },
+        totalUsers: 1,
+        destinationStats,
+        recentActivity: [],
+        isFallback: true,
+      },
     }
   },
 
@@ -282,10 +295,27 @@ export const api = {
         headers: getHeaders(false),
         credentials: 'include',
       })
-      return await handleResponse(res)
+      if (res.ok) {
+        const data = await res.json()
+        if (data.success && data.properties && data.properties.length > 0) {
+          // Normalize properties to ensure both title and name, coverImage and image exist
+          data.properties = data.properties.map((p) => ({
+            ...p,
+            name: p.name || p.title,
+            title: p.title || p.name,
+            image: p.image || p.coverImage || p.gallery?.[0] || '/placeholder.jpg',
+            coverImage: p.coverImage || p.image || p.gallery?.[0] || '/placeholder.jpg',
+          }))
+          return data
+        }
+      }
     } catch {
-      // Offline fallback from local resorts data
-      let filtered = [...resorts]
+      // Offline / dev fallback
+    }
+
+    // Comprehensive fallback from all resorts (baseline + localStorage)
+    const all = (typeof getAllResorts === 'function' ? getAllResorts() : resorts) || []
+    let filtered = [...all]
 
       if (params.search) {
         const s = String(params.search).toLowerCase()
@@ -326,23 +356,23 @@ export const api = {
       const totalPages = Math.ceil(total / limitNum) || 1
 
       const properties = paginated.map((r) => ({
-        _id: r.id,
-        id: r.id,
-        name: r.name,
-        title: r.name,
+        _id: r._id || r.id,
+        id: r.id || r._id,
+        name: r.name || r.title,
+        title: r.title || r.name,
         slug: r.slug,
-        internalId: `CHIS-PROP-${String(r.id).padStart(4, '0')}`,
-        externalId: '',
-        status: 'published',
-        isActive: true,
-        source: 'VIA_OTA',
+        internalId: r.internalId || (typeof r.id === 'number' ? `CHIS-PROP-${String(r.id).padStart(4, '0')}` : r.id),
+        externalId: r.externalId || '',
+        status: r.status || 'published',
+        isActive: r.isActive !== undefined ? r.isActive : true,
+        source: r.source || 'VIA_OTA',
         destination: r.destination,
         location: r.location,
-        image: r.image,
-        coverImage: r.image,
+        image: r.image || r.coverImage || r.gallery?.[0] || '/placeholder.jpg',
+        coverImage: r.coverImage || r.image || r.gallery?.[0] || '/placeholder.jpg',
         gallery: r.gallery || [],
         amenities: r.amenities || [],
-        createdAt: new Date().toISOString(),
+        createdAt: r.createdAt || new Date().toISOString(),
       }))
 
       return {
@@ -354,7 +384,6 @@ export const api = {
         properties,
         isFallback: true,
       }
-    }
   },
 
   async getAdminPropertyById(id) {
@@ -395,23 +424,62 @@ export const api = {
   },
 
   async createProperty(propertyData) {
-    const res = await fetch(`${API_BASE}/admin/properties`, {
-      method: 'POST',
-      headers: getHeaders(true),
-      credentials: 'include',
-      body: JSON.stringify(propertyData),
-    })
-    return await handleResponse(res)
+    try {
+      const res = await fetch(`${API_BASE}/admin/properties`, {
+        method: 'POST',
+        headers: getHeaders(true),
+        credentials: 'include',
+        body: JSON.stringify(propertyData),
+      })
+      if (res.ok) {
+        const data = await res.json()
+        if (data.property) {
+          if (typeof saveCustomResort === 'function') saveCustomResort(data.property)
+        }
+        return data
+      }
+    } catch {
+      // offline fallback
+    }
+
+    const newProp = {
+      ...propertyData,
+      id: propertyData.id || `custom_${Date.now()}`,
+      name: propertyData.name || propertyData.title,
+      title: propertyData.title || propertyData.name,
+      image: propertyData.image || propertyData.coverImage,
+      coverImage: propertyData.coverImage || propertyData.image,
+      internalId: propertyData.internalId || `CHIS-PROP-${Math.floor(1000 + Math.random() * 9000)}`,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    }
+    if (typeof saveCustomResort === 'function') saveCustomResort(newProp)
+    return { success: true, property: newProp, isFallback: true }
   },
 
   async updateProperty(id, propertyData) {
-    const res = await fetch(`${API_BASE}/admin/properties/${id}`, {
-      method: 'PATCH',
-      headers: getHeaders(true),
-      credentials: 'include',
-      body: JSON.stringify(propertyData),
-    })
-    return await handleResponse(res)
+    try {
+      const res = await fetch(`${API_BASE}/admin/properties/${id}`, {
+        method: 'PATCH',
+        headers: getHeaders(true),
+        credentials: 'include',
+        body: JSON.stringify(propertyData),
+      })
+      if (res.ok) {
+        const data = await res.json()
+        if (data.property && typeof saveCustomResort === 'function') {
+          saveCustomResort(data.property)
+        }
+        return data
+      }
+    } catch {
+      // offline fallback
+    }
+
+    if (typeof saveCustomResort === 'function') {
+      saveCustomResort({ ...propertyData, id })
+    }
+    return { success: true, property: { ...propertyData, id }, isFallback: true }
   },
 
   async updatePropertyStatus(id, { status, isActive }) {

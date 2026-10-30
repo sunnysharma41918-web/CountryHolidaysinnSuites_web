@@ -1,7 +1,7 @@
-import { useRef, useState, useEffect } from 'react'
-import { Link, useParams } from 'react-router-dom'
-import { motion, useReducedMotion, useScroll, useTransform } from 'framer-motion'
-import { ArrowDown, ArrowLeft, ArrowUpRight, MapPin } from 'lucide-react'
+import { useEffect, useMemo, useState } from 'react'
+import { Link, useParams, useNavigate } from 'react-router-dom'
+import { motion, useReducedMotion } from 'framer-motion'
+import { ArrowLeft, ArrowUpRight, MapPin, Search, X, BedDouble } from 'lucide-react'
 import PageTransition from '../components/layout/PageTransition'
 import ResortCard from '../components/ui/ResortCard'
 import { getDestinationBySlug } from '../data/destinations'
@@ -10,65 +10,45 @@ import { api } from '../services/api'
 
 const EASE = [0.16, 1, 0.3, 1]
 
-/* small reusable pieces ------------------------------------------------ */
-function Eyebrow({ children, light }) {
-  return (
-    <p
-      className={`flex items-center gap-3 text-xs font-semibold uppercase tracking-[0.3em] ${light ? 'text-gold' : 'text-gold'
-        }`}
-    >
-      <span className="h-px w-10 bg-gold" />
-      {children}
-    </p>
-  )
-}
-
-function Reveal({ children, delay = 0, className = '' }) {
-  const reduce = useReducedMotion()
-  return (
-    <motion.div
-      initial={reduce ? false : { opacity: 0, y: 32 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, amount: 0.25 }}
-      transition={{ duration: 0.9, delay, ease: EASE }}
-      className={className}
-    >
-      {children}
-    </motion.div>
-  )
-}
+const focusRing =
+  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-0'
 
 export default function DestinationPropertiesPage() {
   const { slug } = useParams()
   const reduce = useReducedMotion()
-  const heroRef = useRef(null)
-  const staysRef = useRef(null)
-
-  const { scrollYProgress } = useScroll({ target: heroRef, offset: ['start start', 'end start'] })
-  const imgY = useTransform(scrollYProgress, [0, 1], ['0%', '20%'])
-  const imgScale = useTransform(scrollYProgress, [0, 1], [1, 1.15])
-  const textY = useTransform(scrollYProgress, [0, 1], ['0%', '-18%'])
-  const textOpacity = useTransform(scrollYProgress, [0, 0.7], [1, 0])
+  const [query, setQuery] = useState('')
 
   const destination = getDestinationBySlug(slug)
-  const [destinationResorts, setDestinationResorts] = useState(() =>
-    destination
-      ? resorts.filter((resort) => resort.destination === destination.resortDestination)
-      : []
-  )
+
+  const [destinationResorts, setDestinationResorts] = useState([])
+  const [loadingStays, setLoadingStays] = useState(true)
 
   useEffect(() => {
     let mounted = true
-    if (!destination?.resortDestination) return
+    setQuery('')
+    setDestinationResorts([])
+
+    if (!destination?.resortDestination) {
+      setLoadingStays(false)
+      return
+    }
 
     const loadDestinationStays = async () => {
       try {
+        setLoadingStays(true)
         const res = await api.getProperties({ destination: destination.resortDestination })
-        if (mounted && res && res.properties && res.properties.length > 0) {
+        if (mounted && res && Array.isArray(res.properties)) {
           setDestinationResorts(res.properties)
         }
       } catch (err) {
-        console.warn('Using baseline stays for destination:', err)
+        console.warn('Error loading destination stays:', err)
+        if (mounted) {
+          setDestinationResorts([])
+        }
+      } finally {
+        if (mounted) {
+          setLoadingStays(false)
+        }
       }
     }
 
@@ -76,34 +56,41 @@ export default function DestinationPropertiesPage() {
     return () => {
       mounted = false
     }
-  }, [destination?.resortDestination])
+  }, [destination?.resortDestination, slug])
 
-  const scrollToStays = () =>
-    staysRef.current?.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' })
+  const q = query.trim().toLowerCase()
+  const visibleResorts = useMemo(
+    () =>
+      q
+        ? destinationResorts.filter((r) =>
+          `${r.name ?? ''} ${r.location ?? ''}`.toLowerCase().includes(q),
+        )
+        : destinationResorts,
+    [destinationResorts, q],
+  )
 
-  const openBooking = () =>
-    window.dispatchEvent(
-      new CustomEvent('open-booking-modal', {
-        detail: { destination: destination?.name || 'Holiday Enquiry', persons: '2 Persons', days: 'Holiday Consultation' },
-      }),
-    )
+  const navigate = useNavigate()
+  const openBooking = () => {
+    navigate(`/contact?subject=${encodeURIComponent(destination?.name || 'Holiday Enquiry')}`)
+  }
+
 
   /* ---------------- not found ---------------- */
   if (!destination) {
     return (
       <PageTransition>
         <section className="grid min-h-[100svh] place-items-center bg-[#f9f4ee] px-5">
-          <div className="max-w-xl text-center">
-            <p className="font-display text-[9rem] leading-none text-transparent [-webkit-text-stroke:1.5px_rgba(11,18,38,0.2)]">
-              404
+          <div className="max-w-sm text-center">
+            <p className="font-display text-7xl leading-none text-midnight/20">404</p>
+            <h1 className="mt-2 font-display text-2xl text-midnight">Destination not found</h1>
+            <p className="mt-2 text-xs text-midnight/65">
+              It may have been renamed or moved. Browse every destination instead.
             </p>
-            <h1 className="-mt-6 font-display text-4xl text-midnight sm:text-5xl">Destination not found</h1>
-            <p className="mt-4 text-midnight/65">It may have been renamed or moved. Browse every destination instead.</p>
             <Link
               to="/destinations"
-              className="mt-8 inline-flex items-center gap-2 rounded-full bg-midnight px-7 py-3.5 text-sm font-medium text-white transition hover:bg-midnight/90 focus:outline-none focus-visible:ring-4 focus-visible:ring-gold/70"
+              className="mt-5 inline-flex items-center gap-2 rounded-full bg-midnight px-5 py-2.5 text-xs font-semibold text-white transition hover:bg-midnight/90 focus:outline-none focus-visible:ring-2 focus-visible:ring-gold"
             >
-              <ArrowLeft className="h-4 w-4" aria-hidden="true" />
+              <ArrowLeft className="h-3.5 w-3.5" aria-hidden="true" />
               Browse destinations
             </Link>
           </div>
@@ -112,242 +99,199 @@ export default function DestinationPropertiesPage() {
     )
   }
 
-  const words = String(destination.name).split(' ')
   const count = destinationResorts.length
+  const about = destination.knowYourDestination || destination.description
 
   return (
     <PageTransition>
-      <div className="page-destinations bg-[#f9f4ee]">
-        {/* ================= 1. intro (full screen) ================= */}
-        <section ref={heroRef} className="box-border min-h-[100svh] px-3 pb-4 pt-[5.5rem] sm:px-5 sm:pb-5 sm:pt-[6.5rem] lg:h-[100svh]">
-          <div className="relative isolate mx-auto h-full min-h-[calc(100svh-6.5rem)] max-w-[96rem] overflow-hidden rounded-[2rem] bg-midnight sm:rounded-[2.75rem]">
-            {destination.image && (
-              <motion.img
-                src={destination.image}
-                alt={destination.name}
-                style={reduce ? undefined : { y: imgY, scale: imgScale }}
-                className="absolute inset-0 -z-20 h-full w-full object-cover"
-                initial={reduce ? false : { opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 1.6, ease: EASE }}
-              />
-            )}
-            <div className="absolute inset-0 -z-10 bg-[linear-gradient(100deg,rgba(0,0,0,0.8)_0%,rgba(0,0,0,0.35)_60%,rgba(0,0,0,0.2)_100%)]" />
-            <div className="absolute inset-x-0 bottom-0 -z-10 h-2/3 bg-gradient-to-t from-black/80 to-transparent" />
-
-            <motion.div
-              style={reduce ? undefined : { y: textY, opacity: textOpacity }}
-              className="flex h-full min-h-[calc(100svh-6.5rem)] flex-col justify-between px-5 pb-7 pt-6 sm:px-10 sm:pb-10 sm:pt-10 lg:px-16 lg:py-12"
-            >
-              <motion.nav
-                aria-label="Breadcrumb"
-                initial={reduce ? false : { opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.7, ease: EASE }}
-                className="flex items-center gap-2 text-xs sm:text-sm text-white/70"
-              >
-                <Link
-                  to="/destinations"
-                  className="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-3.5 py-1.5 ring-1 ring-white/20 backdrop-blur-md transition hover:bg-white hover:text-midnight"
-                >
-                  <ArrowLeft className="h-3.5 w-3.5 sm:h-4 sm:w-4" aria-hidden="true" />
-                  All destinations
-                </Link>
-                <span aria-hidden="true">/</span>
-                <span className="truncate text-white">{destination.name}</span>
-              </motion.nav>
-
-              <div className="pt-8 sm:pt-12">
-                <motion.div
-                  initial={reduce ? false : { opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ duration: 0.9, delay: 0.1, ease: EASE }}
-                  className="mb-3 sm:mb-5"
-                >
-                  <Eyebrow>Destination guide</Eyebrow>
-                </motion.div>
-
-                <h1 className="max-w-6xl font-display text-[clamp(2.35rem,8.5vw,9rem)] leading-[0.95] tracking-[-0.03em] text-white">
-                  {words.map((w, i) => (
-                    <span key={i} className="mr-[0.22em] inline-block overflow-hidden pb-[0.1em] align-bottom">
-                      <motion.span
-                        className="inline-block"
-                        initial={reduce ? false : { y: '115%', rotate: 6 }}
-                        animate={{ y: 0, rotate: 0 }}
-                        transition={{ duration: 1.2, delay: 0.2 + i * 0.1, ease: EASE }}
-                      >
-                        {i === words.length - 1 ? <em className="italic text-gold">{w}</em> : w}
-                      </motion.span>
-                    </span>
-                  ))}
-                </h1>
-
-                <div className="mt-6 flex flex-col gap-6 sm:mt-8 sm:gap-8 lg:flex-row lg:items-end lg:justify-between">
-                  <motion.div
-                    initial={reduce ? false : { opacity: 0, y: 18 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.9, delay: 0.55, ease: EASE }}
-                    className="max-w-md"
-                  >
-                    <p className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3.5 py-1.5 text-xs sm:text-sm text-white ring-1 ring-white/20 backdrop-blur-md">
-                      <MapPin className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-gold" aria-hidden="true" />
-                      {destination.region || destination.name}
-                    </p>
-                    {destination.description && (
-                      <p className="mt-3 line-clamp-3 text-sm leading-relaxed text-white/80 sm:mt-4 sm:text-lg">
-                        {destination.description}
-                      </p>
-                    )}
-                  </motion.div>
-
-                  <motion.div
-                    initial={reduce ? false : { opacity: 0, y: 18 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.9, delay: 0.7, ease: EASE }}
-                    className="flex items-center gap-6"
-                  >
-                    <div className="leading-none text-white">
-                      <span className="block font-display text-5xl">{String(count).padStart(2, '0')}</span>
-                      <span className="mt-1 block text-[11px] uppercase tracking-[0.25em] text-white/65">
-                        {count === 1 ? 'Stay' : 'Stays'}
-                      </span>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={scrollToStays}
-                      aria-label="Explore stays"
-                      className="group inline-flex items-center gap-3 rounded-full bg-gold py-1.5 pl-6 pr-1.5 text-sm font-semibold text-midnight transition-transform duration-300 hover:scale-[1.03] focus:outline-none focus-visible:ring-4 focus-visible:ring-white/60"
-                    >
-                      Explore stays
-                      <span className="grid h-11 w-11 place-items-center rounded-full bg-midnight text-gold">
-                        <motion.span
-                          animate={reduce ? undefined : { y: [0, 4, 0] }}
-                          transition={{ duration: 1.8, repeat: Infinity, ease: 'easeInOut' }}
-                        >
-                          <ArrowDown className="h-4 w-4" aria-hidden="true" />
-                        </motion.span>
-                      </span>
-                    </button>
-                  </motion.div>
-                </div>
-              </div>
-            </motion.div>
-          </div>
-        </section>
-
-        {/* ================= 2. get to know the destination ================= */}
-        <section className="mx-auto max-w-7xl px-4 py-14 sm:px-8 sm:py-24 lg:px-12">
-          <div className="grid gap-10 lg:grid-cols-12 lg:gap-16">
-            <div className="lg:col-span-7">
-              <Reveal>
-                <Eyebrow>Get to know the destination</Eyebrow>
-              </Reveal>
-              <Reveal delay={0.08}>
-                <h2 className="mt-4 font-display text-3xl leading-[1.05] text-midnight sm:mt-5 sm:text-5xl lg:text-6xl">
-                  Find your own way to <em className="italic text-gold">{destination.name}.</em>
-                </h2>
-              </Reveal>
-              <Reveal delay={0.16}>
-                <p className="mt-5 text-sm leading-relaxed text-midnight/70 sm:mt-7 sm:text-base sm:leading-8 lg:text-lg">
-                  {destination.knowYourDestination || destination.description}
-                </p>
-              </Reveal>
-            </div>
-
-            <Reveal delay={0.12} className="lg:col-span-5">
-              <aside className="relative isolate flex h-full flex-col justify-between gap-6 overflow-hidden rounded-[2rem] bg-midnight p-6 text-white sm:gap-8 sm:p-9">
-                <div
-                  aria-hidden="true"
-                  className="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_90%_0%,rgba(201,162,75,0.35),transparent_55%)]"
+      {/* Sufficient top padding to clear the fixed navbar with generous space */}
+      <div className="page-destinations flex min-h-[100svh] flex-col bg-[#f9f4ee] px-3 pb-3 pt-[104px] sm:px-5 sm:pb-4 sm:pt-[116px] lg:h-[100svh] lg:overflow-hidden lg:px-8 lg:pt-[124px]">
+        <div className="mx-auto grid min-h-0 w-full max-w-[1500px] flex-1 gap-3 pt-3 lg:grid-cols-[minmax(320px,400px)_minmax(0,1fr)]">
+          {/* ============ LEFT: destination summary ============ */}
+          <aside className="flex min-h-0 flex-col gap-3">
+            {/* Image card */}
+            <div className="relative isolate h-56 shrink-0 overflow-hidden rounded-2xl bg-midnight sm:h-64 lg:h-auto lg:min-h-0 lg:flex-1">
+              {destination.image && (
+                <motion.img
+                  src={destination.image}
+                  alt={destination.name}
+                  initial={reduce ? false : { opacity: 0, scale: 1.04 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 1, ease: EASE }}
+                  className="absolute inset-0 -z-20 h-full w-full object-cover"
                 />
-                <div>
-                  <p className="text-xs font-semibold uppercase tracking-[0.3em] text-gold">Your stay</p>
-                  <p className="mt-3 font-display text-2xl leading-tight sm:mt-4 sm:text-4xl">
-                    {count
-                      ? `${count} ${count === 1 ? 'stay' : 'stays'} to explore`
-                      : 'A stay worth looking forward to'}
-                  </p>
-                  <p className="mt-2.5 text-xs sm:text-sm leading-6 sm:leading-7 text-white/70">
-                    {count
-                      ? `Explore places to stay in ${destination.name} and find the right base for your trip.`
-                      : `We’re preparing property details for ${destination.name}. Check back soon for places to stay.`}
-                  </p>
-                </div>
+              )}
+              <div className="absolute inset-0 -z-10 bg-gradient-to-t from-black/80 via-black/15 to-black/30" />
 
-                <div className="flex flex-wrap items-center gap-3">
-                  <button
-                    type="button"
-                    onClick={openBooking}
-                    className="group inline-flex items-center gap-3 rounded-full bg-gold py-1.5 pl-6 pr-1.5 text-sm font-semibold text-midnight transition-transform duration-300 hover:scale-[1.03] focus:outline-none focus-visible:ring-4 focus-visible:ring-white/60"
-                  >
-                    Plan my stay
-                    <span className="grid h-10 w-10 place-items-center rounded-full bg-midnight text-gold transition-transform duration-500 group-hover:rotate-45">
-                      <ArrowUpRight className="h-4 w-4" aria-hidden="true" />
-                    </span>
-                  </button>
+              <div className="flex h-full flex-col justify-between p-4">
+                <nav aria-label="Breadcrumb" className="flex items-center gap-1.5 text-[11px] text-white/75">
                   <Link
                     to="/destinations"
-                    className="inline-flex h-[3.1rem] items-center gap-2 rounded-full border border-white/35 px-5 sm:px-6 text-sm font-semibold text-white transition hover:bg-white hover:text-midnight focus:outline-none focus-visible:ring-4 focus-visible:ring-white/60"
+                    className={`inline-flex items-center gap-1 rounded-full bg-white/15 px-2.5 py-1 backdrop-blur-md transition hover:bg-white hover:text-midnight ${focusRing}`}
                   >
-                    Other destinations
+                    <ArrowLeft className="h-3 w-3" aria-hidden="true" />
+                    All destinations
                   </Link>
+                </nav>
+
+                <div>
+                  <p className="inline-flex items-center gap-1 rounded-full bg-white/15 px-2.5 py-1 text-[11px] text-white backdrop-blur-md">
+                    <MapPin className="h-3 w-3 text-gold" aria-hidden="true" />
+                    {destination.region || destination.name}
+                  </p>
+                  <h1 className="mt-2 font-display text-3xl leading-[1.05] text-white sm:text-4xl">
+                    {destination.name}
+                  </h1>
+                  {destination.description && (
+                    <p className="mt-1.5 line-clamp-2 max-w-sm text-xs leading-relaxed text-white/80">
+                      {destination.description}
+                    </p>
+                  )}
                 </div>
-              </aside>
-            </Reveal>
-          </div>
-        </section>
-
-        {/* ================= 3. places to stay ================= */}
-        <section id="destination-stays" ref={staysRef} className="mx-auto max-w-7xl scroll-mt-20 px-4 pb-16 sm:px-8 sm:pb-24 lg:px-12">
-          <div className="flex flex-col justify-between gap-4 border-t border-midnight/15 pt-8 sm:flex-row sm:items-end sm:gap-5 sm:pt-12">
-            <div>
-              <Reveal>
-                <Eyebrow>Places to stay</Eyebrow>
-              </Reveal>
-              <Reveal delay={0.08}>
-                <h2 className="mt-4 font-display text-3xl leading-[1.05] text-midnight sm:mt-5 sm:text-5xl lg:text-6xl">
-                  Stay awhile in <em className="italic text-gold">{destination.name}.</em>
-                </h2>
-              </Reveal>
+              </div>
             </div>
-            <Reveal delay={0.12}>
-              <p className="max-w-sm text-xs sm:text-sm leading-6 sm:leading-7 text-midnight/65">
-                Browse available properties and open a stay for its highlights, amenities, and location details.
-              </p>
-            </Reveal>
-          </div>
 
-          {count ? (
-            <div className="mt-8 grid gap-4 sm:mt-10 sm:grid-cols-2 sm:gap-5 lg:grid-cols-3">
-              {destinationResorts.map((resort, i) => (
-                <motion.div
-                  key={resort.slug}
-                  initial={reduce ? false : { opacity: 0, y: 40 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true, amount: 0.15 }}
-                  transition={{ duration: 0.8, delay: (i % 3) * 0.08, ease: EASE }}
-                  className="transition-transform duration-500 hover:-translate-y-1"
+            {/* About + actions card */}
+            <div className="flex shrink-0 flex-col rounded-2xl bg-midnight p-4 text-white lg:max-h-[42%]">
+              <h2 className="text-xs font-semibold text-gold">About {destination.name}</h2>
+              <p className="mt-1.5 min-h-0 overflow-y-auto pr-1 text-xs leading-relaxed text-white/75 lg:max-h-28">
+                {about}
+              </p>
+
+              <div className="mt-3 flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={openBooking}
+                  className={`group inline-flex flex-1 items-center justify-between gap-2 rounded-full bg-gold py-1 pl-4 pr-1 text-xs font-semibold text-midnight transition-transform hover:scale-[1.02] ${focusRing}`}
                 >
-                  <ResortCard resort={resort} />
-                </motion.div>
-              ))}
+                  Plan my stay
+                  <span className="grid h-8 w-8 place-items-center rounded-full bg-midnight text-gold transition-transform duration-300 group-hover:rotate-45">
+                    <ArrowUpRight className="h-3.5 w-3.5" aria-hidden="true" />
+                  </span>
+                </button>
+                <Link
+                  to="/destinations"
+                  className={`inline-flex h-10 items-center rounded-full border border-white/30 px-4 text-xs font-semibold text-white transition hover:bg-white hover:text-midnight ${focusRing}`}
+                >
+                  Other destinations
+                </Link>
+              </div>
             </div>
-          ) : (
-            <div className="mt-10 grid place-items-center rounded-[2rem] border border-dashed border-midnight/20 bg-white/60 px-6 py-20 text-center">
-              <h3 className="font-display text-3xl text-midnight">Property listings are coming soon</h3>
-              <p className="mx-auto mt-3 max-w-lg text-sm leading-7 text-midnight/65">
-                We are preparing local demo listings for {destination.name}. Check back soon to explore available stays.
-              </p>
-              <button
-                type="button"
-                onClick={openBooking}
-                className="mt-6 rounded-full bg-midnight px-6 py-3 text-sm font-medium text-white transition hover:bg-midnight/90"
-              >
-                Ask us about {destination.name}
-              </button>
+          </aside>
+
+          {/* ============ RIGHT: places to stay ============ */}
+          <section
+            id="destination-stays"
+            aria-labelledby="stays-heading"
+            className="flex min-h-[60svh] min-w-0 flex-col overflow-hidden rounded-2xl border border-[#e3dccd] bg-white/90 lg:min-h-0"
+          >
+            <header className="flex shrink-0 flex-wrap items-center justify-between gap-2 border-b border-[#eee7d9] px-4 py-3">
+              <div className="flex items-center gap-2.5">
+                <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-midnight text-gold">
+                  <BedDouble className="h-4 w-4" aria-hidden="true" />
+                </span>
+                <div>
+                  <h2 id="stays-heading" className="text-sm font-semibold text-midnight">
+                    Places to stay
+                  </h2>
+                  <p className="text-[11px] text-midnight/55" aria-live="polite">
+                    {loadingStays
+                      ? 'Checking available stays...'
+                      : count === 0
+                        ? 'Listings coming soon'
+                        : q
+                          ? `${visibleResorts.length} of ${count} ${count === 1 ? 'stay' : 'stays'}`
+                          : `${count} ${count === 1 ? 'stay' : 'stays'} in ${destination.name}`}
+                  </p>
+                </div>
+              </div>
+
+              {count > 4 && (
+                <div className="relative w-full sm:w-56">
+                  <label htmlFor="stay-search" className="sr-only">
+                    Search stays in {destination.name}
+                  </label>
+                  <Search
+                    aria-hidden="true"
+                    className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-midnight/40"
+                  />
+                  <input
+                    id="stay-search"
+                    type="search"
+                    value={query}
+                    onChange={(e) => setQuery(e.target.value)}
+                    onKeyDown={(e) => e.key === 'Escape' && setQuery('')}
+                    placeholder="Search stays"
+                    className="h-8 w-full rounded-full border border-[#e3dccd] bg-[#faf8f3] pl-9 pr-8 text-xs text-midnight placeholder:text-midnight/45 focus:border-midnight focus:bg-white focus:outline-none"
+                  />
+                  {query && (
+                    <button
+                      type="button"
+                      onClick={() => setQuery('')}
+                      aria-label="Clear search"
+                      className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full p-1 text-midnight/50 hover:bg-black/5 hover:text-midnight"
+                    >
+                      <X className="h-3 w-3" />
+                    </button>
+                  )}
+                </div>
+              )}
+            </header>
+
+            <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain p-3">
+              {loadingStays ? (
+                <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3 animate-pulse">
+                  {[1, 2, 3].map((n) => (
+                    <div key={n} className="h-56 rounded-2xl bg-[#eee7d9]" />
+                  ))}
+                </div>
+              ) : visibleResorts.length > 0 ? (
+                <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+                  {visibleResorts.map((resort, i) => (
+                    <motion.div
+                      key={resort.slug || resort._id || resort.id}
+                      initial={reduce ? false : { opacity: 0, y: 14 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.5, delay: Math.min(i, 5) * 0.04, ease: EASE }}
+                    >
+                      <ResortCard resort={resort} compact />
+                    </motion.div>
+                  ))}
+                </div>
+              ) : count > 0 ? (
+                <div className="grid h-full place-items-center px-4 py-10 text-center">
+                  <div>
+                    <p className="text-sm font-semibold text-midnight">No stays match “{query}”</p>
+                    <button
+                      type="button"
+                      onClick={() => setQuery('')}
+                      className="mt-2 text-xs font-semibold text-midnight underline hover:no-underline"
+                    >
+                      Clear search
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div className="grid h-full place-items-center px-4 py-10 text-center">
+                  <div className="max-w-xs">
+                    <p className="font-display text-xl text-midnight">Listings are coming soon</p>
+                    <p className="mt-1.5 text-xs leading-relaxed text-midnight/65">
+                      We’re preparing stays for {destination.name}. Tell us your dates and we’ll suggest
+                      the right base for your trip.
+                    </p>
+                    <button
+                      type="button"
+                      onClick={openBooking}
+                      className="mt-4 rounded-full bg-midnight px-5 py-2.5 text-xs font-semibold text-white transition hover:bg-midnight/90 focus:outline-none focus-visible:ring-2 focus-visible:ring-gold"
+                    >
+                      Ask us about {destination.name}
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
-          )}
-        </section>
+          </section>
+        </div>
       </div>
     </PageTransition>
   )

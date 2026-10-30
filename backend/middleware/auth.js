@@ -1,4 +1,5 @@
 import jwt from 'jsonwebtoken'
+import mongoose from 'mongoose'
 import { config } from '../config/env.js'
 import { User } from '../models/User.js'
 
@@ -42,11 +43,37 @@ export const protect = async (req, res, next) => {
     }
 
     // 4. Ensure user exists and is active in database
-    const user = await User.findById(decoded.id)
+    let user = null
+    if (mongoose.connection.readyState === 1) {
+      try {
+        user = await User.findById(decoded.id)
+      } catch {
+        user = null
+      }
+
+      if (!user) {
+        return res.status(401).json({
+          success: false,
+          message: 'The account associated with this session no longer exists. Please sign in again.',
+        })
+      }
+    } else {
+      // Offline mode: dev fallback for local development without database
+      if (decoded.id === 'dev_admin_001' || decoded.role === 'super_admin' || decoded.role === 'admin') {
+        user = {
+          _id: 'dev_admin_001',
+          name: 'Principal Administrator',
+          email: decoded.email || 'admin@countryholidaysinnsuites.com',
+          role: decoded.role || 'super_admin',
+          isActive: true,
+        }
+      }
+    }
+
     if (!user) {
       return res.status(401).json({
         success: false,
-        message: 'The account associated with this session no longer exists.',
+        message: 'The account associated with this session no longer exists. Please sign in again.',
       })
     }
 

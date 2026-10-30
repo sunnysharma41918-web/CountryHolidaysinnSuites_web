@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { Link, useParams } from 'react-router-dom'
+import { Link, useParams, useNavigate } from 'react-router-dom'
 import { AnimatePresence, motion, useReducedMotion, useScroll, useTransform } from 'framer-motion'
 import { ArrowDown, ArrowLeft, ArrowUpRight, Search, X } from 'lucide-react'
 import PageTransition from '../components/layout/PageTransition'
@@ -106,12 +106,8 @@ export default function DestinationCategoryPage() {
     [categoryDestinations, q],
   )
 
-  const openBooking = () =>
-    window.dispatchEvent(
-      new CustomEvent('open-booking-modal', {
-        detail: { destination: group?.label || 'Holiday Enquiry', persons: '2 Persons', days: 'Holiday Consultation' },
-      }),
-    )
+  const navigate = useNavigate()
+  const openBooking = () => navigate(`/contact?subject=${encodeURIComponent(group?.label || 'Holiday Enquiry')}`)
 
   const scrollToList = () => listRef.current?.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' })
 

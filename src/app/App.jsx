@@ -1,28 +1,15 @@
-import { useEffect, useState } from 'react'
-import { useLocation } from 'react-router-dom'
+import { useEffect } from 'react'
+import { useLocation, useNavigate } from 'react-router-dom'
 import Navbar from '../components/layout/Navbar'
 import Footer from '../components/layout/Footer'
 import Preloader from '../components/layout/Preloader'
-import BookingModal from '../components/forms/BookingModal'
 import AppProviders from './AppProviders'
 import AppRoutes from './routes'
 
-function AppLayout({ bookingModalOpen, setBookingModalOpen, modalData, setModalData }) {
+function AppLayout() {
   const { pathname } = useLocation()
   const isAdminRoute = pathname.startsWith('/admin')
   const isLandingPage = pathname === '/'
-  const [loading, setLoading] = useState(isLandingPage && !isAdminRoute)
-
-  useEffect(() => {
-    if (isAdminRoute || !isLandingPage) {
-      setLoading(false)
-      return undefined
-    }
-
-    setLoading(true)
-    const timer = window.setTimeout(() => setLoading(false), 1600)
-    return () => window.clearTimeout(timer)
-  }, [isLandingPage, pathname, isAdminRoute])
 
   // Dedicated clean viewport for Admin Panel (no public navbar/footer interference)
   if (isAdminRoute) {
@@ -35,62 +22,47 @@ function AppLayout({ bookingModalOpen, setBookingModalOpen, modalData, setModalD
 
   return (
     <div className="min-h-screen bg-[#fbfdfa] text-slate-800 antialiased font-sans">
-      <Preloader visible={loading} />
-      <Navbar
-        onBookNow={() => {
-          setModalData({
-            destination: 'Poland, Tatra Mountains',
-            persons: '2 Persons',
-            days: '3 Nights 2 Days',
-          })
-          setBookingModalOpen(true)
-        }}
+      <Preloader
+        visible={isLandingPage}
+        onlyOncePerSession={true}
+        duration={2200}
       />
+      <Navbar />
       <main>
         <AppRoutes />
       </main>
       <Footer />
-
-      {/* Global Booking Modal */}
-      <BookingModal
-        isOpen={bookingModalOpen}
-        onClose={() => setBookingModalOpen(false)}
-        initialData={modalData}
-      />
     </div>
   )
 }
 
-export default function App() {
-  const [bookingModalOpen, setBookingModalOpen] = useState(false)
-  const [modalData, setModalData] = useState({})
+function GlobalInquiryRedirect() {
+  const navigate = useNavigate()
 
   useEffect(() => {
-    const handleOpenModal = (e) => {
-      if (e.detail) {
-        setModalData(e.detail)
-      } else {
-        setModalData({
-          destination: 'Poland, Tatra Mountains',
-          persons: '2 Persons',
-          days: '3 Nights 2 Days',
-        })
-      }
-      setBookingModalOpen(true)
+    const handleRedirectToContact = (e) => {
+      const detail = e.detail || {}
+      const subject = detail.destination || detail.title || 'General Enquiry'
+      const code =
+        detail.notes?.match(/Promo Code Applied:\s*([A-Z0-9]+)/i)?.[1] ||
+        detail.notes?.match(/Festive Offer Applied:\s*([A-Z0-9]+)/i)?.[1] ||
+        ''
+      const url = `/contact?subject=${encodeURIComponent(subject)}${code ? `&code=${encodeURIComponent(code)}` : ''}`
+      navigate(url)
     }
 
-    window.addEventListener('open-booking-modal', handleOpenModal)
-    return () => window.removeEventListener('open-booking-modal', handleOpenModal)
-  }, [])
+    window.addEventListener('open-booking-modal', handleRedirectToContact)
+    return () => window.removeEventListener('open-booking-modal', handleRedirectToContact)
+  }, [navigate])
 
+  return null
+}
+
+export default function App() {
   return (
     <AppProviders>
-      <AppLayout
-        bookingModalOpen={bookingModalOpen}
-        setBookingModalOpen={setBookingModalOpen}
-        modalData={modalData}
-        setModalData={setModalData}
-      />
+      <GlobalInquiryRedirect />
+      <AppLayout />
     </AppProviders>
   )
 }

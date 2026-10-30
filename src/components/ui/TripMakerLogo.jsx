@@ -20,7 +20,7 @@ export default function TripMakerLogo({ className = '', inverted = false }) {
         </span>
         <span
           className={`text-[10px] sm:text-[11px] font-bold tracking-[0.22em] uppercase mt-0.5 ${
-            inverted ? 'text-[#ff5938]' : 'text-[#65a30d]'
+            inverted ? 'text-[#b3d565]' : 'text-[#096c27]'
           }`}
         >
           INNSUITES

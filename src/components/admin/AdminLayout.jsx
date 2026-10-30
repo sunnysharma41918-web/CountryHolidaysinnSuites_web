@@ -6,9 +6,10 @@ import { LogOut, Menu, X, ArrowUpRight } from 'lucide-react'
 
 export const slab = { fontFamily: "'Zilla Slab', Rockwell, 'Roboto Slab', serif" }
 
-/* Palette: black #0a0f0c, deep green #0c3b27, green #22d37a, lime #b6f24a, mint #e8f6ee */
+/* Palette: deep forest green #0c3b27, pine #07241b, vibrant green #22d37a, lime #b6f24a, mint #e8f6ee */
 const navItems = [
   { label: 'Dashboard', path: '/admin/dashboard' },
+  { label: 'Offers & Deals', path: '/admin/offers' },
   { label: 'All Properties', path: '/admin/properties' },
   { label: 'Add Property', path: '/admin/properties/new' },
   { label: 'Audit Logs', path: '/admin/audit-logs' },
@@ -71,7 +72,7 @@ export default function AdminLayout() {
 
   return (
     /* Fills the entire viewport: no outer padding, max-width, or rounded card */
-    <div className="fixed inset-0 flex h-[100dvh] w-screen overflow-hidden bg-white font-['Poppins',system-ui,sans-serif] text-[#0a0f0c] antialiased">
+    <div className="fixed inset-0 flex h-[100dvh] w-screen overflow-hidden bg-white font-['Poppins',system-ui,sans-serif] text-[#0c3b27] antialiased">
       {/* Mobile overlay */}
       {mobileOpen && (
         <div
@@ -80,10 +81,11 @@ export default function AdminLayout() {
         />
       )}
 
-      {/* Sidebar */}
+      {/* Sidebar: updated from pitch black #0a0f0c to signature CHIS deep forest green */}
       <aside
-        className={`fixed inset-y-0 left-0 z-50 flex h-full w-64 flex-col items-center overflow-y-auto bg-[#0a0f0c] px-6 py-7 text-white transition-transform duration-300 motion-reduce:transition-none lg:static lg:w-60 lg:shrink-0 lg:translate-x-0 xl:w-64 ${mobileOpen ? 'translate-x-0' : '-translate-x-full'
-          }`}
+        className={`fixed inset-y-0 left-0 z-50 flex h-full w-64 flex-col items-center overflow-y-auto bg-gradient-to-b from-[#0c3b27] via-[#093322] to-[#07241b] border-r border-[#155338]/40 px-6 py-7 text-white shadow-2xl transition-transform duration-300 motion-reduce:transition-none lg:static lg:w-60 lg:shrink-0 lg:translate-x-0 xl:w-64 ${
+          mobileOpen ? 'translate-x-0' : '-translate-x-full'
+        }`}
       >
         <button
           onClick={() => setMobileOpen(false)}
@@ -102,22 +104,22 @@ export default function AdminLayout() {
               e.currentTarget.src = '/tree-logo.png'
             }
           }}
-          className="h-9 w-auto max-w-[10rem] object-contain"
+          className="h-9 w-auto max-w-[10rem] object-contain drop-shadow"
         />
 
         {/* Profile */}
         <div className="mt-7 text-center">
           <div
-            className="mx-auto grid h-16 w-16 place-items-center rounded-full bg-[#22d37a] text-2xl font-bold text-[#0a0f0c] ring-4 ring-white/10"
+            className="mx-auto grid h-16 w-16 place-items-center rounded-full bg-[#22d37a] text-2xl font-bold text-[#0c3b27] ring-4 ring-white/15 shadow-lg"
             style={slab}
           >
-            {user?.name?.charAt(0)?.toUpperCase() || 'A'}
+            {user?.name?.charAt(0)?.toUpperCase() || 'P'}
           </div>
-          <p className="mt-3 text-base font-bold text-white" style={slab}>
-            {user?.name || 'Administrator'}
+          <p className="mt-3 text-base font-bold text-white tracking-wide" style={slab}>
+            {user?.name || 'Principal Administrator'}
           </p>
-          <p className="text-xs font-light capitalize text-white/50">
-            {(user?.role || 'admin').replace('_', ' ')}
+          <p className="text-xs font-light capitalize text-[#b3d565]/80">
+            {(user?.role || 'super_admin').replace('_', ' ')}
           </p>
         </div>
 
@@ -129,9 +131,10 @@ export default function AdminLayout() {
               to={path}
               end={path === '/admin/dashboard'}
               className={({ isActive }) =>
-                `relative text-[15px] transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#22d37a] focus-visible:ring-offset-4 focus-visible:ring-offset-[#0a0f0c] ${isActive
-                  ? 'font-semibold text-white'
-                  : 'font-light text-white/55 hover:translate-x-0.5 hover:text-white'
+                `relative text-[15px] transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#22d37a] focus-visible:ring-offset-4 focus-visible:ring-offset-[#0c3b27] ${
+                  isActive
+                    ? 'font-semibold text-white drop-shadow'
+                    : 'font-light text-white/65 hover:translate-x-0.5 hover:text-white'
                 }`
               }
             >
@@ -139,7 +142,7 @@ export default function AdminLayout() {
                 <>
                   {label}
                   {isActive && (
-                    <span className="absolute -right-4 top-1/2 h-2 w-2 -translate-y-1/2 rounded-full bg-[#22d37a]" />
+                    <span className="absolute -right-4 top-1/2 h-2 w-2 -translate-y-1/2 rounded-full bg-[#22d37a] shadow-[0_0_8px_#22d37a]" />
                   )}
                 </>
               )}
@@ -149,9 +152,9 @@ export default function AdminLayout() {
 
         <button
           onClick={handleLogout}
-          className="group mt-auto flex items-center gap-3 text-sm font-light text-white/55 transition hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-[#22d37a]"
+          className="group mt-auto flex items-center gap-3 text-sm font-light text-white/65 transition hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-[#22d37a]"
         >
-          <span className="grid h-7 w-7 place-items-center rounded-full bg-[#22d37a] text-[#0a0f0c] transition group-hover:bg-[#b6f24a]">
+          <span className="grid h-7 w-7 place-items-center rounded-full bg-[#22d37a] text-[#0c3b27] shadow transition group-hover:bg-[#b6f24a]">
             <LogOut className="h-3.5 w-3.5" />
           </span>
           Log out
@@ -164,12 +167,12 @@ export default function AdminLayout() {
           <div className="flex items-center gap-3">
             <button
               onClick={() => setMobileOpen(true)}
-              className="grid h-10 w-10 place-items-center rounded-full bg-[#0a0f0c] text-white lg:hidden"
+              className="grid h-10 w-10 place-items-center rounded-full bg-[#0c3b27] text-white lg:hidden"
               aria-label="Open navigation"
             >
               <Menu className="h-4 w-4" />
             </button>
-            <h1 className="text-3xl font-bold tracking-tight text-[#0a0f0c] sm:text-4xl" style={slab}>
+            <h1 className="text-3xl font-bold tracking-tight text-[#0c3b27] sm:text-4xl" style={slab}>
               {current.label}
             </h1>
           </div>
@@ -183,10 +186,10 @@ export default function AdminLayout() {
               href="/"
               target="_blank"
               rel="noopener noreferrer"
-              className="group inline-flex h-10 items-center gap-2 rounded-full bg-[#0a0f0c] pl-4 pr-1.5 text-xs font-medium text-white transition hover:bg-[#22d37a] hover:text-[#0a0f0c] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#22d37a] focus-visible:ring-offset-2"
+              className="group inline-flex h-10 items-center gap-2 rounded-full bg-[#0c3b27] pl-4 pr-1.5 text-xs font-medium text-white transition hover:bg-[#22d37a] hover:text-[#0c3b27] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#22d37a] focus-visible:ring-offset-2"
             >
               <span className="hidden sm:inline">View website</span>
-              <span className="grid h-7 w-7 place-items-center rounded-full bg-[#22d37a] text-[#0a0f0c] transition group-hover:rotate-45 group-hover:bg-[#0a0f0c] group-hover:text-white motion-reduce:transition-none">
+              <span className="grid h-7 w-7 place-items-center rounded-full bg-[#22d37a] text-[#0c3b27] transition group-hover:rotate-45 group-hover:bg-[#0c3b27] group-hover:text-white motion-reduce:transition-none">
                 <ArrowUpRight className="h-3.5 w-3.5" />
               </span>
             </a>

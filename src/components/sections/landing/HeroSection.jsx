@@ -4,6 +4,7 @@ import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { ArrowUpRight, ChevronLeft, ChevronRight } from 'lucide-react'
 import { unsplash, Img } from './landingShared'
+import travelDoodlesGreen from '../../../assets/travel-doodles-green.png'
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -55,14 +56,13 @@ const SOCIALS = [
   { label: 'X', icon: XTwitter },
 ]
 
-const glass = 'border border-white/15 bg-white/10 backdrop-blur-md'
+const glass = 'border border-white/20 hover:border-[#297f33] bg-white/10 backdrop-blur-md transition-all duration-300'
 
 export default function HeroSection() {
   const root = useRef(null)
   const [i, setI] = useState(0)
   const [paused, setPaused] = useState(false)
   const N = DESTINATIONS.length
-  const cur = DESTINATIONS[i]
   const nxt = DESTINATIONS[(i + 1) % N]
 
   // Autoplay (skipped when the visitor prefers reduced motion or hovers the card)
@@ -118,22 +118,25 @@ export default function HeroSection() {
       style={{ height: '100svh' }}
       className="relative flex h-screen flex-col overflow-hidden bg-black text-white"
     >
-      {/* Background slides */}
-      <div className="hero-bg absolute inset-x-0 -top-[6%] h-[112%]">
-        <AnimatePresence initial={false}>
-          <motion.div
-            key={i}
-            className="absolute inset-0"
-            initial={{ opacity: 0, scale: 1.12 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 1.6, ease: EASE }}
-          >
-            <Img src={unsplash(cur.img, 2400)} alt={cur.name} eager className="h-full w-full object-cover" />
-          </motion.div>
-        </AnimatePresence>
+      {/* Background Image */}
+      <div className="hero-bg absolute inset-x-0 -top-[6%] h-[112%] overflow-hidden">
+        <img
+          src="/hero-mountain.jpg"
+          alt="Hero background"
+          className="h-full w-full object-cover"
+        />
       </div>
-      <div className="absolute inset-0 bg-gradient-to-b from-black/55 via-black/10 to-black/60" />
+      <div className="absolute inset-0 bg-gradient-to-b from-black/65 via-black/20 to-black/75" />
+
+      {/* Travel doodle sketch elements merged with soft light shadow */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 z-[5] bg-repeat opacity-[0.08] invert [filter:drop-shadow(0_4px_12px_rgba(255,255,255,0.32))]"
+        style={{
+          backgroundImage: `url(${travelDoodlesGreen})`,
+          backgroundSize: '580px auto',
+        }}
+      />
 
       {/* Centered headline (sized by viewport height so it always fits) */}
       <div className="hero-content absolute inset-0 z-10 mx-auto flex w-full max-w-4xl flex-col items-center justify-center px-6 py-24 text-center md:py-28">
@@ -148,7 +151,7 @@ export default function HeroSection() {
           Explore breathtaking destinations, curated experiences, and travel effortlessly.
         </p>
         <motion.a
-          href="#services"
+          href="/vacation-packages"
           initial="rest"
           whileHover="hover"
           whileTap={{ scale: 0.97 }}
@@ -256,7 +259,7 @@ export default function HeroSection() {
             <div className="mx-1 mb-1 h-[2px] overflow-hidden rounded-full bg-white/25" aria-hidden="true">
               <motion.div
                 key={`${i}-${paused}`}
-                className="h-full bg-white"
+                className="h-full bg-[#297f33]"
                 initial={{ width: 0 }}
                 animate={{ width: paused ? 0 : '100%' }}
                 transition={{ duration: paused ? 0 : 6.5, ease: 'linear' }}

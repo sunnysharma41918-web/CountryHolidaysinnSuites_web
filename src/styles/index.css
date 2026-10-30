@@ -1,3 +1,20 @@
+@import url('https://fonts.googleapis.com/css2?family=Varela&family=Varela+Round&family=Syne:wght@700;800&family=Righteous&family=Josefin+Sans:ital,wght@0,100..700;1,100..700&family=Nova+Flat&family=Teachers:wght@400..800&display=swap');
+
+@font-face {
+  font-family: 'Rader';
+  src: local('PP Rader'),
+       local('PPRader-Bold'),
+       local('Rader-Bold'),
+       local('Rader'),
+       url('/fonts/Rader-Bold.woff2') format('woff2'),
+       url('/fonts/Rader.woff2') format('woff2'),
+       url('/fonts/Rader.otf') format('opentype'),
+       url('/fonts/Rader.ttf') format('truetype');
+  font-weight: 400 900;
+  font-style: normal;
+  font-display: swap;
+}
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -13,6 +30,7 @@
 
 html {
   scroll-behavior: smooth;
+  overflow-x: hidden;
 }
 
 body {
@@ -69,9 +87,38 @@ textarea {
   font-style: normal;
 }
 
+.font-nova {
+  font-family: 'Nova Flat', system-ui, sans-serif !important;
+}
+
+.font-teachers {
+  font-family: 'Teachers', system-ui, sans-serif !important;
+}
+
+.font-josefin,
+.font-josefin-sans {
+  font-family: 'Josefin Sans', system-ui, sans-serif !important;
+}
+
+.font-righteous {
+  font-family: 'Righteous', cursive, sans-serif !important;
+}
+
+.font-varela,
+.font-varela-round {
+  font-family: 'Varela', 'Varela Round', sans-serif !important;
+}
+
+.font-rader,
+.page-landing .font-rader,
+.page-landing h2.font-rader,
+h2.font-rader {
+  font-family: 'Rader', 'PP Rader', 'Syne', 'Righteous', sans-serif !important;
+}
+
 /* ==========================================================================
    PAGE-SPECIFIC GOOGLE FONT TYPOGRAPHY SYSTEM
-   HOME -> Montserrat
+   HOME -> Teachers, Nova Flat, Josefin Sans, Righteous, Rader, Varela
    ABOUT -> Mulish (Muli)
    DESTINATIONS -> Sora
    VACATION PACKAGES -> Epilogue
@@ -79,7 +126,21 @@ textarea {
    Body & small text combines with clean modern Plus Jakarta Sans
    ========================================================================== */
 
-/* HOME: Montserrat for titles & headings */
+/* HOME / LANDING: Teachers & Nova Flat & Josefin Sans for titles & headings */
+.page-landing h1,
+.page-landing h2,
+.page-landing .landing-heading,
+.font-teachers {
+  font-family: 'Teachers', system-ui, sans-serif !important;
+}
+
+.page-landing .font-nova,
+.landing-tag,
+.font-nova {
+  font-family: 'Nova Flat', system-ui, sans-serif !important;
+}
+
+/* HOME: Montserrat for legacy home views if any */
 .page-home h1,
 .page-home h2,
 .page-home h3,
@@ -87,7 +148,33 @@ textarea {
 .page-home .font-display,
 .page-home .hero-heading,
 .font-montserrat {
-  font-family: 'Montserrat', sans-serif !important;
+  font-family: 'Montserrat', sans-serif;
+}
+
+/* Global Marquee Utility */
+.lp-marquee {
+  display: flex;
+  width: max-content;
+  animation: lp-marquee var(--dur, 40s) linear infinite;
+}
+.lp-marquee[data-dir='right'] {
+  animation-direction: reverse;
+}
+.lp-marquee:hover {
+  animation-play-state: paused;
+}
+@keyframes lp-marquee {
+  from {
+    transform: translateX(0%);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .lp-marquee {
+    animation: none;
+  }
 }
 
 /* ABOUT: Mulish (Muli) for titles & headings */
@@ -132,4 +219,3 @@ textarea {
 .font-poppins {
   font-family: 'Poppins', sans-serif !important;
 }
-

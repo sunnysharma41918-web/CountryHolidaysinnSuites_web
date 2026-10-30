@@ -1,20 +1,15 @@
 import { useLayoutEffect, useRef } from 'react'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
-import { DEEP, SCREEN, WRAP, YELLOW, unsplash, Img, Tag } from './landingShared'
+import { DEEP, SCREEN, WRAP, unsplash, Img, Tag } from './landingShared'
 
 gsap.registerPlugin(ScrollTrigger)
 
-const CSS = `
-@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap');
-.pl-font { font-family: 'Manrope', system-ui, sans-serif; }
-`
-
 const PLACES = [
-  { name: 'Bali', location: 'Indonesia', from: 'from $640', img: '1537996194471-e657df975ab4' },
-  { name: 'Dubai', location: 'United Arab Emirates', from: 'from $890', img: '1512453979798-5ea266f8880c' },
-  { name: 'Maldives', location: 'Indian Ocean', from: 'from $1,480', img: '1514282401047-d79a71a590e8' },
-  { name: 'Goa', location: 'India', from: 'from $420', img: '1507525428034-b723cf961d3e' },
+  { name: 'Bali', location: 'Indonesia', img: '1537996194471-e657df975ab4' },
+  { name: 'Dubai', location: 'United Arab Emirates', img: '1512453979798-5ea266f8880c' },
+  { name: 'Maldives', location: 'Indian Ocean', img: '1514282401047-d79a71a590e8' },
+  { name: 'Goa', location: 'India', img: '1507525428034-b723cf961d3e' },
 ]
 
 export default function PlacesSection() {
@@ -54,15 +49,13 @@ export default function PlacesSection() {
     <section
       ref={root}
       id="places"
-      className={`${SCREEN} pl-font relative flex flex-col justify-center overflow-hidden bg-transparent py-16 text-[#0d4a3a] md:py-20`}
+      className="relative flex flex-col justify-center overflow-hidden bg-transparent py-8 md:py-12 text-[#0d4a3a]"
     >
-      <style>{CSS}</style>
-
       <div className={WRAP}>
-        <div className="places-header mb-8 md:mb-12">
-          <Tag>Curated escapes</Tag>
-          <h2 className="font-montserrat mt-3 text-[clamp(2.25rem,3.2vw,2.75rem)] font-bold leading-[1.15] text-[#063a2f]">
-            Places worth the journey
+        <div className="places-header mb-6 md:mb-8">
+          <Tag>CURATED ESCAPES</Tag>
+          <h2 className="font-rader mt-3 text-[clamp(2.25rem,3.6vw,3.15rem)] font-bold tracking-tight leading-[1.12] text-[#063a2f]">
+            Places Worth <span className="text-[#297f33]">The Journey</span>
           </h2>
         </div>
 
@@ -71,8 +64,8 @@ export default function PlacesSection() {
             <a
               key={p.name}
               href="#faq"
-              aria-label={`${p.name}, ${p.location}, ${p.from}`}
-              className="place-card group block rounded-3xl border border-white/90 bg-white/75 p-2.5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] backdrop-blur-xl transition-all duration-300 hover:-translate-y-1 hover:border-[#0d4a3a]/25 hover:bg-white/95 hover:shadow-[0_20px_40px_-10px_rgba(13,74,58,0.12)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ffd84d]"
+              aria-label={`${p.name}, ${p.location}`}
+              className="place-card group block rounded-3xl border border-white/90 bg-white/75 p-2.5 lp-shadow-combo backdrop-blur-xl transition-all duration-300 hover:-translate-y-1 hover:border-[#0d4a3a]/25 hover:bg-white/95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ffd84d]"
             >
               {/* Photo */}
               <div className="relative aspect-[4/5] overflow-hidden rounded-2xl">
@@ -81,19 +74,14 @@ export default function PlacesSection() {
                   alt=""
                   className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
                 />
-                <span
-                  className="absolute left-3 top-3 rounded-full px-3 py-1 text-xs font-bold text-[#0d4a3a] shadow-sm"
-                  style={{ background: YELLOW }}
-                >
-                  {p.from}
-                </span>
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
               </div>
 
               {/* Text */}
               <div className="flex items-center justify-between gap-3 px-2.5 pb-2 pt-4">
                 <div className="min-w-0">
-                  <h3 className="font-montserrat truncate text-[clamp(1.25rem,1.6vw,1.5rem)] font-semibold text-[#063a2f]">{p.name}</h3>
-                  <p className="font-poppins mt-0.5 truncate text-sm md:text-base font-normal text-slate-500">{p.location}</p>
+                  <h3 className="font-varela truncate text-[clamp(1.25rem,1.6vw,1.5rem)] font-bold text-[#063a2f]">{p.name}</h3>
+                  <p className="font-varela mt-0.5 truncate text-sm md:text-base font-normal text-slate-500">{p.location}</p>
                 </div>
                 <span
                   aria-hidden="true"

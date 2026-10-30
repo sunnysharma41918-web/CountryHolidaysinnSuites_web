@@ -1,7 +1,9 @@
 import { useState } from 'react'
+import { Link } from 'react-router-dom'
 import { ArrowRight, Building2, Globe2 } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { GREEN, YELLOW, WRAP } from './landingShared'
+import { GREEN, YELLOW, WRAP, Tag } from './landingShared'
+import BotanicalBranch from '../../common/BotanicalBranch'
 
 // User's Hotel Partners
 import fourPoints from '../../../assets/images/Hotels/Four Points by Sheraton.png'
@@ -58,49 +60,39 @@ const TRAVEL_PARTNERS = [
 
 function PartnerCard({ partner }) {
   return (
-    <div
-      className="group/card flex h-24 w-48 sm:h-28 sm:w-60 items-center justify-center rounded-2xl border border-white/90 bg-white/75 p-2.5 shadow-[0_8px_25px_-6px_rgba(13,74,58,0.06)] backdrop-blur-xl transition-all duration-300 hover:-translate-y-1 hover:border-[#0d4a3a]/25 hover:bg-white/95 hover:shadow-[0_16px_35px_-8px_rgba(13,74,58,0.12)]"
-    >
-      <div className="flex h-full w-full items-center justify-center rounded-xl bg-white/75 px-4 py-2 shadow-sm backdrop-blur-sm transition-all duration-300 group-hover/card:bg-white">
-        {partner.logo ? (
-          <img
-            src={partner.logo}
-            alt={partner.name}
-            loading="lazy"
-            className="max-h-12 w-auto max-w-[85%] object-contain"
-          />
-        ) : (
-          partner.customRender && partner.customRender()
-        )}
-      </div>
+    <div className="group relative flex h-24 w-48 sm:h-28 sm:w-56 shrink-0 items-center justify-center rounded-2xl border border-white/80 bg-white/70 p-4 shadow-[0_4px_20px_-4px_rgba(13,74,58,0.08)] backdrop-blur-md transition-all duration-300 hover:-translate-y-1 hover:border-[#297f33]/40 hover:bg-white hover:shadow-[0_12px_30px_-6px_rgba(41,127,51,0.18)]">
+      {partner.customRender ? (
+        partner.customRender()
+      ) : (
+        <img
+          src={partner.logo}
+          alt={partner.name}
+          className="max-h-12 max-w-[130px] sm:max-h-14 sm:max-w-[150px] object-contain transition-transform duration-300 group-hover:scale-105"
+          loading="lazy"
+        />
+      )}
+      <span className="absolute bottom-1.5 left-1/2 -translate-x-1/2 text-[9px] font-medium tracking-wider uppercase text-[#0d4a3a]/40 opacity-0 transition-opacity duration-200 group-hover:opacity-100">
+        {partner.name}
+      </span>
     </div>
   )
 }
 
-function MarqueeRow({ items, dir = 'left', dur = '32s' }) {
-  const looped = [...items, ...items, ...items, ...items]
-  const mask = 'linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent)'
+function MarqueeRow({ items, dir = 'left', dur = '35s' }) {
+  // Duplicate 4x to ensure uninterrupted looping
+  const duplicated = [...items, ...items, ...items, ...items]
 
   return (
-    <div
-      className="group overflow-hidden py-1.5"
-      style={{ maskImage: mask, WebkitMaskImage: mask }}
-    >
-      <ul
-        className="lp-marquee flex items-center gap-4 sm:gap-6 group-hover:[animation-play-state:paused]"
+    <div className="relative w-full overflow-hidden py-2 [mask-image:linear-gradient(to_right,transparent,black_10%,black_90%,transparent)]">
+      <div
+        className="lp-marquee gap-4 sm:gap-6"
         data-dir={dir}
         style={{ '--dur': dur }}
       >
-        {looped.map((p, i) => (
-          <li
-            key={`${p.id}-${dir}-${i}`}
-            aria-hidden={i >= items.length}
-            className="shrink-0"
-          >
-            <PartnerCard partner={p} />
-          </li>
+        {duplicated.map((p, idx) => (
+          <PartnerCard key={`${p.id}-${idx}`} partner={p} />
         ))}
-      </ul>
+      </div>
     </div>
   )
 }
@@ -110,26 +102,29 @@ export default function PartnersSection() {
 
   const TABS = [
     { id: 'all', label: 'All Partners' },
-    { id: 'hotels', label: 'Hotels Partners', icon: Building2 },
+    { id: 'hotels', label: 'Hotel Partners', icon: Building2 },
     { id: 'travel', label: 'Travel Partners', icon: Globe2 },
   ]
 
   return (
-    <section id="partners" className="relative bg-transparent py-16 md:py-24 text-[#0d4a3a] overflow-hidden">
-      <div className="w-full flex flex-col gap-8 md:gap-10">
+    <section id="partners" className="relative bg-transparent py-8 md:py-12 text-[#0d4a3a] overflow-hidden">
+      <div className="w-full flex flex-col gap-6 md:gap-8">
         
-        {/* Header with Horizontal Accent Dividers matching Reference Image */}
-        <div className="flex items-center justify-center gap-4 px-6 md:gap-8">
-          <div className="h-[1px] w-14 sm:w-28 md:w-44 bg-[#0d4a3a]/30" />
-          <h2 className="font-montserrat text-[clamp(2.25rem,3.2vw,2.75rem)] font-bold tracking-tight text-[#063a2f] text-center">
-            Major Partners
-          </h2>
-          <div className="h-[1px] w-14 sm:w-28 md:w-44 bg-[#0d4a3a]/30" />
+        {/* Header with Horizontal Accent Dividers */}
+        <div className="flex flex-col items-center justify-center gap-1.5 px-6">
+          <Tag>COLLABORATIONS</Tag>
+          <div className="flex items-center justify-center gap-2 sm:gap-4 md:gap-8">
+            <BotanicalBranch className="shrink-0" />
+            <h2 className="font-rader text-[clamp(2rem,3.6vw,3.15rem)] font-bold tracking-tight text-[#063a2f] text-center">
+              Major <span className="text-[#297f33]">Partners</span>
+            </h2>
+            <BotanicalBranch mirror className="shrink-0" />
+          </div>
         </div>
 
         {/* Tab Filter Switcher */}
-        <div className="flex justify-center px-4">
-          <div className="inline-flex items-center gap-1.5 rounded-full border border-white/90 bg-white/70 p-1.5 shadow-[0_4px_20px_-4px_rgba(13,74,58,0.06)] backdrop-blur-xl">
+        <div className="flex justify-center px-4 max-w-full overflow-x-auto">
+          <div className="inline-flex items-center gap-1 sm:gap-1.5 rounded-full border border-white/90 bg-white/70 p-1 sm:p-1.5 shadow-[0_4px_20px_-4px_rgba(13,74,58,0.06)] backdrop-blur-xl">
             {TABS.map((tab) => {
               const active = activeTab === tab.id
               return (
@@ -137,7 +132,7 @@ export default function PartnersSection() {
                   key={tab.id}
                   type="button"
                   onClick={() => setActiveTab(tab.id)}
-                  className={`relative flex items-center gap-2 rounded-full px-4 py-2 text-xs sm:text-sm font-medium transition-colors ${
+                  className={`relative shrink-0 flex items-center gap-1.5 sm:gap-2 rounded-full px-3 sm:px-4 py-1.5 sm:py-2 text-[11px] min-[380px]:text-xs sm:text-sm font-medium transition-colors ${
                     active ? 'text-[#0d4a3a]' : 'text-[#0d4a3a]/70 hover:text-[#0d4a3a]'
                   }`}
                 >
@@ -149,8 +144,8 @@ export default function PartnersSection() {
                       transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
                     />
                   )}
-                  {tab.icon && <tab.icon className="relative z-10 h-3.5 w-3.5" />}
-                  <span className="relative z-10 font-semibold">{tab.label}</span>
+                  {tab.icon && <tab.icon className="relative z-10 h-3 w-3 sm:h-3.5 sm:w-3.5" />}
+                  <span className="relative z-10 font-varela font-bold">{tab.label}</span>
                 </button>
               )
             })}
@@ -171,7 +166,7 @@ export default function PartnersSection() {
               >
                 <div>
                   <div className="mb-2 text-center">
-                    <span className="text-[11px] font-semibold tracking-wider uppercase text-[#0d4a3a]/60">
+                    <span className="font-varela text-[11px] font-semibold tracking-wider uppercase text-[#0d4a3a]/60">
                       Hotel Partners
                     </span>
                   </div>
@@ -179,7 +174,7 @@ export default function PartnersSection() {
                 </div>
                 <div>
                   <div className="mb-2 text-center">
-                    <span className="text-[11px] font-semibold tracking-wider uppercase text-[#0d4a3a]/60">
+                    <span className="font-varela text-[11px] font-semibold tracking-wider uppercase text-[#0d4a3a]/60">
                       Travel & Booking Partners
                     </span>
                   </div>
@@ -216,23 +211,21 @@ export default function PartnersSection() {
           </AnimatePresence>
         </div>
 
-        {/* Centered "Become a Partner" Button matching Reference Image */}
+        {/* Centered "Become a Partner" Button connected to Contact Section */}
         <div className="flex justify-center pt-2">
-          <motion.a
-            href="#contact"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.97 }}
-            className="inline-flex items-center gap-4 rounded-full py-2.5 pl-7 pr-2.5 text-sm font-semibold text-[#0d4a3a] shadow-md transition-all hover:shadow-lg"
+          <Link
+            to="/contact"
+            className="group inline-flex items-center gap-4 rounded-full py-2.5 pl-7 pr-2.5 text-sm font-semibold text-[#0d4a3a] shadow-md transition-all hover:scale-105 hover:shadow-lg active:scale-95"
             style={{ background: YELLOW }}
           >
-            Become a Partner
+            <span className="font-varela font-bold">Become a Partner</span>
             <span
-              className="grid h-9 w-9 place-items-center rounded-full text-white shadow-sm"
+              className="grid h-9 w-9 place-items-center rounded-full text-white shadow-sm transition-transform duration-300 group-hover:translate-x-0.5"
               style={{ background: GREEN }}
             >
               <ArrowRight className="h-4 w-4" />
             </span>
-          </motion.a>
+          </Link>
         </div>
 
       </div>

@@ -1,17 +1,48 @@
 import { useState } from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
+import { motion } from 'framer-motion'
 import { useAuth } from '../../context/AuthContext'
-import { Eye, EyeOff, AlertCircle, ChevronRight, Info } from 'lucide-react'
+import { Eye, EyeOff, AlertCircle, ShieldCheck, ArrowLeft } from 'lucide-react'
 // 👇 Change this to the image you have in src/assets
 import loginBg from '../../assets/login-bg1.webp'
 
-/*
-  Fonts (optional, add to index.html):
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
-*/
-const GREEN = '#22d37a'
-const YELLOW = '#f5b400'
+/* Picks up src/assets/logo-000.* whatever its extension is (png / svg / webp...) — Vite */
+const logoMods = import.meta.glob('../../assets/logo-000.*', { eager: true, import: 'default' })
+const logo = Object.values(logoMods)[0]
+
 const REMEMBER_KEY = 'chis_admin_username'
+const EASE = [0.16, 1, 0.3, 1]
+
+const INK = '#2a1b14' /* espresso: sign-in button */
+const INK_HOVER = '#3d2a20'
+const LIGHT = '#cfe5c4' /* soft light-green page background */
+
+const FONT_CSS = `
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
+html, body, #root { height: 100%; margin: 0; }
+`
+
+/* the logo, used once on the page: no circle, no background, just the logo.
+   Needs the dark-green-lettering version of logo-000.png so it shows on the white panel. */
+function Logo() {
+  return (
+    <Link
+      to="/"
+      aria-label="Country Holidays Inn & Suites home"
+      className="mx-auto block w-fit shrink-0 transition-transform duration-500 hover:scale-[1.03]"
+    >
+      {logo ? (
+        <img
+          src={logo}
+          alt="Country Holidays Inn & Suites"
+          className="h-auto w-[clamp(190px,32svh,320px)] max-w-full object-contain"
+        />
+      ) : (
+        <span className="text-lg font-semibold leading-tight text-[#2f7a3a]">Country Holidays Inn &amp; Suites</span>
+      )}
+    </Link>
+  )
+}
 
 export default function AdminLoginPage() {
   const { login } = useAuth()
@@ -20,9 +51,9 @@ export default function AdminLoginPage() {
 
   const [username, setUsername] = useState(() => {
     try {
-      return localStorage.getItem(REMEMBER_KEY) || localStorage.getItem('chis_admin_email') || ''
+      return localStorage.getItem(REMEMBER_KEY) || localStorage.getItem('chis_admin_email') || 'admin'
     } catch {
-      return ''
+      return 'admin'
     }
   })
   const [password, setPassword] = useState('')
@@ -36,14 +67,12 @@ export default function AdminLoginPage() {
   const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
-  const [notice, setNotice] = useState('')
 
   const from = location.state?.from?.pathname || '/admin/dashboard'
 
   const handleSubmit = async (e) => {
     e.preventDefault()
     setError('')
-    setNotice('')
     setLoading(true)
 
     try {
@@ -52,70 +81,66 @@ export default function AdminLoginPage() {
         if (remember) localStorage.setItem(REMEMBER_KEY, username)
         else localStorage.removeItem(REMEMBER_KEY)
       } catch {
-        /* storage unavailable: ignore */
+        /* storage unavailable */
       }
       navigate(from, { replace: true })
     } catch (err) {
-      setError(err.message || 'Invalid username or password. Please verify your credentials.')
+      setError(err.message || 'Invalid username or password credentials.')
     } finally {
       setLoading(false)
     }
   }
 
-  // Boxed field with a small label inside the top-left
-  const fieldWrap =
-    'relative rounded-lg border border-white/15 bg-white/[0.04] px-3 pb-2 pt-5 transition focus-within:border-[#22d37a] focus-within:ring-2 focus-within:ring-[#22d37a]/25'
-  const fieldLabel = 'pointer-events-none absolute left-3 top-1.5 text-[9px] font-medium text-white/50'
-  const fieldInput = 'w-full bg-transparent text-[13px] text-white placeholder:text-white/25 outline-none'
+  const imgFallback = (e) => {
+    e.currentTarget.onerror = null
+    e.currentTarget.src = '/hero-mountain.jpg'
+  }
+
+  const input =
+    'h-[clamp(40px,5.8svh,46px)] w-full rounded-xl border border-slate-200 bg-white px-3.5 text-[14px] text-slate-900 placeholder:text-slate-400 outline-none transition focus:border-[#2a1b14] focus:ring-4 focus:ring-[#2a1b14]/10'
 
   return (
     <div
-      className="fixed inset-0 flex h-[100dvh] w-screen overflow-hidden font-['Poppins',system-ui,sans-serif] antialiased"
-      style={{
-        backgroundColor: '#030806',
-        backgroundImage:
-          'radial-gradient(60% 55% at 12% 8%, rgba(34,211,122,0.28), transparent 70%), radial-gradient(55% 50% at 92% 95%, rgba(20,140,80,0.30), transparent 70%), linear-gradient(135deg, #020504 0%, #06130d 55%, #0b2a1b 100%)',
-      }}
+      className="fixed inset-0 h-[100dvh] w-screen overflow-hidden text-slate-900 antialiased"
+      style={{ fontFamily: "'Inter', system-ui, sans-serif", background: LIGHT }}
     >
-      {/* ───── Full-screen layout ───── */}
-      <div className="relative flex h-full w-full overflow-hidden bg-[#08140f]">
-        {/* ───── Form panel ───── */}
-        <section className="relative z-10 flex h-full min-h-0 w-full flex-col overflow-y-auto bg-[#08140f] px-8 py-7 text-white sm:px-12 md:w-1/2 md:shrink-0">
-          <Link to="/" aria-label="Country Holidays Inn & Suites home" className="inline-block shrink-0 self-start transition hover:opacity-90">
-            <img
-              src="/logo-white.png"
-              alt="Country Holidays"
-              onError={(e) => {
-                if (!e.currentTarget.dataset.fallback) {
-                  e.currentTarget.dataset.fallback = '1'
-                  e.currentTarget.src = '/tree-logo.png'
-                }
-              }}
-              className="h-9 w-auto max-w-[10rem] object-contain object-left"
-            />
-          </Link>
+      <style>{FONT_CSS}</style>
 
-          <div className="mx-auto my-auto w-full max-w-sm py-5">
-            <h1 className="text-[28px] font-bold leading-tight text-white sm:text-[32px]">Welcome Back!</h1>
-            <p className="mt-2 text-[11px] text-white/55">Please log in to your account.</p>
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.6, ease: EASE }}
+        className="grid h-full w-full grid-cols-1 grid-rows-[minmax(0,1fr)] md:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)]"
+      >
+        {/* ───── Left: form ───── */}
+        <section className="flex h-full min-h-0 flex-col overflow-y-auto px-6 py-[clamp(1rem,4svh,2.5rem)] [scrollbar-width:none] sm:px-10 [&::-webkit-scrollbar]:hidden">
+          <div className="my-auto w-full max-w-[340px] self-center py-4">
+            <Logo />
+
+            <h1 className="mt-[clamp(0.75rem,2.4svh,1.25rem)] text-center text-[clamp(1.1rem,2.6svh,1.35rem)] font-semibold tracking-[-0.01em]">
+              Welcome back
+            </h1>
+            <p className="mt-1 text-center text-[13.5px] text-slate-500">
+              Sign in to manage Country Holidays Inn &amp; Suites.
+            </p>
 
             {error && (
-              <div role="alert" className="mt-4 flex items-start gap-2.5 rounded-lg bg-red-500/10 p-3 text-[11px] text-red-200 ring-1 ring-red-400/30">
-                <AlertCircle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-red-300" />
+              <div
+                role="alert"
+                className="mt-5 flex items-start gap-2.5 rounded-xl bg-red-50 p-3 text-left text-[12.5px] text-red-700 ring-1 ring-red-200"
+              >
+                <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
                 <span>{error}</span>
               </div>
             )}
-            {notice && (
-              <div role="status" className="mt-4 flex items-start gap-2.5 rounded-lg bg-[#22d37a]/10 p-3 text-[11px] text-emerald-100 ring-1 ring-[#22d37a]/30">
-                <Info className="mt-0.5 h-3.5 w-3.5 shrink-0" style={{ color: GREEN }} />
-                <span>{notice}</span>
-              </div>
-            )}
 
-            <form onSubmit={handleSubmit} className="mt-6 space-y-3">
-              <div className={fieldWrap}>
-                <label htmlFor="username" className={fieldLabel}>
-                  Username
+            <form
+              onSubmit={handleSubmit}
+              className="mt-[clamp(1.25rem,4svh,2.25rem)] space-y-[clamp(0.75rem,2.2svh,1.1rem)]"
+            >
+              <div>
+                <label htmlFor="username" className="mb-1.5 block text-[13px] font-medium text-slate-800">
+                  Username or email
                 </label>
                 <input
                   id="username"
@@ -124,13 +149,13 @@ export default function AdminLoginPage() {
                   autoComplete="username"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
-                  placeholder="admin"
-                  className={fieldInput}
+                  placeholder="Enter your username or email"
+                  className={input}
                 />
               </div>
 
-              <div className={fieldWrap}>
-                <label htmlFor="password" className={fieldLabel}>
+              <div>
+                <label htmlFor="password" className="mb-1.5 block text-[13px] font-medium text-slate-800">
                   Password
                 </label>
                 <div className="relative">
@@ -141,107 +166,112 @@ export default function AdminLoginPage() {
                     autoComplete="current-password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    placeholder="••••••••"
-                    className={`${fieldInput} pr-7`}
+                    placeholder="Enter your password"
+                    className={`${input} pr-11`}
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-0 top-1/2 -translate-y-1/2 rounded-full p-1 text-white/50 transition hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-[#22d37a]"
+                    className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full p-1.5 text-slate-500 transition hover:text-slate-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#2a1b14]"
                     aria-label={showPassword ? 'Hide password' : 'Show password'}
                   >
-                    {showPassword ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
+                    {showPassword ? <EyeOff className="h-[17px] w-[17px]" /> : <Eye className="h-[17px] w-[17px]" />}
                   </button>
                 </div>
               </div>
 
-              <div className="flex items-center justify-between pt-1">
-                <label className="flex cursor-pointer items-center gap-2 text-[10px] text-white/70">
-                  <input
-                    type="checkbox"
-                    checked={remember}
-                    onChange={(e) => setRemember(e.target.checked)}
-                    className="h-3 w-3 rounded-sm accent-[#22d37a]"
-                  />
-                  Remember me
-                </label>
-                <button
-                  type="button"
-                  onClick={() => setNotice('To reset your password, please contact the property administrator.')}
-                  className="text-[10px] font-medium text-red-300 transition hover:text-red-200 focus:outline-none focus-visible:underline"
-                >
-                  Forgot password?
-                </button>
-              </div>
+              <label className="flex w-fit cursor-pointer select-none items-center gap-2.5 text-[13px] text-slate-600">
+                <input
+                  type="checkbox"
+                  checked={remember}
+                  onChange={(e) => setRemember(e.target.checked)}
+                  className="h-4 w-4 rounded-[5px] accent-[#2a1b14]"
+                />
+                Remember me
+              </label>
 
-              <div className="flex items-center gap-3 pt-3">
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="flex h-10 flex-1 items-center justify-center gap-2 rounded-lg text-xs font-semibold text-[#06140e] shadow-lg shadow-[#22d37a]/25 transition hover:brightness-110 active:scale-[0.99] focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-[#08140f] disabled:cursor-not-allowed disabled:opacity-60 motion-reduce:transition-none"
-                  style={{ backgroundColor: GREEN }}
-                >
-                  {loading ? (
-                    <>
-                      <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-[#06140e] border-t-transparent motion-reduce:animate-none" />
-                      Verifying
-                    </>
-                  ) : (
-                    'Login'
-                  )}
-                </button>
-                <Link
-                  to="/"
-                  className="flex h-10 flex-1 items-center justify-center rounded-lg border text-xs font-medium transition hover:bg-[#22d37a]/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#22d37a] focus-visible:ring-offset-2 focus-visible:ring-offset-[#08140f]"
-                  style={{ borderColor: GREEN, color: GREEN }}
-                >
-                  Back to website
-                </Link>
-              </div>
+              <button
+                type="submit"
+                disabled={loading}
+                className="flex h-[clamp(42px,6svh,48px)] w-full items-center justify-center rounded-xl text-[14px] font-medium text-white shadow-[0_8px_18px_rgba(42,27,20,0.25)] transition active:scale-[0.99] focus:outline-none focus-visible:ring-4 focus-visible:ring-[#2a1b14]/25 disabled:cursor-not-allowed disabled:opacity-60"
+                style={{ background: INK }}
+                onMouseEnter={(e) => (e.currentTarget.style.background = INK_HOVER)}
+                onMouseLeave={(e) => (e.currentTarget.style.background = INK)}
+              >
+                {loading ? (
+                  <span className="flex items-center gap-2">
+                    <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                    Verifying...
+                  </span>
+                ) : (
+                  'Sign in'
+                )}
+              </button>
             </form>
+
+            <p className="mt-[clamp(1rem,3.4svh,1.75rem)] text-center text-[13px] text-slate-500">
+              Visiting as a guest?{' '}
+              <Link to="/" className="font-semibold text-slate-900 underline underline-offset-4">
+                Back to website
+              </Link>
+            </p>
           </div>
 
-          <p className="shrink-0 text-[9px] leading-relaxed text-white/40">
-            This area is restricted to authorised staff. Sessions are encrypted and all activity is recorded in the audit log.
+          {/* hidden on short screens so nothing gets cut off */}
+          <p className="mx-auto hidden max-w-[340px] shrink-0 items-start gap-2 text-left text-[11px] leading-relaxed text-slate-400 [@media(min-height:700px)]:flex">
+            <ShieldCheck className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+            Restricted to authorized CHIS staff. All access sessions are encrypted and logged for security compliance.
           </p>
         </section>
 
-        {/* ───── Image panel ───── */}
-        <aside className="relative hidden h-full min-h-0 flex-1 overflow-hidden md:block" aria-hidden="true">
-          <img
-            src={loginBg}
-            alt="Country Holidays Resorts"
-            onError={(e) => {
-              e.currentTarget.src = '/hero-mountain.jpg'
-            }}
-            className="absolute inset-0 h-full w-full object-cover"
-          />
+        {/* ───── Right: photo card with a notched corner ───── */}
+        <aside className="relative hidden h-full min-h-0 p-3 md:block">
+          <div className="relative h-full w-full overflow-hidden rounded-[32px] bg-[#2a1b14]">
+            <motion.img
+              src={loginBg}
+              alt="Country Holidays Resorts"
+              onError={imgFallback}
+              className="absolute inset-0 h-full w-full object-cover"
+              initial={{ scale: 1.12 }}
+              animate={{ scale: 1.02 }}
+              transition={{ duration: 2.2, ease: EASE }}
+            />
+            <div className="absolute inset-0 bg-black/10" />
+            <div className="absolute inset-x-0 bottom-0 h-2/5 bg-gradient-to-t from-black/50 to-transparent" />
 
-          {/* Frosted glass vertical panes */}
-          <div
-            className="absolute bottom-[8%] left-[14%] top-[10%] w-[10%] rounded-full border border-white/40 backdrop-blur-[2px]"
-            style={{ background: 'linear-gradient(to bottom, rgba(255,255,255,0.35), rgba(255,255,255,0.08))' }}
-          />
-          <div
-            className="absolute bottom-[4%] right-[10%] top-[14%] w-[12%] rounded-full border border-white/40 backdrop-blur-[2px]"
-            style={{ background: 'linear-gradient(to bottom, rgba(255,255,255,0.32), rgba(255,255,255,0.06))' }}
-          />
-          <div
-            className="absolute bottom-[14%] right-[28%] top-[26%] w-[7%] rounded-full border border-white/30 backdrop-blur-[1px]"
-            style={{ background: 'linear-gradient(to bottom, rgba(255,255,255,0.22), rgba(255,255,255,0.04))' }}
-          />
+            {/* notch (top-left) holding the round back button */}
+            <div className="absolute left-0 top-0 h-[76px] w-[76px] rounded-br-[28px]" style={{ background: LIGHT }} />
+            <div
+              className="absolute left-[76px] top-0 h-7 w-7"
+              style={{ background: `radial-gradient(circle at 100% 100%, transparent 27.5px, ${LIGHT} 28px)` }}
+            />
+            <div
+              className="absolute left-0 top-[76px] h-7 w-7"
+              style={{ background: `radial-gradient(circle at 100% 100%, transparent 27.5px, ${LIGHT} 28px)` }}
+            />
+            <Link
+              to="/"
+              aria-label="Back to website"
+              className="absolute left-[6px] top-[6px] grid h-[64px] w-[64px] place-items-center rounded-full bg-white/80 text-slate-700 transition hover:bg-white"
+            >
+              <ArrowLeft className="h-5 w-5" />
+            </Link>
 
+            {/* frosted caption card */}
+            <motion.div
+              className="absolute inset-x-4 bottom-4 rounded-2xl border border-white/30 bg-white/20 p-5 text-white shadow-[0_10px_30px_rgba(0,0,0,0.2)] backdrop-blur-md"
+              initial={{ opacity: 0, y: 14 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.9, delay: 0.7, ease: EASE }}
+            >
+              <p className="text-[15px] font-medium leading-snug">
+                Every booking, room and guest stay in one place.
+              </p>
+              <p className="mt-2 text-[12.5px] text-white/80">Country Holidays Inn &amp; Suites · Staff portal</p>
+            </motion.div>
+          </div>
         </aside>
-
-        {/* Yellow circle straddling the seam */}
-        <div
-          aria-hidden="true"
-          className="absolute left-1/2 top-[47%] z-20 hidden h-11 w-11 -translate-x-1/2 items-center justify-center rounded-full text-white shadow-xl md:flex"
-          style={{ backgroundColor: YELLOW, boxShadow: '0 10px 24px rgba(245,180,0,0.45)' }}
-        >
-          <ChevronRight className="h-4 w-4" strokeWidth={3} />
-        </div>
-      </div>
+      </motion.div>
     </div>
   )
 }

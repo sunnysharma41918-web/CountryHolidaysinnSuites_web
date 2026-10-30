@@ -46,7 +46,7 @@ export const getPublicProperties = async (req, res, next) => {
     const sortObj = {}
     sortObj[sortBy] = order === 'asc' ? 1 : -1
 
-    // If MongoDB is connected and has records
+    // If MongoDB is connected, the database is the single source of truth
     if (mongoose.connection.readyState === 1) {
       const [properties, total] = await Promise.all([
         Property.find(query)
@@ -57,20 +57,18 @@ export const getPublicProperties = async (req, res, next) => {
         Property.countDocuments(query),
       ])
 
-      if (total > 0) {
-        const totalPages = Math.ceil(total / limitNum) || 1
-        return res.status(200).json({
-          success: true,
-          count: properties.length,
-          total,
-          page: pageNum,
-          totalPages,
-          properties,
-        })
-      }
+      const totalPages = Math.ceil(total / limitNum) || 1
+      return res.status(200).json({
+        success: true,
+        count: properties.length,
+        total,
+        page: pageNum,
+        totalPages,
+        properties,
+      })
     }
 
-    // Fallback: If DB is not connected or empty, filter from curated default baseline
+    // Fallback: If DB is not connected, filter from baseline
     let filtered = defaultResorts.filter((item) => item.status === 'published' && item.isActive)
 
     if (destination && destination !== 'All') {
@@ -144,6 +142,11 @@ export const getPublicPropertyBySlugOrId = async (req, res, next) => {
           relatedProperties,
         })
       }
+
+      return res.status(404).json({
+        success: false,
+        message: `Property '${slugOrId}' was not found or is currently not published`,
+      })
     }
 
     // Fallback lookup

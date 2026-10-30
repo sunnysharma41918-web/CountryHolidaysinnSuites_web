@@ -3,6 +3,7 @@ import { Search, X, RefreshCw } from 'lucide-react'
 import { api } from '../services/api'
 import ResortCard from '../components/ui/ResortCard'
 import PageTransition from '../components/layout/PageTransition'
+import travelDoodlesGreen from '../assets/travel-doodles-green.png'
 
 /* Faint contour lines, a nod to hill-station maps. Pure decoration. */
 function Contours() {
@@ -97,7 +98,17 @@ export default function ResortsPage() {
 
   return (
     <PageTransition>
-      <main className="bg-[#f8f4ee]">
+      <main className="bg-[#f8f4ee] relative isolate min-h-screen">
+        {/* Travel doodle sketch background */}
+        <div
+          aria-hidden="true"
+          className="pointer-events-none fixed inset-0 -z-10 bg-repeat opacity-[0.09] [filter:drop-shadow(0_4px_12px_rgba(41,127,51,0.25))]"
+          style={{
+            backgroundImage: `url(${travelDoodlesGreen})`,
+            backgroundSize: '580px auto',
+          }}
+        />
+
         {/* ───── Header band ───── */}
         <header className="relative overflow-hidden bg-midnight pb-36 pt-32 text-white sm:pt-36">
           <Contours />

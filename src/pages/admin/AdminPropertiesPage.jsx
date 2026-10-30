@@ -7,7 +7,7 @@ import {
   Search,
   PlusCircle,
   Eye,
-  Edit3,
+  Pencil,
   Archive,
   Trash2,
   RefreshCw,
@@ -17,8 +17,34 @@ import {
   Globe,
   Share2,
   AlertTriangle,
+  AlertCircle,
+  CheckCircle2,
   Building2,
+  X,
 } from 'lucide-react'
+
+/* ------------------------------------------------------------------ */
+/*  Fonts: Plus Jakarta Sans (text) + Sora (headings)                  */
+/* ------------------------------------------------------------------ */
+const FONT_CSS = `
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Sora:wght@500;600;700&display=swap');
+`
+const BODY_FONT = "'Plus Jakarta Sans', system-ui, sans-serif"
+const DISPLAY_FONT = "'Sora', 'Plus Jakarta Sans', system-ui, sans-serif"
+const display = { fontFamily: DISPLAY_FONT }
+
+const GREEN = '#22d37a'
+const GREEN_DEEP = '#0c3b27'
+
+const CARD = 'rounded-2xl border border-stone-200/80 bg-white shadow-[0_1px_2px_rgba(12,59,39,0.04)]'
+const CONTROL =
+  'rounded-xl border border-stone-200 bg-white text-sm text-stone-800 outline-none transition focus:border-[#22d37a] focus:ring-2 focus:ring-[#22d37a]/25'
+
+const STATUS_STYLES = {
+  published: 'bg-emerald-50 text-emerald-800 border-emerald-200',
+  draft: 'bg-amber-50 text-amber-800 border-amber-200',
+  archived: 'bg-stone-100 text-stone-600 border-stone-200',
+}
 
 export default function AdminPropertiesPage() {
   const { isSuperAdmin } = useAuth()
@@ -137,252 +163,311 @@ export default function AdminPropertiesPage() {
     setIsModalOpen(true)
   }
 
+  const hasFilters =
+    search !== '' || statusFilter !== 'All' || sourceFilter !== 'All' || destinationFilter !== 'All'
+
+  const resetFilters = () => {
+    setSearch('')
+    setStatusFilter('All')
+    setSourceFilter('All')
+    setDestinationFilter('All')
+    setPage(1)
+  }
+
   return (
-    <div className="space-y-6 pb-12">
-      {/* Header & Primary CTA */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-white p-6 sm:p-8 rounded-3xl border border-slate-200/80 shadow-sm">
+    <div className="space-y-5 pb-12 text-[#101814]" style={{ fontFamily: BODY_FONT }}>
+      <style>{FONT_CSS}</style>
+
+      {/* ------------------------------ header ------------------------------ */}
+      <header
+        className={`${CARD} flex flex-col gap-5 p-6 sm:flex-row sm:items-center sm:justify-between sm:p-7`}
+        style={{ backgroundImage: 'linear-gradient(120deg, rgba(34,211,122,0.10), rgba(255,255,255,0) 55%)' }}
+      >
         <div>
-          <span className="text-xs font-semibold uppercase tracking-[0.2em] text-[#ff5938]">
-            Catalog Inventory
-          </span>
-          <h2 className="font-display text-2xl sm:text-3xl font-bold text-slate-900 mt-1">
-            Resorts & Properties
-          </h2>
-          <p className="text-xs sm:text-sm text-slate-500 mt-1">
-            Browse, filter, edit, archive, and manage OTA channel assignments.
+          <h1 className="text-2xl font-semibold tracking-tight sm:text-[1.9rem]" style={display}>
+            Resorts & properties
+          </h1>
+          <p className="mt-1.5 max-w-xl text-sm leading-relaxed text-stone-600">
+            Search, filter and edit your listings. Change a status, switch a property on or off, or archive it.
+          </p>
+          <p className="mt-3 inline-flex items-center gap-2 rounded-full bg-white/80 px-3 py-1 text-xs font-semibold text-stone-700 ring-1 ring-stone-200">
+            <Building2 className="h-3.5 w-3.5 text-emerald-700" />
+            {total} {total === 1 ? 'property' : 'properties'}
+            {hasFilters ? ' match your filters' : ' in total'}
           </p>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2.5">
           <button
+            type="button"
             onClick={() => fetchProperties()}
-            className="p-2.5 rounded-full border border-slate-200 text-slate-600 hover:bg-slate-50 transition"
-            title="Refresh List"
+            className="grid h-10 w-10 place-items-center rounded-xl border border-stone-200 bg-white text-stone-600 transition hover:bg-stone-50"
+            title="Refresh list"
+            aria-label="Refresh list"
           >
-            <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin text-[#ff5938]' : ''}`} />
+            <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin text-[#22d37a]' : ''}`} />
           </button>
           <Link
             to="/admin/properties/new"
-            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-[#ff5938] hover:bg-[#e84a28] text-xs font-bold uppercase tracking-[0.16em] text-white transition shadow-md shadow-[#ff5938]/20"
+            className="inline-flex items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:brightness-110"
+            style={{ background: GREEN_DEEP }}
           >
             <PlusCircle className="h-4 w-4" />
-            <span>Add Property</span>
+            Add property
           </Link>
         </div>
-      </div>
+      </header>
 
-      {/* Notifications */}
+      {/* ------------------------------ notices ------------------------------ */}
       {actionMessage && (
-        <div className="rounded-2xl bg-emerald-500/10 border border-emerald-500/20 p-4 text-xs font-medium text-emerald-800 animate-fadeIn">
-          ✓ {actionMessage}
+        <div
+          role="status"
+          className="flex items-center gap-2.5 rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-sm font-medium text-emerald-900 animate-fadeIn"
+        >
+          <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-600" />
+          {actionMessage}
         </div>
       )}
 
       {error && (
-        <div className="rounded-2xl bg-red-500/10 border border-red-500/20 p-4 text-xs text-red-700">
-          ⚠️ {error}
+        <div
+          role="alert"
+          className="flex items-center gap-2.5 rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-800"
+        >
+          <AlertCircle className="h-4 w-4 shrink-0 text-red-600" />
+          <span className="flex-1">{error}</span>
+          <button
+            type="button"
+            onClick={() => setError(null)}
+            aria-label="Dismiss"
+            className="grid h-7 w-7 place-items-center rounded-lg text-red-500 hover:bg-red-100"
+          >
+            <X className="h-4 w-4" />
+          </button>
         </div>
       )}
 
-      {/* Filter and Search Bar */}
-      <div className="bg-white p-5 rounded-3xl border border-slate-200/80 shadow-sm space-y-4">
-        {/* Top Search & Dropdown Filters */}
-        <div className="flex flex-col lg:flex-row lg:items-center gap-3">
+      {/* ------------------------------ filters ------------------------------ */}
+      <section className={`${CARD} space-y-4 p-5`}>
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-center">
           <div className="relative flex-1">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+            <label htmlFor="prop-search" className="sr-only">
+              Search properties
+            </label>
+            <Search className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-400" />
             <input
+              id="prop-search"
               type="text"
               value={search}
               onChange={(e) => {
                 setSearch(e.target.value)
                 setPage(1)
               }}
-              placeholder="Search by name, slug, ID, destination, or location..."
-              className="w-full rounded-full border border-slate-200 bg-slate-50/50 py-2.5 pl-11 pr-4 text-xs sm:text-sm text-slate-800 placeholder:text-slate-400 outline-none transition focus:border-[#ff5938] focus:bg-white"
+              placeholder="Search by name, slug, ID, destination or location"
+              className={`${CONTROL} h-11 w-full pl-10 pr-10 placeholder:text-stone-400`}
             />
+            {search && (
+              <button
+                type="button"
+                onClick={() => {
+                  setSearch('')
+                  setPage(1)
+                }}
+                aria-label="Clear search"
+                className="absolute right-2 top-1/2 grid h-7 w-7 -translate-y-1/2 place-items-center rounded-lg text-stone-400 hover:bg-stone-100 hover:text-stone-700"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            )}
           </div>
 
           <div className="flex flex-wrap items-center gap-2">
-            {/* Source Dropdown */}
             <select
+              aria-label="Filter by source"
               value={sourceFilter}
               onChange={(e) => {
                 setSourceFilter(e.target.value)
                 setPage(1)
               }}
-              className="rounded-full border border-slate-200 bg-slate-50/50 px-4 py-2.5 text-xs text-slate-700 font-medium outline-none focus:border-[#ff5938] focus:bg-white"
+              className={`${CONTROL} h-11 px-3.5 font-medium`}
             >
-              <option value="All">All Sources</option>
+              <option value="All">All sources</option>
               <option value="VIA_OTA">VIA OTA</option>
-              <option value="VIA_OTA_EXCHANGE">VIA OTA EXCHANGE</option>
+              <option value="VIA_OTA_EXCHANGE">VIA OTA Exchange</option>
             </select>
 
-            {/* Destination Dropdown */}
             <select
+              aria-label="Filter by destination"
               value={destinationFilter}
               onChange={(e) => {
                 setDestinationFilter(e.target.value)
                 setPage(1)
               }}
-              className="rounded-full border border-slate-200 bg-slate-50/50 px-4 py-2.5 text-xs text-slate-700 font-medium outline-none focus:border-[#ff5938] focus:bg-white"
+              className={`${CONTROL} h-11 px-3.5 font-medium`}
             >
-              <option value="All">All Destinations</option>
+              <option value="All">All destinations</option>
               <option value="Agra">Agra</option>
               <option value="Hawaii">Hawaii</option>
               <option value="California Coast">California Coast</option>
               <option value="Colorado">Colorado</option>
               <option value="Mexico">Mexico</option>
             </select>
+
+            {hasFilters && (
+              <button
+                type="button"
+                onClick={resetFilters}
+                className="inline-flex h-11 items-center gap-1.5 rounded-xl px-3 text-sm font-semibold hover:bg-stone-100"
+                style={{ color: GREEN_DEEP }}
+              >
+                <X className="h-4 w-4" />
+                Clear filters
+              </button>
+            )}
           </div>
         </div>
 
-        {/* Status Pill Tabs */}
-        <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-slate-100">
-          <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider mr-1">
-            Status:
-          </span>
-          {['All', 'published', 'draft', 'archived'].map((st) => (
-            <button
-              key={st}
-              onClick={() => {
-                setStatusFilter(st)
-                setPage(1)
-              }}
-              className={`px-3.5 py-1.5 rounded-full text-xs font-semibold capitalize transition ${
-                statusFilter === st
-                  ? 'bg-slate-900 text-white shadow-sm'
-                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-              }`}
-            >
-              {st === 'All' ? 'All Properties' : st}
-            </button>
-          ))}
+        <div className="flex flex-wrap items-center gap-2 border-t border-stone-100 pt-4">
+          <span className="mr-1 text-sm font-medium text-stone-500">Status</span>
+          {['All', 'published', 'draft', 'archived'].map((st) => {
+            const on = statusFilter === st
+            return (
+              <button
+                key={st}
+                type="button"
+                aria-pressed={on}
+                onClick={() => {
+                  setStatusFilter(st)
+                  setPage(1)
+                }}
+                className={`rounded-full px-4 py-1.5 text-sm font-semibold capitalize transition ${on ? 'text-white shadow-sm' : 'bg-stone-100 text-stone-600 hover:bg-stone-200'
+                  }`}
+                style={on ? { background: GREEN_DEEP } : undefined}
+              >
+                {st === 'All' ? 'All properties' : st}
+              </button>
+            )
+          })}
         </div>
-      </div>
+      </section>
 
-      {/* Properties Table Card */}
-      <div className="bg-white rounded-3xl border border-slate-200/80 shadow-sm overflow-hidden">
+      {/* ------------------------------ table ------------------------------ */}
+      <section className={`${CARD} overflow-hidden`}>
         {loading ? (
-          <div className="py-24 text-center">
-            <div className="h-9 w-9 animate-spin rounded-full border-4 border-[#ff5938] border-t-transparent mx-auto mb-3" />
-            <p className="text-xs uppercase tracking-[0.2em] text-slate-400">Loading catalog...</p>
+          <div className="divide-y divide-stone-100" aria-busy="true">
+            {[0, 1, 2, 3, 4].map((n) => (
+              <div key={n} className="flex items-center gap-4 px-5 py-4">
+                <div className="h-12 w-16 animate-pulse rounded-xl bg-stone-100" />
+                <div className="flex-1 space-y-2">
+                  <div className="h-3.5 w-1/3 animate-pulse rounded bg-stone-100" />
+                  <div className="h-3 w-1/5 animate-pulse rounded bg-stone-100" />
+                </div>
+                <div className="hidden h-6 w-24 animate-pulse rounded-full bg-stone-100 sm:block" />
+                <div className="h-6 w-20 animate-pulse rounded-full bg-stone-100" />
+              </div>
+            ))}
+            <p className="py-4 text-center text-sm font-medium text-stone-500">Loading properties…</p>
           </div>
         ) : properties.length === 0 ? (
-          <div className="py-24 text-center px-6">
-            <Building2 className="h-12 w-12 text-slate-300 mx-auto mb-4" />
-            <h3 className="font-display text-xl font-bold text-slate-800">No properties found</h3>
-            <p className="text-xs text-slate-500 max-w-sm mx-auto mt-1 mb-6">
-              No resort entries matched your current search and filter criteria.
+          <div className="flex flex-col items-center px-6 py-16 text-center">
+            <span className="grid h-14 w-14 place-items-center rounded-2xl bg-stone-100">
+              <Building2 className="h-6 w-6 text-stone-400" />
+            </span>
+            <h3 className="mt-4 text-lg font-semibold text-stone-900" style={display}>
+              No properties found
+            </h3>
+            <p className="mt-1 max-w-sm text-sm text-stone-500">
+              Nothing matches your current search and filters. Try different words or clear the filters.
             </p>
             <button
-              onClick={() => {
-                setSearch('')
-                setStatusFilter('All')
-                setSourceFilter('All')
-                setDestinationFilter('All')
-              }}
-              className="rounded-full bg-slate-900 px-5 py-2 text-xs font-semibold text-white hover:bg-slate-800 transition"
+              type="button"
+              onClick={resetFilters}
+              className="mt-5 rounded-xl px-5 py-2.5 text-sm font-semibold text-white transition hover:brightness-110"
+              style={{ background: GREEN_DEEP }}
             >
-              Reset All Filters
+              Clear all filters
             </button>
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs">
-              <thead className="bg-slate-50 border-b border-slate-200 text-slate-500 uppercase tracking-wider text-[10px]">
+            <table className="w-full min-w-[920px] text-left text-sm">
+              <thead className="border-b border-stone-200 bg-stone-50 text-xs text-stone-500">
                 <tr>
-                  <th className="py-3.5 px-4 font-semibold">Property</th>
-                  <th className="py-3.5 px-4 font-semibold">Identifiers</th>
-                  <th className="py-3.5 px-4 font-semibold">Source Channel</th>
-                  <th className="py-3.5 px-4 font-semibold">Location</th>
-                  <th className="py-3.5 px-4 font-semibold">Status</th>
-                  <th className="py-3.5 px-4 font-semibold">Active</th>
-                  <th className="py-3.5 px-4 font-semibold text-right">Actions</th>
+                  <th className="px-5 py-3 font-semibold">Property</th>
+                  <th className="px-4 py-3 font-semibold">IDs</th>
+                  <th className="px-4 py-3 font-semibold">Source</th>
+                  <th className="px-4 py-3 font-semibold">Location</th>
+                  <th className="px-4 py-3 font-semibold">Status</th>
+                  <th className="px-4 py-3 font-semibold">Visible</th>
+                  <th className="px-5 py-3 text-right font-semibold">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100">
+              <tbody className="divide-y divide-stone-100">
                 {properties.map((property) => {
                   const propertyId = property._id || property.id
                   return (
-                    <tr
-                      key={property.slug || propertyId}
-                      className="hover:bg-slate-50/75 transition-colors"
-                    >
-                      {/* Property Thumbnail & Name */}
-                      <td className="py-3.5 px-4">
-                        <div className="flex items-center gap-3">
+                    <tr key={property.slug || propertyId} className="transition-colors hover:bg-stone-50/80">
+                      {/* Property */}
+                      <td className="px-5 py-3.5">
+                        <div className="flex items-center gap-3.5">
                           <img
                             src={property.image}
                             alt={property.name}
-                            className="h-12 w-16 rounded-xl object-cover border border-slate-200 shrink-0 bg-slate-100"
+                            className="h-12 w-16 shrink-0 rounded-xl border border-stone-200 bg-stone-100 object-cover"
                           />
                           <div className="min-w-0">
-                            <span className="font-bold text-slate-900 block truncate max-w-[200px]">
+                            <span className="block max-w-[220px] truncate font-semibold text-stone-900">
                               {property.name}
                             </span>
-                            <span className="text-[11px] text-slate-400 font-mono block truncate max-w-[200px]">
+                            <span className="block max-w-[220px] truncate text-xs text-stone-400">
                               /{property.slug}
                             </span>
                           </div>
                         </div>
                       </td>
 
-                      {/* Identifiers */}
-                      <td className="py-3.5 px-4">
-                        <div className="space-y-1">
-                          <span className="inline-block px-2 py-0.5 rounded font-mono text-[10px] bg-slate-100 text-slate-700 font-semibold border border-slate-200">
-                            {property.internalId || 'PENDING'}
-                          </span>
-                          {property.externalId ? (
-                            <div className="text-[10px] text-slate-500 font-mono">
-                              Ext: {property.externalId}
-                            </div>
-                          ) : (
-                            <div className="text-[10px] text-slate-400 italic">No external ID</div>
-                          )}
-                        </div>
+                      {/* IDs */}
+                      <td className="px-4 py-3.5">
+                        <span className="inline-block rounded-md border border-stone-200 bg-stone-100 px-2 py-0.5 text-xs font-semibold text-stone-700">
+                          {property.internalId || 'PENDING'}
+                        </span>
+                        <p className="mt-1 text-xs text-stone-500">
+                          {property.externalId ? `Ext: ${property.externalId}` : <span className="italic text-stone-400">No external ID</span>}
+                        </p>
                       </td>
 
-                      {/* Source Channel */}
-                      <td className="py-3.5 px-4">
+                      {/* Source */}
+                      <td className="px-4 py-3.5">
                         {property.source === 'VIA_OTA' ? (
-                          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-semibold bg-blue-50 text-blue-700 border border-blue-200">
-                            <Globe className="h-3 w-3" />
+                          <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-800">
+                            <Globe className="h-3.5 w-3.5" />
                             VIA OTA
                           </span>
                         ) : (
-                          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-semibold bg-purple-50 text-purple-700 border border-purple-200">
-                            <Share2 className="h-3 w-3" />
-                            VIA OTA EXCHANGE
+                          <span className="inline-flex items-center gap-1.5 rounded-full border border-indigo-200 bg-indigo-50 px-2.5 py-1 text-xs font-semibold text-indigo-800">
+                            <Share2 className="h-3.5 w-3.5" />
+                            VIA OTA Exchange
                           </span>
                         )}
                       </td>
 
                       {/* Location */}
-                      <td className="py-3.5 px-4">
-                        <div>
-                          <span className="font-semibold text-slate-800 block">
-                            {property.destination}
-                          </span>
-                          <span className="text-[11px] text-slate-500 flex items-center gap-1 mt-0.5 truncate max-w-[170px]">
-                            <MapPin className="h-3 w-3 text-[#ff5938] shrink-0" />
-                            {property.location}
-                          </span>
-                        </div>
+                      <td className="px-4 py-3.5">
+                        <span className="block font-semibold text-stone-800">{property.destination}</span>
+                        <span className="mt-0.5 flex max-w-[180px] items-center gap-1 truncate text-xs text-stone-500">
+                          <MapPin className="h-3.5 w-3.5 shrink-0 text-emerald-600" />
+                          {property.location}
+                        </span>
                       </td>
 
-                      {/* Status Dropdown */}
-                      <td className="py-3.5 px-4">
+                      {/* Status */}
+                      <td className="px-4 py-3.5">
                         <select
+                          aria-label={`Status for ${property.name}`}
                           value={property.status}
                           onChange={(e) => handleStatusChange(propertyId, e.target.value)}
-                          className={`px-2.5 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider outline-none border cursor-pointer ${
-                            property.status === 'published'
-                              ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
-                              : property.status === 'draft'
-                              ? 'bg-amber-50 text-amber-700 border-amber-200'
-                              : 'bg-slate-100 text-slate-600 border-slate-200'
-                          }`}
+                          className={`cursor-pointer rounded-full border px-3 py-1 text-xs font-semibold outline-none focus:ring-2 focus:ring-[#22d37a]/30 ${STATUS_STYLES[property.status] || STATUS_STYLES.archived
+                            }`}
                         >
                           <option value="published">Published</option>
                           <option value="draft">Draft</option>
@@ -390,47 +475,53 @@ export default function AdminPropertiesPage() {
                         </select>
                       </td>
 
-                      {/* Active Toggle Switch */}
-                      <td className="py-3.5 px-4">
-                        <button
-                          type="button"
-                          onClick={() => handleToggleActive(property)}
-                          className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
-                            property.isActive ? 'bg-[#ff5938]' : 'bg-slate-300'
-                          }`}
-                          aria-label="Toggle active status"
-                        >
-                          <span
-                            className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow-lg ring-0 transition duration-200 ease-in-out ${
-                              property.isActive ? 'translate-x-4' : 'translate-x-0'
-                            }`}
-                          />
-                        </button>
+                      {/* Active toggle */}
+                      <td className="px-4 py-3.5">
+                        <div className="flex items-center gap-2.5">
+                          <button
+                            type="button"
+                            role="switch"
+                            aria-checked={!!property.isActive}
+                            onClick={() => handleToggleActive(property)}
+                            className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#22d37a]/50 ${property.isActive ? 'bg-[#22d37a]' : 'bg-stone-300'
+                              }`}
+                            aria-label={`Toggle active status for ${property.name}`}
+                          >
+                            <span
+                              className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ${property.isActive ? 'translate-x-5' : 'translate-x-0'
+                                }`}
+                            />
+                          </button>
+                          <span className="text-xs font-medium text-stone-500">
+                            {property.isActive ? 'On' : 'Off'}
+                          </span>
+                        </div>
                       </td>
 
-                      {/* Action Buttons */}
-                      <td className="py-3.5 px-4 text-right">
-                        <div className="flex items-center justify-end gap-1.5">
-                          {/* View Modal */}
+                      {/* Actions */}
+                      <td className="px-5 py-3.5">
+                        <div className="flex items-center justify-end gap-1">
                           <button
+                            type="button"
                             onClick={() => handleOpenView(property)}
-                            className="p-1.5 rounded-lg text-slate-500 hover:text-slate-900 hover:bg-slate-100 transition"
-                            title="Quick View"
+                            className="grid h-9 w-9 place-items-center rounded-lg text-stone-500 transition hover:bg-stone-100 hover:text-stone-900"
+                            title="Quick view"
+                            aria-label={`Quick view ${property.name}`}
                           >
                             <Eye className="h-4 w-4" />
                           </button>
 
-                          {/* Edit Page */}
                           <Link
                             to={`/admin/properties/${propertyId}/edit`}
-                            className="p-1.5 rounded-lg text-slate-500 hover:text-[#ff5938] hover:bg-slate-100 transition"
-                            title="Edit Property"
+                            className="grid h-9 w-9 place-items-center rounded-lg text-stone-500 transition hover:bg-emerald-50 hover:text-emerald-800"
+                            title="Edit property"
+                            aria-label={`Edit ${property.name}`}
                           >
-                            <Edit3 className="h-4 w-4" />
+                            <Pencil className="h-4 w-4" />
                           </Link>
 
-                          {/* Archive */}
                           <button
+                            type="button"
                             onClick={() =>
                               setConfirmDialog({
                                 isOpen: true,
@@ -439,15 +530,16 @@ export default function AdminPropertiesPage() {
                                 loading: false,
                               })
                             }
-                            className="p-1.5 rounded-lg text-slate-500 hover:text-amber-600 hover:bg-amber-50 transition"
-                            title="Archive Property"
+                            className="grid h-9 w-9 place-items-center rounded-lg text-stone-500 transition hover:bg-amber-50 hover:text-amber-700"
+                            title="Archive property"
+                            aria-label={`Archive ${property.name}`}
                           >
                             <Archive className="h-4 w-4" />
                           </button>
 
-                          {/* Delete (Super Admin only) */}
                           {isSuperAdmin && (
                             <button
+                              type="button"
                               onClick={() =>
                                 setConfirmDialog({
                                   isOpen: true,
@@ -456,8 +548,9 @@ export default function AdminPropertiesPage() {
                                   loading: false,
                                 })
                               }
-                              className="p-1.5 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 transition"
-                              title="Delete Permanently"
+                              className="grid h-9 w-9 place-items-center rounded-lg text-stone-400 transition hover:bg-red-50 hover:text-red-600"
+                              title="Delete permanently"
+                              aria-label={`Delete ${property.name} permanently`}
                             >
                               <Trash2 className="h-4 w-4" />
                             </button>
@@ -472,76 +565,84 @@ export default function AdminPropertiesPage() {
           </div>
         )}
 
-        {/* Server-Side Pagination Bar */}
-        <div className="px-6 py-4 bg-slate-50 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-600">
-          <div>
-            Showing <span className="font-semibold">{properties.length}</span> of{' '}
-            <span className="font-semibold">{total}</span> total properties
-          </div>
+        {/* Pagination */}
+        <div className="flex flex-col items-center justify-between gap-3 border-t border-stone-200 bg-stone-50 px-5 py-4 text-sm text-stone-600 sm:flex-row">
+          <p>
+            Showing <span className="font-semibold text-stone-900">{properties.length}</span> of{' '}
+            <span className="font-semibold text-stone-900">{total}</span> properties
+          </p>
 
           <div className="flex items-center gap-2">
             <button
+              type="button"
               onClick={() => setPage((p) => Math.max(1, p - 1))}
               disabled={page <= 1}
-              className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full border border-slate-200 bg-white hover:bg-slate-100 transition disabled:opacity-40"
+              className="inline-flex items-center gap-1 rounded-xl border border-stone-200 bg-white px-3.5 py-2 font-medium transition hover:bg-stone-100 disabled:cursor-not-allowed disabled:opacity-40"
             >
-              <ChevronLeft className="h-3.5 w-3.5" />
-              <span>Previous</span>
+              <ChevronLeft className="h-4 w-4" />
+              Previous
             </button>
-            <span className="px-2 font-medium">
+            <span className="px-2 font-medium tabular-nums">
               Page {page} of {totalPages}
             </span>
             <button
+              type="button"
               onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
               disabled={page >= totalPages}
-              className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full border border-slate-200 bg-white hover:bg-slate-100 transition disabled:opacity-40"
+              className="inline-flex items-center gap-1 rounded-xl border border-stone-200 bg-white px-3.5 py-2 font-medium transition hover:bg-stone-100 disabled:cursor-not-allowed disabled:opacity-40"
             >
-              <span>Next</span>
-              <ChevronRight className="h-3.5 w-3.5" />
+              Next
+              <ChevronRight className="h-4 w-4" />
             </button>
           </div>
         </div>
-      </div>
+      </section>
 
-      {/* Property Details Inspection Modal */}
+      {/* Property details modal */}
       <AdminPropertyModal
         property={selectedProperty}
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
       />
 
-      {/* Confirmation Modal for Safe Archive or Delete */}
+      {/* ------------------------ confirm archive / delete ------------------------ */}
       {confirmDialog.isOpen && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 animate-fadeIn">
-          <div className="bg-white rounded-3xl max-w-md w-full p-6 sm:p-7 shadow-2xl border border-slate-200">
-            <div className="flex items-center gap-3 text-amber-600 mb-4">
-              <div className="h-10 w-10 rounded-2xl bg-amber-50 flex items-center justify-center shrink-0">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/55 p-4 backdrop-blur-sm animate-fadeIn">
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="confirm-title"
+            className="w-full max-w-md rounded-2xl border border-stone-200 bg-white p-6 shadow-2xl sm:p-7"
+            style={{ fontFamily: BODY_FONT }}
+          >
+            <div className="mb-4 flex items-start gap-3.5">
+              <span
+                className={`grid h-11 w-11 shrink-0 place-items-center rounded-xl ${confirmDialog.isPermanent ? 'bg-red-50 text-red-600' : 'bg-amber-50 text-amber-600'
+                  }`}
+              >
                 <AlertTriangle className="h-5 w-5" />
-              </div>
+              </span>
               <div>
-                <h3 className="font-display font-bold text-base text-slate-900">
-                  {confirmDialog.isPermanent ? 'Confirm Permanent Deletion' : 'Confirm Property Archival'}
+                <h3 id="confirm-title" className="text-base font-semibold text-stone-900" style={display}>
+                  {confirmDialog.isPermanent ? 'Delete this property?' : 'Archive this property?'}
                 </h3>
-                <span className="text-[11px] text-slate-500">
-                  {confirmDialog.isPermanent ? 'Irreversible Super Admin Action' : 'Safe Catalog Archive'}
-                </span>
+                <p className="mt-0.5 text-xs text-stone-500">
+                  {confirmDialog.isPermanent ? 'This cannot be undone' : 'You can restore it later'}
+                </p>
               </div>
             </div>
 
-            <p className="text-xs text-slate-600 leading-relaxed mb-6">
+            <p className="mb-6 text-sm leading-relaxed text-stone-600">
               {confirmDialog.isPermanent ? (
                 <>
-                  Are you sure you want to permanently delete{' '}
-                  <strong className="text-slate-800">{confirmDialog.property?.name}</strong> from
-                  the database? This will permanently remove its image mappings, highlights, and
-                  records.
+                  You are about to permanently delete{' '}
+                  <strong className="text-stone-900">{confirmDialog.property?.name}</strong>. Its images,
+                  highlights and records will be removed for good.
                 </>
               ) : (
                 <>
-                  Are you sure you want to archive{' '}
-                  <strong className="text-slate-800">{confirmDialog.property?.name}</strong>? It
-                  will be removed from public website listings immediately, but can be restored by
-                  admins at any time.
+                  <strong className="text-stone-900">{confirmDialog.property?.name}</strong> will be removed
+                  from the public website right away. An admin can restore it at any time.
                 </>
               )}
             </p>
@@ -558,7 +659,7 @@ export default function AdminPropertiesPage() {
                   })
                 }
                 disabled={confirmDialog.loading}
-                className="px-4 py-2 rounded-full border border-slate-200 text-xs font-semibold text-slate-600 hover:bg-slate-50 transition"
+                className="rounded-xl border border-stone-200 px-4 py-2.5 text-sm font-semibold text-stone-600 transition hover:bg-stone-50 disabled:opacity-50"
               >
                 Cancel
               </button>
@@ -566,17 +667,14 @@ export default function AdminPropertiesPage() {
                 type="button"
                 onClick={handleConfirmAction}
                 disabled={confirmDialog.loading}
-                className={`px-5 py-2 rounded-full text-xs font-bold text-white transition ${
-                  confirmDialog.isPermanent
-                    ? 'bg-red-600 hover:bg-red-700'
-                    : 'bg-amber-600 hover:bg-amber-700'
-                }`}
+                className={`rounded-xl px-5 py-2.5 text-sm font-semibold text-white transition disabled:opacity-60 ${confirmDialog.isPermanent ? 'bg-red-600 hover:bg-red-700' : 'bg-amber-600 hover:bg-amber-700'
+                  }`}
               >
                 {confirmDialog.loading
-                  ? 'Processing...'
+                  ? 'Processing…'
                   : confirmDialog.isPermanent
-                  ? 'Delete Permanently'
-                  : 'Safely Archive'}
+                    ? 'Delete permanently'
+                    : 'Archive property'}
               </button>
             </div>
           </div>

@@ -1,7 +1,20 @@
+import mongoose from 'mongoose'
 import { AuditLog } from '../models/AuditLog.js'
 
 export const getAuditLogs = async (req, res, next) => {
   try {
+    if (mongoose.connection.readyState !== 1) {
+      return res.status(200).json({
+        success: true,
+        count: 0,
+        total: 0,
+        page: 1,
+        totalPages: 1,
+        logs: [],
+        isFallback: true,
+      })
+    }
+
     const {
       page = 1,
       limit = 20,

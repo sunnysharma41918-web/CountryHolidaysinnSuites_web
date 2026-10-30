@@ -1,300 +1,284 @@
-import { useState, useMemo } from 'react'
-import { Search, X, Compass, Globe, Sparkles } from 'lucide-react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { useMemo, useRef, useState } from 'react'
+import { Link } from 'react-router-dom'
+import { Search, X, Sparkles, Globe, MapPin } from 'lucide-react'
 import PageTransition from '../components/layout/PageTransition'
-import DestinationCard from '../components/ui/DestinationCard'
-import { destinations, viaOtaDestinationNames, viaOtaExchangeDestinationNames } from '../data/destinations'
+import travelDoodlesGreen from '../assets/travel-doodles-green.png'
+import {
+  destinations,
+  viaOtaDestinationNames,
+  viaOtaExchangeDestinationNames,
+} from '../data/destinations'
+
+const TABS = [
+  { id: 'ALL', label: 'All', icon: null },
+  { id: 'VIA_OTA', label: 'VIA OTA', icon: Sparkles },
+  { id: 'VIA_OTA_EXCHANGE', label: 'VIA OTA Exchange', icon: Globe },
+]
+
+const focusRing =
+  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-midnight/60'
+
+function matches(dest, q) {
+  if (!q) return true
+  return (
+    dest.name.toLowerCase().includes(q) ||
+    (dest.region && dest.region.toLowerCase().includes(q)) ||
+    (dest.description && dest.description.toLowerCase().includes(q))
+  )
+}
+
+/* One compact destination row: thumbnail + name + region */
+function DestinationTile({ destination }) {
+  return (
+    <Link
+      to={`/destinations/${destination.slug}`}
+      className={`group flex items-center gap-2.5 rounded-xl p-1.5 pr-2.5 transition-colors hover:bg-[#f3ece0] ${focusRing}`}
+    >
+      <img
+        src={destination.image}
+        alt=""
+        loading="lazy"
+        className="h-10 w-10 shrink-0 rounded-lg object-cover"
+      />
+      <span className="min-w-0">
+        <span className="block truncate text-xs font-semibold text-midnight">
+          {destination.name}
+        </span>
+        <span className="mt-px flex items-center gap-1 truncate text-[11px] text-midnight/55">
+          <MapPin className="h-2.5 w-2.5 shrink-0" aria-hidden="true" />
+          <span className="truncate">{destination.region || destination.name}</span>
+        </span>
+      </span>
+    </Link>
+  )
+}
+
+/* A titled, independently scrolling panel */
+function Panel({ id, icon: Icon, title, subtitle, items, wide, emptyLabel }) {
+  return (
+    <section
+      aria-labelledby={id}
+      className="flex min-h-0 flex-col overflow-hidden rounded-2xl border border-[#e3dccd] bg-white/90 backdrop-blur-sm"
+    >
+      <header className="flex shrink-0 items-center justify-between gap-3 border-b border-[#eee7d9] px-4 py-2.5">
+        <div className="flex min-w-0 items-center gap-2.5">
+          <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-midnight text-gold">
+            <Icon className="h-3.5 w-3.5" aria-hidden="true" />
+          </span>
+          <div className="min-w-0">
+            <h2 id={id} className="truncate text-sm font-semibold text-midnight">
+              {title}
+            </h2>
+            <p className="hidden truncate text-[11px] text-midnight/55 sm:block">
+              {subtitle}
+            </p>
+          </div>
+        </div>
+        <span className="shrink-0 rounded-full bg-[#f3ece0] px-2.5 py-1 text-[11px] font-semibold tabular-nums text-midnight/70">
+          {items.length}
+        </span>
+      </header>
+
+      <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain p-2">
+        {items.length > 0 ? (
+          <ul
+            className={`grid gap-x-1 gap-y-0.5 ${wide
+                ? 'grid-cols-1 min-[380px]:grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-5'
+                : 'grid-cols-1 min-[380px]:grid-cols-2 sm:grid-cols-3 lg:grid-cols-2 xl:grid-cols-3'
+              }`}
+          >
+            {items.map((d) => (
+              <li key={`${id}-${d.slug}`}>
+                <DestinationTile destination={d} />
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p className="px-3 py-10 text-center text-xs text-midnight/55">
+            {emptyLabel}
+          </p>
+        )}
+      </div>
+    </section>
+  )
+}
 
 export default function DestinationsPage() {
-  const [activeTab, setActiveTab] = useState('ALL') // 'ALL' | 'VIA_OTA' | 'VIA_OTA_EXCHANGE'
+  const [activeTab, setActiveTab] = useState('ALL')
   const [searchQuery, setSearchQuery] = useState('')
+  const searchRef = useRef(null)
 
-  // Map destinations to their source lists
-  const viaOtaDestinations = useMemo(() => {
-    return destinations.filter((dest) => viaOtaDestinationNames.includes(dest.name))
-  }, [])
+  const viaOta = useMemo(
+    () => destinations.filter((d) => viaOtaDestinationNames.includes(d.name)),
+    [],
+  )
+  const viaOtaExchange = useMemo(
+    () => destinations.filter((d) => viaOtaExchangeDestinationNames.includes(d.name)),
+    [],
+  )
 
-  const viaOtaExchangeDestinations = useMemo(() => {
-    return destinations.filter((dest) => viaOtaExchangeDestinationNames.includes(dest.name))
-  }, [])
+  const q = searchQuery.trim().toLowerCase()
+  const filteredViaOta = useMemo(() => viaOta.filter((d) => matches(d, q)), [viaOta, q])
+  const filteredExchange = useMemo(
+    () => viaOtaExchange.filter((d) => matches(d, q)),
+    [viaOtaExchange, q],
+  )
 
-  // Filtered lists based on search query
-  const filteredViaOta = useMemo(() => {
-    const q = searchQuery.trim().toLowerCase()
-    if (!q) return viaOtaDestinations
-    return viaOtaDestinations.filter(
-      (d) =>
-        d.name.toLowerCase().includes(q) ||
-        (d.region && d.region.toLowerCase().includes(q)) ||
-        (d.description && d.description.toLowerCase().includes(q))
-    )
-  }, [viaOtaDestinations, searchQuery])
+  const showOta = activeTab === 'ALL' || activeTab === 'VIA_OTA'
+  const showExchange = activeTab === 'ALL' || activeTab === 'VIA_OTA_EXCHANGE'
+  const bothVisible = showOta && showExchange
 
-  const filteredViaOtaExchange = useMemo(() => {
-    const q = searchQuery.trim().toLowerCase()
-    if (!q) return viaOtaExchangeDestinations
-    return viaOtaExchangeDestinations.filter(
-      (d) =>
-        d.name.toLowerCase().includes(q) ||
-        (d.region && d.region.toLowerCase().includes(q)) ||
-        (d.description && d.description.toLowerCase().includes(q))
-    )
-  }, [viaOtaExchangeDestinations, searchQuery])
+  const counts = {
+    ALL: viaOta.length + viaOtaExchange.length,
+    VIA_OTA: viaOta.length,
+    VIA_OTA_EXCHANGE: viaOtaExchange.length,
+  }
 
-  const totalFilteredCount =
-    activeTab === 'VIA_OTA'
-      ? filteredViaOta.length
-      : activeTab === 'VIA_OTA_EXCHANGE'
-      ? filteredViaOtaExchange.length
-      : filteredViaOta.length + filteredViaOtaExchange.length
+  const matchCount =
+    (showOta ? filteredViaOta.length : 0) + (showExchange ? filteredExchange.length : 0)
 
   return (
     <PageTransition>
-      <div className="page-destinations bg-[#f9f4ee] min-h-screen">
-        {/* ================= 1. LUXURY EDITORIAL HEADER ================= */}
-        <section className="relative overflow-hidden bg-midnight pt-32 pb-24 sm:pt-36 sm:pb-28 text-white">
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_80%_20%,rgba(232,74,40,0.15),transparent_50%)]" />
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_20%_80%,rgba(20,50,40,0.6),transparent_60%)]" />
+      {/* Sufficient top padding to clear the fixed navbar with generous breathing space */}
+      <div className="page-destinations relative isolate flex h-[100svh] flex-col overflow-hidden bg-[#f9f4ee] pt-[104px] sm:pt-[116px] lg:pt-[124px]">
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 -z-10 bg-repeat opacity-[0.07]"
+          style={{
+            backgroundImage: `url(${travelDoodlesGreen})`,
+            backgroundSize: '520px auto',
+          }}
+        />
 
-          <div className="relative mx-auto max-w-[1400px] px-4 sm:px-8 lg:px-12">
-            <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
-              <div className="max-w-3xl">
-                <p className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3.5 py-1.5 text-xs font-semibold uppercase tracking-[0.2em] text-[#f2d7a2] ring-1 ring-white/15 backdrop-blur-md">
-                  <Compass className="h-3.5 w-3.5 text-gold" />
-                  Our Global Collection
-                </p>
-                <h1 className="mt-4 font-display text-4xl leading-[1.04] sm:text-6xl lg:text-7xl">
-                  A place for every <em className="italic text-gold">kind of escape.</em>
-                </h1>
-                <p className="mt-5 max-w-2xl text-sm leading-relaxed text-white/70 sm:text-base">
-                  Explore handpicked destinations across our direct signature retreats (<strong className="text-white font-medium">VIA OTA</strong>)
-                  and our international leisure exchange network (<strong className="text-white font-medium">VIA OTA EXCHANGE</strong>).
-                </p>
-              </div>
-
-              {/* Stats pill counter */}
-              <div className="flex shrink-0 items-center gap-6 rounded-2xl border border-white/10 bg-white/5 p-4 sm:p-5 backdrop-blur-md">
-                <div>
-                  <span className="block font-display text-3xl sm:text-4xl text-white">
-                    {viaOtaDestinations.length}
-                  </span>
-                  <span className="mt-1 block text-[11px] font-medium uppercase tracking-[0.18em] text-[#f2d7a2]">
-                    VIA OTA
-                  </span>
-                </div>
-                <div className="h-10 w-px bg-white/15" />
-                <div>
-                  <span className="block font-display text-3xl sm:text-4xl text-white">
-                    {viaOtaExchangeDestinations.length}
-                  </span>
-                  <span className="mt-1 block text-[11px] font-medium uppercase tracking-[0.18em] text-[#f2d7a2]">
-                    Exchange
-                  </span>
-                </div>
-              </div>
+        {/* ============ Compact toolbar: title, tabs, search ============ */}
+        <div className="mx-auto w-full max-w-[1400px] shrink-0 px-3 pt-3 sm:px-6 lg:px-10">
+          <div className="flex flex-col gap-3 rounded-2xl bg-midnight px-4 py-3 text-white lg:flex-row lg:items-center lg:justify-between">
+            <div className="flex items-baseline gap-3">
+              <h1 className="font-display text-xl leading-none sm:text-2xl">
+                Destinations
+              </h1>
+              <p className="hidden text-[11px] text-white/60 md:block">
+                Handpicked escapes, direct and through our exchange network
+              </p>
             </div>
-          </div>
-        </section>
 
-        {/* ================= 2. FILTER & SEARCH CONTROL BAR ================= */}
-        <section className="relative z-20 -mt-10 mx-auto max-w-[1400px] px-4 sm:px-8 lg:px-12">
-          <div className="rounded-3xl border border-[#e3dccd] bg-white p-4 shadow-[0_20px_50px_-20px_rgba(10,20,40,0.25)] sm:p-5">
-            <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-              {/* Category Selection Tabs */}
-              <div className="flex flex-wrap items-center gap-2" role="tablist" aria-label="Destination Categories">
-                <button
-                  type="button"
-                  role="tab"
-                  aria-selected={activeTab === 'ALL'}
-                  onClick={() => setActiveTab('ALL')}
-                  className={`flex items-center gap-2 rounded-full px-5 py-2.5 text-xs sm:text-sm font-semibold transition-all duration-300 focus:outline-none ${
-                    activeTab === 'ALL'
-                      ? 'bg-midnight text-white shadow-md'
-                      : 'bg-[#faf8f3] text-midnight/70 hover:bg-[#efe9de] hover:text-midnight'
-                  }`}
-                >
-                  <span>All Destinations</span>
-                  <span
-                    className={`rounded-full px-2 py-0.5 text-xs ${
-                      activeTab === 'ALL' ? 'bg-white/20 text-white' : 'bg-black/10 text-midnight/60'
-                    }`}
-                  >
-                    {viaOtaDestinations.length + viaOtaExchangeDestinations.length}
-                  </span>
-                </button>
-
-                <button
-                  type="button"
-                  role="tab"
-                  aria-selected={activeTab === 'VIA_OTA'}
-                  onClick={() => setActiveTab('VIA_OTA')}
-                  className={`flex items-center gap-2 rounded-full px-5 py-2.5 text-xs sm:text-sm font-semibold transition-all duration-300 focus:outline-none ${
-                    activeTab === 'VIA_OTA'
-                      ? 'bg-midnight text-white shadow-md'
-                      : 'bg-[#faf8f3] text-midnight/70 hover:bg-[#efe9de] hover:text-midnight'
-                  }`}
-                >
-                  <Sparkles className="h-3.5 w-3.5 text-gold" />
-                  <span>VIA OTA</span>
-                  <span
-                    className={`rounded-full px-2 py-0.5 text-xs ${
-                      activeTab === 'VIA_OTA' ? 'bg-gold text-midnight font-bold' : 'bg-black/10 text-midnight/60'
-                    }`}
-                  >
-                    {viaOtaDestinations.length}
-                  </span>
-                </button>
-
-                <button
-                  type="button"
-                  role="tab"
-                  aria-selected={activeTab === 'VIA_OTA_EXCHANGE'}
-                  onClick={() => setActiveTab('VIA_OTA_EXCHANGE')}
-                  className={`flex items-center gap-2 rounded-full px-5 py-2.5 text-xs sm:text-sm font-semibold transition-all duration-300 focus:outline-none ${
-                    activeTab === 'VIA_OTA_EXCHANGE'
-                      ? 'bg-midnight text-white shadow-md'
-                      : 'bg-[#faf8f3] text-midnight/70 hover:bg-[#efe9de] hover:text-midnight'
-                  }`}
-                >
-                  <Globe className="h-3.5 w-3.5 text-gold" />
-                  <span>VIA OTA EXCHANGE</span>
-                  <span
-                    className={`rounded-full px-2 py-0.5 text-xs ${
-                      activeTab === 'VIA_OTA_EXCHANGE'
-                        ? 'bg-gold text-midnight font-bold'
-                        : 'bg-black/10 text-midnight/60'
-                    }`}
-                  >
-                    {viaOtaExchangeDestinations.length}
-                  </span>
-                </button>
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+              {/* Tabs */}
+              <div
+                role="tablist"
+                aria-label="Destination categories"
+                className="flex w-full overflow-x-auto gap-1 rounded-full bg-white/10 p-1 sm:w-auto"
+              >
+                {TABS.map(({ id, label, icon: Icon }) => {
+                  const selected = activeTab === id
+                  return (
+                    <button
+                      key={id}
+                      type="button"
+                      role="tab"
+                      aria-selected={selected}
+                      onClick={() => setActiveTab(id)}
+                      className={`flex flex-1 items-center justify-center gap-1.5 whitespace-nowrap rounded-full px-3 py-1.5 text-[11px] font-semibold transition-colors sm:flex-none ${selected
+                          ? 'bg-white text-midnight'
+                          : 'text-white/70 hover:text-white'
+                        } focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold`}
+                    >
+                      {Icon && <Icon className="h-3 w-3" aria-hidden="true" />}
+                      {label}
+                      <span
+                        className={`tabular-nums ${selected ? 'text-midnight/50' : 'text-white/40'
+                          }`}
+                      >
+                        {counts[id]}
+                      </span>
+                    </button>
+                  )
+                })}
               </div>
 
-              {/* Real-time search box */}
-              <div className="relative w-full lg:w-80">
-                <Search className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-midnight/40" />
+              {/* Search */}
+              <div className="relative w-full sm:w-64">
+                <label htmlFor="destination-search" className="sr-only">
+                  Search destinations
+                </label>
+                <Search
+                  aria-hidden="true"
+                  className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-white/50"
+                />
                 <input
+                  id="destination-search"
+                  ref={searchRef}
                   type="search"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Search destinations..."
-                  className="w-full rounded-full border border-[#e3dccd] bg-[#faf8f3] py-2.5 pl-10 pr-9 text-xs sm:text-sm text-midnight placeholder:text-midnight/45 outline-none transition focus:border-midnight focus:bg-white"
+                  onKeyDown={(e) => {
+                    if (e.key === 'Escape') setSearchQuery('')
+                  }}
+                  placeholder="Search by name or region"
+                  className="h-8 w-full rounded-full border border-white/10 bg-white/10 pl-9 pr-8 text-xs text-white placeholder:text-white/45 focus:border-gold focus:outline-none"
                 />
                 {searchQuery && (
                   <button
                     type="button"
-                    onClick={() => setSearchQuery('')}
+                    onClick={() => {
+                      setSearchQuery('')
+                      searchRef.current?.focus()
+                    }}
                     aria-label="Clear search"
-                    className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full p-1 text-midnight/50 hover:bg-black/5 hover:text-midnight"
+                    className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full p-1 text-white/60 hover:bg-white/10 hover:text-white"
                   >
-                    <X className="h-3.5 w-3.5" />
+                    <X className="h-3 w-3" />
                   </button>
                 )}
               </div>
             </div>
           </div>
-        </section>
 
-        {/* ================= 3. DESTINATIONS CONTENT ================= */}
-        <div className="mx-auto max-w-[1400px] px-4 py-12 sm:px-8 sm:py-16 lg:px-12">
-          {/* Active Filter & Count Summary */}
+          {/* Result summary only when searching */}
           {searchQuery && (
-            <div className="mb-8 flex items-center justify-between text-sm text-midnight/70">
-              <p>
-                Showing {totalFilteredCount} matching destinations for &ldquo;{searchQuery}&rdquo;
-              </p>
-              <button
-                type="button"
-                onClick={() => setSearchQuery('')}
-                className="font-medium text-midnight underline hover:no-underline"
-              >
-                Clear search
-              </button>
+            <p className="mt-2 px-1 text-[11px] text-midnight/65" aria-live="polite">
+              {matchCount} {matchCount === 1 ? 'destination matches' : 'destinations match'}{' '}
+              &ldquo;{searchQuery}&rdquo;
+            </p>
+          )}
+        </div>
+
+        {/* ============ Panels fill the rest of the screen ============ */}
+        <main
+          className={`mx-auto min-h-0 w-full max-w-[1400px] flex-1 px-3 pb-3 pt-3 sm:px-6 sm:pb-4 lg:px-10 ${bothVisible
+              ? 'grid gap-3 overflow-y-auto lg:grid-cols-2 lg:overflow-hidden'
+              : 'flex flex-col'
+            }`}
+        >
+          {showOta && (
+            <div className={bothVisible ? 'flex h-[70svh] min-h-0 flex-col lg:h-auto' : 'flex min-h-0 flex-1 flex-col'}>
+              <Panel
+                id="via-ota"
+                icon={Sparkles}
+                title="VIA OTA"
+                subtitle="Direct signature retreats: heritage, hills and coast"
+                items={filteredViaOta}
+                wide={!bothVisible}
+                emptyLabel="No VIA OTA destinations match your search. Try a different name or region."
+              />
             </div>
           )}
 
-          {/* ================= SECTION A: VIA OTA ================= */}
-          {(activeTab === 'ALL' || activeTab === 'VIA_OTA') && (
-            <section className="mb-20" aria-labelledby="via-ota-heading">
-              <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between border-b border-[#e5decb] pb-6">
-                <div>
-                  <div className="inline-flex items-center gap-2 rounded-full bg-midnight px-3.5 py-1 text-xs font-bold uppercase tracking-[0.2em] text-[#f2d7a2]">
-                    <Sparkles className="h-3.5 w-3.5 text-gold" />
-                    Direct Contract
-                  </div>
-                  <h2 id="via-ota-heading" className="mt-3 font-display text-3xl sm:text-4xl text-midnight">
-                    VIA OTA <span className="font-sans font-light text-midnight/60">Signature Escapes</span>
-                  </h2>
-                  <p className="mt-1 text-xs sm:text-sm text-midnight/65 max-w-xl">
-                    Directly contracted properties and signature holiday retreats across premier heritage, hill station, and coastal getaways.
-                  </p>
-                </div>
-                <p className="text-xs uppercase tracking-[0.2em] font-semibold text-midnight/50">
-                  {filteredViaOta.length} {filteredViaOta.length === 1 ? 'Destination' : 'Destinations'}
-                </p>
-              </div>
-
-              {filteredViaOta.length > 0 ? (
-                <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-                  {filteredViaOta.map((destination) => (
-                    <DestinationCard
-                      key={`via-ota-${destination.slug}`}
-                      destination={destination}
-                      badge="VIA OTA"
-                    />
-                  ))}
-                </div>
-              ) : (
-                <div className="mt-8 rounded-3xl border border-dashed border-[#d8cfbf] bg-white/70 p-10 text-center">
-                  <p className="font-display text-xl text-midnight">No VIA OTA destinations match your search.</p>
-                  <p className="mt-1 text-xs text-midnight/60">Try searching with a different term.</p>
-                </div>
-              )}
-            </section>
+          {showExchange && (
+            <div className={bothVisible ? 'flex h-[70svh] min-h-0 flex-col lg:h-auto' : 'flex min-h-0 flex-1 flex-col'}>
+              <Panel
+                id="via-ota-exchange"
+                icon={Globe}
+                title="VIA OTA Exchange"
+                subtitle="Partner properties across India and abroad"
+                items={filteredExchange}
+                wide={!bothVisible}
+                emptyLabel="No Exchange destinations match your search. Try a different name or region."
+              />
+            </div>
           )}
-
-          {/* ================= SECTION B: VIA OTA EXCHANGE ================= */}
-          {(activeTab === 'ALL' || activeTab === 'VIA_OTA_EXCHANGE') && (
-            <section aria-labelledby="via-ota-exchange-heading">
-              <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between border-b border-[#e5decb] pb-6">
-                <div>
-                  <div className="inline-flex items-center gap-2 rounded-full bg-[#1b3d32] px-3.5 py-1 text-xs font-bold uppercase tracking-[0.2em] text-[#f2d7a2]">
-                    <Globe className="h-3.5 w-3.5 text-gold" />
-                    Partner Network
-                  </div>
-                  <h2 id="via-ota-exchange-heading" className="mt-3 font-display text-3xl sm:text-4xl text-midnight">
-                    VIA OTA EXCHANGE <span className="font-sans font-light text-midnight/60">Global Network</span>
-                  </h2>
-                  <p className="mt-1 text-xs sm:text-sm text-midnight/65 max-w-xl">
-                    Exclusive holiday exchange privileges unlocking premier partner properties across domestic highlights and iconic international destinations.
-                  </p>
-                </div>
-                <p className="text-xs uppercase tracking-[0.2em] font-semibold text-midnight/50">
-                  {filteredViaOtaExchange.length} {filteredViaOtaExchange.length === 1 ? 'Destination' : 'Destinations'}
-                </p>
-              </div>
-
-              {filteredViaOtaExchange.length > 0 ? (
-                <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-                  {filteredViaOtaExchange.map((destination) => (
-                    <DestinationCard
-                      key={`exchange-${destination.slug}`}
-                      destination={destination}
-                      badge="VIA OTA EXCHANGE"
-                    />
-                  ))}
-                </div>
-              ) : (
-                <div className="mt-8 rounded-3xl border border-dashed border-[#d8cfbf] bg-white/70 p-10 text-center">
-                  <p className="font-display text-xl text-midnight">No VIA OTA EXCHANGE destinations match your search.</p>
-                  <p className="mt-1 text-xs text-midnight/60">Try searching with a different term.</p>
-                </div>
-              )}
-            </section>
-          )}
-        </div>
+        </main>
       </div>
     </PageTransition>
   )
 }
-

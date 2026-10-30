@@ -54,6 +54,7 @@ const auditLogSchema = new mongoose.Schema(
   },
   {
     timestamps: { createdAt: true, updatedAt: false },
+    bufferCommands: false,
   }
 )
 

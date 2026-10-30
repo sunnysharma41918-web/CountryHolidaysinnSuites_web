@@ -1,3 +1,4 @@
+import mongoose from 'mongoose'
 import { Property } from '../models/Property.js'
 import { AuditLog } from '../models/AuditLog.js'
 import { logAudit } from '../services/auditService.js'
@@ -69,6 +70,18 @@ export const getAdminProperties = async (req, res, next) => {
     const sortObj = {}
     sortObj[sortBy] = order === 'asc' ? 1 : -1
 
+    if (mongoose.connection.readyState !== 1) {
+      return res.status(200).json({
+        success: true,
+        count: 0,
+        total: 0,
+        page: pageNum,
+        totalPages: 1,
+        properties: [],
+        isFallback: true,
+      })
+    }
+
     const [properties, total] = await Promise.all([
       Property.find(query)
         .sort(sortObj)
@@ -98,6 +111,13 @@ export const getAdminPropertyById = async (req, res, next) => {
   try {
     const { id } = req.params
 
+    if (mongoose.connection.readyState !== 1) {
+      return res.status(404).json({
+        success: false,
+        message: 'Database unavailable. Property details require an active database connection.',
+      })
+    }
+
     const property = await Property.findById(id)
       .populate('createdBy', 'name email role')
       .populate('updatedBy', 'name email role')
@@ -108,8 +128,6 @@ export const getAdminPropertyById = async (req, res, next) => {
         message: `Property with ID '${id}' not found`,
       })
     }
-
-    // Fetch related audit logs for this specific property
     const auditLogs = await AuditLog.find({
       targetType: 'PROPERTY',
       targetId: property._id.toString(),
@@ -129,6 +147,13 @@ export const getAdminPropertyById = async (req, res, next) => {
 
 export const createProperty = async (req, res, next) => {
   try {
+    if (mongoose.connection.readyState !== 1) {
+      return res.status(503).json({
+        success: false,
+        message: 'Database unavailable. Cannot create property without an active database connection.',
+      })
+    }
+
     const payload = req.sanitizedBody || req.body
 
     // Ensure slug
@@ -177,6 +202,13 @@ export const createProperty = async (req, res, next) => {
 
 export const updateProperty = async (req, res, next) => {
   try {
+    if (mongoose.connection.readyState !== 1) {
+      return res.status(503).json({
+        success: false,
+        message: 'Database unavailable. Cannot update property without an active database connection.',
+      })
+    }
+
     const { id } = req.params
     const payload = req.sanitizedBody || req.body
 
@@ -242,6 +274,13 @@ export const updateProperty = async (req, res, next) => {
 
 export const updatePropertyStatus = async (req, res, next) => {
   try {
+    if (mongoose.connection.readyState !== 1) {
+      return res.status(503).json({
+        success: false,
+        message: 'Database unavailable. Cannot update property status without an active database connection.',
+      })
+    }
+
     const { id } = req.params
     const { status, isActive } = req.body
 
@@ -298,6 +337,13 @@ export const updatePropertyStatus = async (req, res, next) => {
 
 export const archiveOrDeleteProperty = async (req, res, next) => {
   try {
+    if (mongoose.connection.readyState !== 1) {
+      return res.status(503).json({
+        success: false,
+        message: 'Database unavailable. Cannot archive or delete property without an active database connection.',
+      })
+    }
+
     const { id } = req.params
     const { permanent = false } = req.query
 

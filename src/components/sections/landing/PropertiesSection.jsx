@@ -3,7 +3,7 @@ import { motion } from 'framer-motion'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { ArrowUpRight, ChevronsRight, Hotel, MapPin, Plane } from 'lucide-react'
-import { EASE, GREEN, WRAP, YELLOW, unsplash, Img } from './landingShared'
+import { EASE, GREEN, WRAP, YELLOW, unsplash, Img, Tag } from './landingShared'
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -22,11 +22,12 @@ const PROPERTIES = [
 const Media = ({ p, w = 1000 }) => (
   <div className="pr-img absolute inset-0">
     <Img src={unsplash(p.img, w)} alt={p.name} className="h-full w-full object-cover transition-transform duration-[1200ms] ease-out group-hover:scale-105" />
+    <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/35 to-black/10" />
   </div>
 )
 
-const Chip = ({ children, dark }) => (
-  <span className={`inline-flex items-center gap-2 text-xs font-medium ${dark ? 'rounded-full bg-white/15 px-3 py-1.5 text-white backdrop-blur' : 'text-[#0d4a3a]/70'}`}>
+const Badge = ({ children, dark }) => (
+  <span className={`inline-flex items-center gap-2 font-varela text-xs font-semibold ${dark ? 'rounded-full bg-white/15 px-3 py-1.5 text-white backdrop-blur' : 'text-[#0d4a3a]/70'}`}>
     <Hotel className="h-3.5 w-3.5" /> {children}
   </span>
 )
@@ -65,17 +66,16 @@ function Card({ p }) {
 
   if (p.kind === 'photo') {
     return (
-      <motion.a href={href} whileHover={{ y: -4 }} transition={{ duration: 0.35 }} className={`${base} aspect-[4/3] bg-[#0b3f32]`}>
+      <motion.a href={href} whileHover={{ y: -4 }} transition={{ duration: 0.35 }} className={`${base} aspect-[4/3] bg-[#0b3f32] border border-[#297f33]/25 hover:border-[#297f33] lp-shadow-combo-dark`}>
         <Media p={p} />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/45 via-transparent to-transparent" />
-        <div className="absolute inset-x-3 bottom-3 flex items-center justify-between gap-3 rounded-2xl bg-white/90 p-3 backdrop-blur">
-          <div className="min-w-0">
-            <p className="font-montserrat truncate text-sm sm:text-base font-semibold text-[#0d4a3a]">{p.name}</p>
-            <p className="font-poppins mt-0.5 text-xs font-normal text-[#0d4a3a]/65">{p.type}{p.place ? `, ${p.place}` : ''}</p>
-          </div>
-          <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full transition-transform duration-300 group-hover:rotate-45" style={{ background: YELLOW, color: GREEN }}>
-            <ArrowUpRight className="h-4 w-4" />
-          </span>
+        <div className="relative z-10 flex h-full flex-col justify-end p-5 text-white">
+          <Badge dark>{p.type}</Badge>
+          <h3 className="mt-1 font-varela text-lg font-bold leading-tight">{p.name}</h3>
+          {p.place && (
+            <p className="font-varela mt-1 flex items-center gap-1.5 text-xs text-white/80">
+              <MapPin className="h-3.5 w-3.5 text-[#ffd84d]" /> {p.place}
+            </p>
+          )}
         </div>
       </motion.a>
     )
@@ -83,31 +83,37 @@ function Card({ p }) {
 
   if (p.kind === 'tall') {
     return (
-      <motion.a href={href} whileHover={{ y: -4 }} transition={{ duration: 0.35 }} className={`${base} aspect-[4/5] bg-[#0b3f32] text-white`}>
+      <motion.a href={href} whileHover={{ y: -4 }} transition={{ duration: 0.35 }} className={`${base} aspect-[3/4] bg-[#0b3f32] border border-[#297f33]/25 hover:border-[#297f33] lp-shadow-combo-dark`}>
         <Media p={p} w={1200} />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent" />
-        <span className="absolute right-4 top-4 grid h-10 w-10 place-items-center rounded-full transition-transform duration-300 group-hover:rotate-45" style={{ background: YELLOW, color: GREEN }}>
-          <ArrowUpRight className="h-5 w-5" />
-        </span>
-        <div className="absolute inset-x-0 bottom-0 p-5 md:p-6">
-          <Chip dark>{p.type}</Chip>
-          <h3 className="font-montserrat mt-3 text-[clamp(1.25rem,1.6vw,1.5rem)] font-semibold leading-tight text-white">{p.name}</h3>
-          {p.place && <p className="font-poppins mt-1 flex items-center gap-1.5 text-sm text-white/80"><MapPin className="h-4 w-4" style={{ color: YELLOW }} />{p.place}</p>}
-          <p className="font-poppins mt-2 text-sm md:text-base font-normal text-white/80">{p.note}</p>
+        <div className="relative z-10 flex h-full flex-col justify-between p-6 text-white">
+          <div className="flex items-center justify-between">
+            <Badge dark>{p.type}</Badge>
+            <span className="grid h-8 w-8 place-items-center rounded-full bg-white/20 text-white backdrop-blur transition-transform duration-300 group-hover:rotate-45">
+              <ArrowUpRight className="h-4 w-4" />
+            </span>
+          </div>
+          <div>
+            <h3 className="font-varela text-2xl font-bold leading-tight">{p.name}</h3>
+            {p.place && (
+              <p className="font-varela mt-1 flex items-center gap-1.5 text-xs text-white/80">
+                <MapPin className="h-3.5 w-3.5 text-[#ffd84d]" /> {p.place}
+              </p>
+            )}
+            <p className="font-varela mt-3 text-xs text-white/80 border-t border-white/20 pt-3">{p.note}</p>
+          </div>
         </div>
       </motion.a>
     )
   }
 
   return (
-    <motion.a href={href} whileHover={{ y: -4 }} transition={{ duration: 0.35 }} className={`${base} flex flex-col justify-between rounded-3xl border border-white/90 bg-white/75 backdrop-blur-xl p-5 text-[#0d4a3a] shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:bg-white/95 md:p-6 transition-all`}>
-      <Chip>{p.type}</Chip>
+    <motion.a href={href} whileHover={{ y: -4 }} transition={{ duration: 0.35 }} className={`${base} flex aspect-[4/3] flex-col justify-between border border-white/90 bg-white/75 p-5 text-[#0d4a3a] lp-shadow-combo backdrop-blur-xl hover:border-[#297f33]/30`}>
       <div>
-        <h3 className="font-montserrat text-[clamp(1.25rem,1.6vw,1.5rem)] font-semibold leading-tight text-[#063a2f]">{p.name}</h3>
-        {p.place && <p className="font-poppins mt-1 flex items-center gap-1.5 text-sm text-[#0d4a3a]/70"><MapPin className="h-4 w-4" />{p.place}</p>}
-        <p className="font-poppins mt-2 max-w-[16rem] text-sm md:text-base font-normal leading-relaxed text-[#0d4a3a]/75">{p.note}</p>
+        <Badge>{p.type}</Badge>
+        <h3 className="mt-2 font-varela text-lg font-bold leading-tight text-[#063a2f]">{p.name}</h3>
+        <p className="font-varela mt-2 text-xs text-[#0d4a3a]/75">{p.note}</p>
       </div>
-      <span className="mb-1 inline-flex items-center gap-1.5 text-sm font-semibold">
+      <span className="mb-1 inline-flex items-center gap-1.5 font-varela text-sm font-bold text-[#297f33]">
         Book this stay <ArrowUpRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1 group-hover:-translate-y-1" />
       </span>
       <Trail />
@@ -125,27 +131,29 @@ export default function PropertiesSection() {
         gsap
           .timeline({ defaults: { ease: 'power3.out' }, scrollTrigger: { trigger: root.current, start: 'top 70%', once: true } })
           .from('.pr-head', { opacity: 0, y: 28, duration: 0.9, stagger: 0.12 })
-          .fromTo('.pr-card', { clipPath: 'inset(100% 0% 0% 0%)' }, { clipPath: 'inset(0% 0% 0% 0%)', duration: 1.1, stagger: 0.12 }, 0.2)
-          .from('.pr-img', { scale: 1.3, duration: 1.5, stagger: 0.12 }, 0.2)
+          .from('.pr-card', { opacity: 0, y: 30, duration: 0.8, stagger: 0.08 }, 0.15)
       })
     }, root)
     return () => ctx.revert()
   }, [])
 
   return (
-    <section ref={root} id="properties" className="relative flex min-h-screen flex-col bg-transparent py-12 text-[#0d4a3a] lg:h-screen lg:py-8">
+    <section ref={root} id="properties" className="relative flex flex-col bg-transparent py-8 md:py-12 text-[#0d4a3a]">
       <div className={`${WRAP} flex min-h-0 flex-1 flex-col gap-6`}>
-        <div className="flex items-center justify-between gap-4">
-          <h2 className="pr-head font-montserrat text-[clamp(2.25rem,3.2vw,2.75rem)] font-bold leading-[1.15] text-[#063a2f]">
-            Our recent <span className="font-serif italic font-normal">properties</span>
-          </h2>
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+          <div>
+            <Tag>EXCLUSIVE STAYS</Tag>
+            <h2 className="pr-head font-rader mt-2 text-[clamp(2.25rem,3.6vw,3.15rem)] font-bold leading-[1.12] text-[#063a2f]">
+              Our Recent <span className="text-[#297f33]">Properties</span>
+            </h2>
+          </div>
           <motion.a
             href="#faq"
-            className="pr-head inline-flex items-center gap-3 rounded-full border border-white/90 bg-white/80 backdrop-blur-xl py-1.5 pl-5 pr-1.5 text-xs font-semibold text-[#063a2f] shadow-sm hover:bg-white hover:shadow-md transition-all"
+            className="pr-head inline-flex items-center gap-3 rounded-full border border-white/90 bg-white/80 backdrop-blur-xl py-1.5 pl-5 pr-1.5 text-xs font-semibold text-[#063a2f] shadow-sm hover:bg-white hover:shadow-md transition-all self-start sm:self-auto"
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.96 }}
           >
-            View all stays
+            <span className="font-varela font-bold">View all stays</span>
             <span className="grid h-8 w-8 place-items-center rounded-full bg-[#063a2f] text-[#fbd75b]">
               <ChevronsRight className="h-4 w-4" />
             </span>

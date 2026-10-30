@@ -514,17 +514,14 @@ export default function BlogPage() {
   }, [activeArticle])
 
   const handleOpenBooking = (articleTitle) => {
-    window.dispatchEvent(
-      new CustomEvent('open-booking-modal', {
-        detail: {
-          destination: `Blog Experience: ${articleTitle}`,
-          persons: '2 Persons',
-          days: '6N/7D Holiday',
-        },
-      }),
-    )
+    window.location.href = `/contact?subject=${encodeURIComponent(`Blog Experience: ${articleTitle}`)}`
     setActiveArticle(null)
   }
+  const oldHandleOpenBooking = (articleTitle) => {
+    window.location.href = `/contact?subject=${encodeURIComponent(`Blog Experience: ${articleTitle}`)}`
+    setActiveArticle(null)
+  }
+  
 
   const handleSubscribe = (e) => {
     e.preventDefault()

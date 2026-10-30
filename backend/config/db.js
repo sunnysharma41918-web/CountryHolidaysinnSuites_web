@@ -29,11 +29,13 @@ export const connectDB = async () => {
 
   try {
     mongoose.set('strictQuery', true)
+    mongoose.set('bufferCommands', false)
 
     const conn = await mongoose.connect(uri, {
       serverSelectionTimeoutMS: 8000,
       socketTimeoutMS: 45000,
       maxPoolSize: 10, // Ideal for Atlas Free Tier (M0 limit is 500 connections)
+      bufferCommands: false, // Fail fast instead of buffering and timing out after 10s
     })
 
     isConnected = true

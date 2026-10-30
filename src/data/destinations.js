@@ -210,4 +210,4 @@ export const destinationMenuGroups = [
 ]
 
 export const getDestinationBySlug = (slug) =>
-  destinations.find((destination) => destination.slug === slug)
+    destinations.find((destination) => destination.slug === slug)

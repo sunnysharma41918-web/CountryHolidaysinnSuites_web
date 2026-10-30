@@ -1,9 +1,29 @@
+import mongoose from 'mongoose'
 import { Property } from '../models/Property.js'
 import { AuditLog } from '../models/AuditLog.js'
 import { User } from '../models/User.js'
 
 export const getDashboardStats = async (req, res, next) => {
   try {
+    if (mongoose.connection.readyState !== 1) {
+      return res.status(200).json({
+        success: true,
+        stats: {
+          totalProperties: 0,
+          publishedCount: 0,
+          draftCount: 0,
+          archivedCount: 0,
+          activeCount: 0,
+          inactiveCount: 0,
+          sourceBreakdown: { VIA_OTA: 0, VIA_OTA_EXCHANGE: 0 },
+          totalUsers: 0,
+          destinationStats: [],
+          recentActivity: [],
+          isFallback: true,
+        },
+      })
+    }
+
     const [
       totalProperties,
       publishedCount,

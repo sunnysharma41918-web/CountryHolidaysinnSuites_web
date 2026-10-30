@@ -20,7 +20,7 @@ export const brand = {
     x: 'https://x.com',
     youtube: 'https://youtube.com',
   },
-  copyright: '© 2025 COUNTRY HOLIDAYS INNSUITES. All rights reserved.',
+  copyright: '© 2026 Country Holidays Inn & Suites. All rights reserved.',
 }
 
 export const brandStats = {

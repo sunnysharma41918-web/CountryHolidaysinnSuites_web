@@ -1,44 +1,44 @@
 export const faqs = [
   {
     id: 1,
-    question: 'Are your tours suitable for solo travelers, couples, or families?',
+    question: 'How do I book a trip?',
     answer:
-      'Yes! We offer options for all types of travelers, including solo explorers, couples, families, and groups. You can filter tours by traveler type for the best fit.',
+      'Browse our destinations and resorts, select your preferred stay or travel package, and submit an inquiry. Our team will help you with the booking process.',
     isOpenDefault: true,
   },
   {
     id: 2,
-    question: 'How do I book a tour on your website?',
+    question: 'Can I change or cancel after booking?',
     answer:
-      'Booking is effortless! Simply select your desired destination and dates, choose your preferred package, and click "Book Your Next Trip" to complete our instant and secure checkout process.',
+      'Yes, booking changes and cancellations are subject to the applicable booking terms and cancellation policy. Please contact our support team for assistance.',
     isOpenDefault: false,
   },
   {
     id: 3,
-    question: 'Do I need a visa to travel to the destination?',
+    question: 'What payment options do you accept?',
     answer:
-      'Visa requirements depend on your citizenship and destination country. We provide personalized visa advisory guidelines and official invitation letters when required.',
+      'We will share the available payment methods and payment instructions during the reservation process.',
     isOpenDefault: false,
   },
   {
     id: 4,
-    question: 'What languages do your tour guides speak?',
+    question: 'Do you help with visas and insurance?',
     answer:
-      'Our certified professional guides speak fluent English, German, French, and local regional dialects, ensuring engaging and accessible stories throughout your journey.',
+      'We can guide you regarding available visa assistance and travel insurance options, depending on your destination and service availability.',
     isOpenDefault: false,
   },
   {
     id: 5,
-    question: 'What payment methods do you accept?',
+    question: 'Can you plan a trip for a large group?',
     answer:
-      'We accept all major credit/debit cards (Visa, MasterCard, Amex), Apple Pay, Google Pay, PayPal, and flexible installment plans with 0% interest.',
+      'Absolutely! Share your destination, travel dates, group size, and preferences with our team for a customized travel plan.',
     isOpenDefault: false,
   },
   {
     id: 6,
-    question: "Can I make changes to my booking after it's confirmed?",
+    question: 'What if something goes wrong while I am travelling?',
     answer:
-      'Yes! You can reschedule your dates or adjust participant details up to 14 days before departure with zero rebooking fees through your TripMaker account.',
+      'Please contact our support team using the contact details provided with your booking. We will guide you toward the available assistance.',
     isOpenDefault: false,
   },
 ]

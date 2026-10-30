@@ -20,6 +20,7 @@ import AdminResetPasswordPage from '../pages/admin/AdminResetPasswordPage'
 import Dashboard from '../components/admin/Dashboard'
 import AdminPropertiesPage from '../pages/admin/AdminPropertiesPage'
 import AdminPropertyFormPage from '../pages/admin/AdminPropertyFormPage'
+import AdminOffersPage from '../pages/admin/AdminOffersPage'
 import AdminAuditLogsPage from '../pages/admin/AdminAuditLogsPage'
 import AdminSystemPage from '../pages/admin/AdminSystemPage'
 
@@ -43,6 +44,7 @@ export default function AppRoutes() {
       <Route path="/experiences" element={<ExperiencesPage />} />
 
       {/* ================= ADMIN AUTHENTICATION ROUTES ================= */}
+      <Route path="/login" element={<Navigate to="/admin/login" replace />} />
       <Route path="/admin/login" element={<AdminLoginPage />} />
       <Route path="/admin/forgot-password" element={<Navigate to="/admin/login" replace />} />
       <Route path="/admin/reset-password" element={<Navigate to="/admin/login" replace />} />
@@ -59,6 +61,7 @@ export default function AppRoutes() {
       >
         <Route index element={<Navigate to="/admin/dashboard" replace />} />
         <Route path="dashboard" element={<Dashboard />} />
+        <Route path="offers" element={<AdminOffersPage />} />
         <Route path="properties" element={<AdminPropertiesPage />} />
         <Route path="properties/new" element={<AdminPropertyFormPage />} />
         <Route path="properties/:id/edit" element={<AdminPropertyFormPage />} />

@@ -85,6 +85,32 @@ export const getDashboardStats = async (req, res, next) => {
     })
     return
     // (legacy below)
+    const effectiveTotal = totalProperties || defaultResorts.length
+    const effectivePublished = totalProperties ? publishedCount : defaultResorts.filter((r) => r.status === 'published').length
+    const effectiveActive = totalProperties ? activeCount : defaultResorts.length
+
+    res.status(200).json({
+      success: true,
+      stats: {
+        totalProperties: effectiveTotal,
+        publishedCount: effectivePublished,
+        draftCount,
+        archivedCount,
+        activeCount: effectiveActive,
+        sourceBreakdown: {
+          VIA_OTA: viaOtaCount || defaultResorts.filter((r) => r.source === 'VIA_OTA').length,
+          VIA_OTA_EXCHANGE: viaOtaExchangeCount || defaultResorts.filter((r) => r.source === 'VIA_OTA_EXCHANGE').length,
+        },
+        totalUsers: totalUsers || 1,
+        destinationStats: destinationStats.length ? destinationStats : [...defaultResorts.reduce((acc, r) => {
+          acc.set(r.destination, (acc.get(r.destination) || 0) + 1)
+          return acc
+        }, new Map())].map(([destination, count]) => ({ _id: destination, count })),
+        recentActivity: recentAuditLogs,
+      },
+    })
+    return
+    // (legacy below)
     res.status(200).json({
       success: true,
       stats: {

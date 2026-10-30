@@ -288,6 +288,7 @@ export const updateProperty = async (req, res, next) => {
       success: true,
       message: 'Property updated successfully',
       property,
+      
     })
   } catch (error) {
     next(error)

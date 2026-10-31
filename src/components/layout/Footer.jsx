@@ -43,7 +43,7 @@ const MORE_LINKS = [
   { label: 'Admin portal', to: '/admin/login' },
 ]
 
-const PHONE = '8130701133'
+const PHONE = '76697775335'
 const EMAIL = 'info@countryholidaysinnsuites.com'
 const CARE_EMAIL = 'customercare@countryholidaysinnsuites.com'
 
@@ -360,9 +360,14 @@ export default function Footer() {
                     <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-[#b9e26a] lg:order-2" aria-hidden="true" />
                     <span className="leading-snug">126, 1st Floor, Devika Tower 6, Nehru Place, New Delhi - 110019</span>
                   </div>
-                  <div className="flex items-center gap-2.5 lg:justify-end">
-                    <Phone className="h-4 w-4 shrink-0 text-[#b9e26a] lg:order-2" aria-hidden="true" />
-                    <a href={`tel:${PHONE}`} className="font-semibold text-white hover:underline">{PHONE}</a>
+                  <div className="flex items-start gap-2.5 lg:justify-end">
+                    <Phone className="mt-0.5 h-4 w-4 shrink-0 text-[#b9e26a] lg:order-2" aria-hidden="true" />
+                    <div className="flex flex-col lg:items-end">
+                      <a href={`tel:${PHONE}`} className="font-semibold text-white hover:underline">{PHONE}</a>
+                      <span className="mt-0.5 text-xs text-white/70">
+                        (Our working time mon-friday 10 to 5pm)
+                      </span>
+                    </div>
                   </div>
                   <div className="flex items-start gap-2.5 lg:justify-end">
                     <Mail className="mt-0.5 h-4 w-4 shrink-0 text-[#b9e26a] lg:order-2" aria-hidden="true" />

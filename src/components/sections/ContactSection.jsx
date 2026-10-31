@@ -11,7 +11,7 @@ import ContactForm from '../forms/ContactForm'
   CHIS palette: green #096c27 · deep #06501b · leaf #b3d565 · ink #0b1f12 · mist #f3f8e6
 */
 const EASE = [0.22, 1, 0.36, 1]
-const PHONE = '8130701133'
+const PHONE = '76697775335'
 const INFO_MAIL = 'info@countryholidaysinnsuites.com'
 const CARE_MAIL = 'customercare@countryholidaysinnsuites.com'
 const ADDRESS = '126, 1st Floor, Devika Tower 6, Nehru Place, New Delhi - 110019.'

@@ -4,14 +4,15 @@ export const brand = {
   description:
     "Whether you're craving a beach escape, a thrilling mountain track, or a cultural city tour, we've got the perfect getaway for you.",
   location: 'New Delhi & Global Destinations',
-  phone: '8130701133',
-  customerCare: '8130701133',
+  phone: '76697775335',
+  customerCare: '76697775335',
   email: 'info@countryholidaysinnsuites.com',
   customerCareEmail: 'customercare@countryholidaysinnsuites.com',
-  whatsapp: '8130701133',
+  whatsapp: '76697775335',
+  workingHours: 'Mon-Friday 10:00 AM to 5:00 PM',
   address: '126, 1st Floor, Devika Tower 6, Nehru Place, New Delhi - 110019',
   membershipEnquiry: {
-    phone: '8130701133',
+    phone: '76697775335',
     email: 'info@countryholidaysinnsuites.com',
   },
   socials: {

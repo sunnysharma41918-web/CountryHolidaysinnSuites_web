@@ -86,7 +86,7 @@ export default function ContactForm() {
       setStatus(
         res.error
           ? `Notice: ${res.error}`
-          : 'Unable to send message right now. Please call our holiday desk directly at 8130701133.'
+          : 'Unable to send message right now. Please call our holiday desk directly at 76697775335.'
       )
     }
   }

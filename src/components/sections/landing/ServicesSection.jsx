@@ -58,6 +58,13 @@ const SERVICES = [
   },
 ]
 
+/* Notch: a circle cut out of the cover's bottom-right corner, centred on the
+   arrow disc. It is a real transparent mask, so it works on any background. */
+const DISC = 44 // arrow disc, px
+const GAP = 12 // space between disc and cover edge, px
+const CUT = DISC / 2 + GAP // cut radius, px
+const notchMask = `radial-gradient(circle at calc(100% - ${DISC / 2}px) calc(100% - ${DISC / 2}px), transparent ${CUT}px, #000 ${CUT + 0.5}px)`
+
 export default function ServicesSection() {
   const root = useRef(null)
 
@@ -90,61 +97,57 @@ export default function ServicesSection() {
           </p>
         </div>
 
-        {/* Services Grid (Balanced 3x2 on desktop) */}
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+        {/* Services Grid */}
+        <div className="grid grid-cols-1 gap-x-5 gap-y-8 sm:grid-cols-2 lg:grid-cols-3">
           {SERVICES.map((s) => (
             <motion.div
               key={s.title}
               className="sv-card h-full"
-              whileHover={{ y: -5 }}
+              whileHover={{ y: -4 }}
               transition={{ duration: 0.3, ease: 'easeOut' }}
             >
-              <div className="group relative flex h-full min-h-[210px] sm:min-h-[220px] flex-col justify-between overflow-hidden rounded-lg border border-white/20 bg-[#071912] p-5 text-white lp-shadow-combo-dark transition-all duration-500 hover:border-[#297f33]">
-                {/* Cinematic Photo Background */}
-                <img
-                  src={unsplash(s.img, 800)}
-                  alt={s.title}
-                  className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-108"
-                  loading="lazy"
-                />
+              <article className="group flex h-full flex-col">
+                {/* Cover with notch */}
+                <div className="relative">
+                  <div
+                    className="relative aspect-[16/10] overflow-hidden rounded-2xl bg-[#071912]"
+                    style={{ WebkitMask: notchMask, mask: notchMask }}
+                  >
+                    <img
+                      src={unsplash(s.img, 800)}
+                      alt={s.title}
+                      className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+                      loading="lazy"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-black/25" />
 
-                {/* Dark Shadow Gradient Vignette */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/60 to-black/30 transition-opacity duration-300 group-hover:from-black/95 group-hover:via-black/65" />
-                <div className="pointer-events-none absolute inset-0 bg-black/10" />
-
-                {/* Top Row: Icon + Chip on left, Arrow on right */}
-                <div className="relative z-10 flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <span className="grid h-10 w-10 place-items-center rounded-md border border-white/25 bg-white/15 text-white backdrop-blur-md shadow-sm transition-all duration-300 group-hover:border-[#297f33] group-hover:bg-[#297f33] group-hover:shadow-[0_0_16px_rgba(41,127,51,0.5)]">
-                      <s.icon className="h-5 w-5 transition-transform duration-300 group-hover:scale-110" />
-                    </span>
-                    <div className="flex items-center gap-2 rounded-md border border-white/20 bg-black/50 px-2.5 py-1 text-xs font-semibold backdrop-blur-md shadow-xs">
-                      <span className="font-mono text-xs text-[#fbd75b] tracking-wider">{s.idx}</span>
-                      <span className="h-2 w-px bg-white/30" />
-                      <span className="font-varela text-[10px] tracking-widest uppercase text-white/85">{s.tag}</span>
+                    {/* Chip: icon + index + tag */}
+                    <div className="absolute left-3 top-3 flex items-center gap-2 rounded-md border border-white/25 bg-black/45 py-1 pl-1.5 pr-2.5 backdrop-blur-md">
+                      <s.icon className="h-3.5 w-3.5 text-[#fbd75b]" />
+                      <span className="h-2.5 w-px bg-white/30" />
+                      <span className="font-mono text-[10px] tracking-wider text-[#fbd75b]">{s.idx}</span>
+                      <span className="font-varela text-[10px] uppercase tracking-widest text-white/90">{s.tag}</span>
                     </div>
                   </div>
 
-                  <span className="grid h-8 w-8 shrink-0 place-items-center rounded-md border border-white/20 bg-white/10 text-white backdrop-blur-md transition-all duration-300 group-hover:border-[#fbd75b] group-hover:bg-[#fbd75b] group-hover:text-[#063a2f] group-hover:rotate-45">
-                    <ArrowUpRight className="h-4 w-4" />
+                  {/* Arrow disc sitting in the notch */}
+                  <span
+                    aria-hidden
+                    className="absolute bottom-0 right-0 grid place-items-center rounded-full bg-[#297f33] text-white shadow-[0_6px_16px_rgba(41,127,51,0.35)] transition-all duration-300 group-hover:scale-105 group-hover:bg-[#fbd75b] group-hover:text-[#063a2f]"
+                    style={{ width: DISC, height: DISC }}
+                  >
+                    <ArrowUpRight className="h-[18px] w-[18px] transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
                   </span>
                 </div>
 
-                {/* Bottom Content: Title + Concise Body */}
-                <div className="relative z-10 mt-4 rounded-md border border-white/15 bg-black/50 p-3.5 backdrop-blur-xl shadow-md transition-all duration-300 group-hover:border-[#297f33]/60 group-hover:bg-black/65">
-                  <h3 className="font-varela text-lg font-bold leading-snug text-white transition-colors duration-300 group-hover:text-[#fbd75b]">
-                    {s.title}
-                  </h3>
-                  <p className="font-varela mt-1 text-xs sm:text-sm font-normal leading-relaxed text-white/80 transition-colors group-hover:text-white/95 line-clamp-2">
-                    {s.body}
-                  </p>
-
-                  {/* Animated Brand Gradient Underline */}
-                  <div className="mt-2.5 h-[2px] w-full overflow-hidden rounded-sm bg-white/10">
-                    <div className="h-full w-0 bg-gradient-to-r from-[#297f33] via-[#3ebd4c] to-[#fbd75b] transition-all duration-500 ease-out group-hover:w-full" />
-                  </div>
-                </div>
-              </div>
+                {/* Text below the cover */}
+                <h3 className="font-varela mt-3.5 text-lg font-bold leading-snug text-[#063a2f] transition-colors duration-300 group-hover:text-[#297f33]">
+                  {s.title}
+                </h3>
+                <p className="font-varela mt-1.5 text-sm font-normal leading-relaxed text-slate-600 line-clamp-2">
+                  {s.body}
+                </p>
+              </article>
             </motion.div>
           ))}
         </div>

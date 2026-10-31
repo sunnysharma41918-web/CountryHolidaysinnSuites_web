@@ -4,37 +4,110 @@ import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
 /* ------------------------------------------------------------------ */
 /*  Tokens                                                             */
 /* ------------------------------------------------------------------ */
-const INK = '#096c27' // brand green
-const BG = '#f3f8ee' // soft green-tinted white
-const SESSION_KEY = 'ch_web_loader_shown'
-const LOOP_SECONDS = 3 // one lap of the plane around the number
+const GOLD = '#fbd75b'
+const SAFFRON = '#f59e0b'
+const FLAME = '#ff7a18'
+const MAROON_DEEP = '#1d0610'
+const MAROON = '#4a0f1d'
+const LOOP_SECONDS = 24 // one slow turn of the rangoli ring
+
+/* sparkles: fixed positions so renders stay stable */
+const SPARKLES = [
+  { x: 8, y: 22, s: 6, d: 0 },
+  { x: 18, y: 70, s: 4, d: 0.6 },
+  { x: 28, y: 12, s: 5, d: 1.2 },
+  { x: 36, y: 84, s: 7, d: 0.3 },
+  { x: 48, y: 6, s: 4, d: 1.8 },
+  { x: 60, y: 90, s: 5, d: 0.9 },
+  { x: 72, y: 14, s: 7, d: 1.5 },
+  { x: 82, y: 76, s: 4, d: 0.2 },
+  { x: 91, y: 30, s: 6, d: 1.1 },
+  { x: 94, y: 62, s: 5, d: 2.0 },
+  { x: 4, y: 50, s: 5, d: 1.4 },
+  { x: 54, y: 48, s: 3, d: 0.7 },
+]
 
 /* ------------------------------------------------------------------ */
-/*  Plane (line art, faces right = direction of travel)                */
+/*  Diya (oil lamp) with a flickering flame                            */
 /* ------------------------------------------------------------------ */
-function Plane() {
-  const line = {
-    fill: BG,
-    stroke: INK,
-    strokeWidth: 3.2,
-    strokeLinecap: 'round',
-    strokeLinejoin: 'round',
-  }
+function Diya({ reduced }) {
+  const flicker = reduced
+    ? undefined
+    : {
+      scaleY: [1, 1.12, 0.94, 1.08, 1],
+      scaleX: [1, 0.92, 1.06, 0.96, 1],
+      skewX: [0, -3, 2, -2, 0],
+    }
 
   return (
-    <svg viewBox="0 0 200 100" className="block h-auto w-full overflow-visible" aria-hidden="true">
-      <path {...line} d="M92 38 L100 27 Q102 25 106 25 L116 25 Q120 26 124 32 L134 38 Z" />
-      <path {...line} d="M20 14 Q20 9 26 9 L35 9 Q40 9 43 13 L60 40 L34 40 Z" />
-      <path {...line} d="M26 46 Q17 47 16 54 Q16 61 24 62 L44 59 L56 50 Z" />
-      <path
-        {...line}
-        d="M46 38 H138 C160 38 178 44 186 52 C188 56 182 60 174 62 C160 66 140 68 120 68 H54 C46 68 41 64 41 58 V48 C41 42 42 38 46 38 Z"
-      />
-      <path {...line} d="M142 66 L108 94 Q104 97 98 97 L92 97 Q88 95 92 91 L112 66 Z" />
-      <path {...line} fill="none" d="M166 47 Q176 45 183 49" />
-      {Array.from({ length: 10 }).map((_, i) => (
-        <rect key={i} x={70 + i * 7} y={49} width={4.6} height={6.5} rx={2} {...line} fill="none" strokeWidth={2.6} />
+    <svg viewBox="0 0 120 120" className="block h-auto w-full overflow-visible" aria-hidden="true">
+      <defs>
+        <linearGradient id="diya-bowl" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stopColor="#f6b73c" />
+          <stop offset="1" stopColor="#b9531a" />
+        </linearGradient>
+        <linearGradient id="diya-flame" x1="0" y1="1" x2="0" y2="0">
+          <stop offset="0" stopColor={FLAME} />
+          <stop offset="0.6" stopColor={SAFFRON} />
+          <stop offset="1" stopColor="#fff2a8" />
+        </linearGradient>
+      </defs>
+
+      {/* flame */}
+      <motion.g
+        style={{ transformBox: 'fill-box', transformOrigin: '50% 100%' }}
+        animate={flicker}
+        transition={{ duration: 1.1, repeat: Infinity, ease: 'easeInOut' }}
+      >
+        <path d="M60 6 C75 26 80 42 60 56 C40 42 45 26 60 6 Z" fill="url(#diya-flame)" />
+        <path d="M60 28 C67 38 68 46 60 54 C52 46 53 38 60 28 Z" fill="#fffbe0" opacity="0.9" />
+      </motion.g>
+
+      {/* wick */}
+      <rect x="58.5" y="52" width="3" height="8" rx="1.5" fill="#3b1608" />
+
+      {/* base */}
+      <rect x="44" y="104" width="32" height="7" rx="3.5" fill="#8a3a12" />
+      <rect x="52" y="98" width="16" height="8" rx="2" fill="#a24618" />
+
+      {/* bowl */}
+      <path d="M6 58 C12 92 38 104 60 104 C82 104 108 92 114 58 Q60 72 6 58 Z" fill="url(#diya-bowl)" />
+      <ellipse cx="60" cy="58" rx="54" ry="9" fill="#ffd36a" stroke="#b9531a" strokeWidth="2" />
+      <ellipse cx="60" cy="59" rx="40" ry="5.5" fill="#6b2208" />
+
+      {/* bowl pattern */}
+      {[26, 40, 54, 68, 82, 96].map((cx, i) => (
+        <circle key={cx} cx={cx} cy={i % 2 ? 80 : 77} r="2.4" fill="#fff2a8" opacity="0.85" />
       ))}
+    </svg>
+  )
+}
+
+/* ------------------------------------------------------------------ */
+/*  Rangoli ring: petals + dots                                        */
+/* ------------------------------------------------------------------ */
+function RangoliRing({ inner = false }) {
+  const count = inner ? 8 : 16
+  const r = inner ? 30 : 44
+  return (
+    <svg viewBox="0 0 100 100" className="absolute inset-0 h-full w-full" aria-hidden="true">
+      <circle cx="50" cy="50" r={inner ? 38 : 48.5} fill="none" stroke={GOLD} strokeWidth="0.35" strokeDasharray="1 2.2" opacity="0.8" />
+      {Array.from({ length: count }).map((_, i) => {
+        const a = (360 / count) * i
+        return (
+          <g key={i} transform={`rotate(${a} 50 50)`}>
+            <ellipse
+              cx="50"
+              cy={50 - r}
+              rx={inner ? 3 : 2.4}
+              ry={inner ? 7 : 5.4}
+              fill={i % 2 ? SAFFRON : FLAME}
+              opacity={inner ? 0.55 : 0.8}
+            />
+            {!inner && <circle cx="50" cy="3.2" r="1" fill={GOLD} />}
+          </g>
+        )
+      })}
     </svg>
   )
 }
@@ -44,7 +117,7 @@ function Plane() {
 /* ------------------------------------------------------------------ */
 export default function WebsiteLoader({
   visible = true,
-  duration = 2200, // ms from 1 to 100
+  duration = 2600, // ms from 1 to 100
   onlyOncePerSession = true,
   onFinish,
   className = '',
@@ -89,7 +162,6 @@ export default function WebsiteLoader({
       return
     }
 
-    // Check if this is a browser page refresh / reload
     try {
       const nav = performance.getEntriesByType?.('navigation')?.[0]
       if (nav && nav.type === 'reload') {
@@ -132,7 +204,7 @@ export default function WebsiteLoader({
 
     const step = (now) => {
       const t = Math.min((now - start) / total, 1)
-      const eased = t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2 // easeInOutQuad
+      const eased = t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2
       setProgress(Math.max(1, Math.round(eased * 100)))
       if (t < 1) raf = requestAnimationFrame(step)
       else setDone(true)
@@ -155,7 +227,7 @@ export default function WebsiteLoader({
       }
       setShouldRender(false)
       onFinishRef.current?.()
-    }, reduced ? 120 : 600)
+    }, reduced ? 120 : 800)
     return () => clearTimeout(timer)
   }, [done, shouldRender, onlyOncePerSession, reduced])
 
@@ -189,9 +261,9 @@ export default function WebsiteLoader({
           key="website-loader"
           role="status"
           aria-live="polite"
-          aria-label="Loading Country Holidays InnSuites"
-          className={`fixed inset-0 z-[9999] flex select-none items-center justify-center overflow-hidden ${className}`}
-          style={{ background: BG, color: INK }}
+          aria-label="Happy Diwali from Country Holidays Travel Inn and Suites. Loading."
+          className={`fixed inset-0 z-[9999] flex select-none items-center justify-center overflow-hidden px-4 ${className}`}
+          style={{ background: `radial-gradient(ellipse at 50% 40%, ${MAROON} 0%, ${MAROON_DEEP} 75%)`, color: GOLD }}
           initial={{ opacity: 1 }}
           exit={{
             opacity: 0,
@@ -199,60 +271,106 @@ export default function WebsiteLoader({
             transition: { duration: reduced ? 0.15 : 0.5, ease: 'easeOut' },
           }}
         >
-          {/* orbit: everything is sized from --d so it scales together */}
-          <div
-            className="relative grid place-items-center"
-            style={{ '--d': 'min(78vw, 520px)', width: 'var(--d)', height: 'var(--d)' }}
-          >
-            {/* rotating layer: dashed trail + plane. The plane sits at 12 o'clock
-                facing right, so as the layer turns it always points along its path */}
-            <motion.div
-              className="absolute inset-0"
-              animate={reduced ? undefined : { rotate: 360 }}
-              transition={{ duration: LOOP_SECONDS, repeat: Infinity, ease: 'linear' }}
-            >
-              {/* trail: only the stretch behind the plane is visible */}
-              <svg
-                viewBox="0 0 100 100"
-                className="absolute inset-0 h-full w-full"
+          {/* drifting sparkles */}
+          {!reduced &&
+            SPARKLES.map((p, i) => (
+              <motion.span
+                key={i}
+                className="pointer-events-none absolute rounded-full"
                 style={{
-                  WebkitMaskImage: 'conic-gradient(from 0deg, transparent 0deg 190deg, #000 360deg)',
-                  maskImage: 'conic-gradient(from 0deg, transparent 0deg 190deg, #000 360deg)',
+                  left: `${p.x}%`,
+                  top: `${p.y}%`,
+                  width: p.s,
+                  height: p.s,
+                  background: i % 3 === 0 ? '#fff2a8' : i % 3 === 1 ? GOLD : SAFFRON,
+                  boxShadow: `0 0 ${p.s * 2.5}px ${p.s / 2}px rgba(251,215,91,0.55)`,
                 }}
-                aria-hidden="true"
-              >
-                <circle
-                  cx="50"
-                  cy="50"
-                  r="49"
-                  fill="none"
-                  stroke={INK}
-                  strokeWidth="0.5"
-                  strokeLinecap="round"
-                  strokeDasharray="4 3 1 3 8 3"
-                />
-              </svg>
+                animate={{ opacity: [0, 1, 0], scale: [0.4, 1.2, 0.4], y: [0, -14, 0] }}
+                transition={{ duration: 3.2, delay: p.d, repeat: Infinity, ease: 'easeInOut' }}
+              />
+            ))}
 
-              <div
-                className="absolute left-1/2 top-0 w-[clamp(64px,11vw,96px)] -translate-x-1/2 -translate-y-1/2"
-                style={{ filter: 'drop-shadow(0 6px 8px rgba(9,108,39,0.22))' }}
-              >
-                <Plane />
-              </div>
-            </motion.div>
-
-            {/* the big number */}
+          <div className="relative flex flex-col items-center text-center">
+            {/* diya + rangoli. Everything is sized from --d so it scales together */}
             <div
-              className="relative flex items-start font-black leading-none tabular-nums"
-              style={{ fontSize: 'calc(var(--d) * 0.34)', letterSpacing: '-0.04em' }}
+              className="relative grid place-items-center"
+              style={{ '--d': 'min(64vw, 340px)', width: 'var(--d)', height: 'var(--d)' }}
             >
-              <span>{progress}</span>
-              <span
-                className="font-bold"
-                style={{ fontSize: '0.22em', marginLeft: '0.18em', marginTop: '0.2em', opacity: 0.55, letterSpacing: 0 }}
+              {/* warm glow */}
+              <motion.div
+                className="absolute inset-[8%] rounded-full"
+                style={{ background: 'radial-gradient(circle, rgba(255,160,40,0.5) 0%, rgba(255,122,24,0.15) 45%, transparent 70%)' }}
+                animate={reduced ? undefined : { opacity: [0.7, 1, 0.75], scale: [0.96, 1.06, 0.98] }}
+                transition={{ duration: 2.2, repeat: Infinity, ease: 'easeInOut' }}
+              />
+
+              {/* outer rangoli, turning slowly */}
+              <motion.div
+                className="absolute inset-0"
+                animate={reduced ? undefined : { rotate: 360 }}
+                transition={{ duration: LOOP_SECONDS, repeat: Infinity, ease: 'linear' }}
               >
-                %
-              </span>
+                <RangoliRing />
+              </motion.div>
+
+              {/* inner rangoli, turning the other way */}
+              <motion.div
+                className="absolute inset-[16%]"
+                animate={reduced ? undefined : { rotate: -360 }}
+                transition={{ duration: LOOP_SECONDS * 0.75, repeat: Infinity, ease: 'linear' }}
+              >
+                <RangoliRing inner />
+              </motion.div>
+
+              {/* the diya */}
+              <div className="relative w-[44%]" style={{ filter: 'drop-shadow(0 10px 18px rgba(255,122,24,0.35))' }}>
+                <Diya reduced={reduced} />
+              </div>
+            </div>
+
+            {/* greeting */}
+            <motion.h1
+              className="mt-5 font-black leading-none tracking-tight"
+              style={{
+                fontSize: 'clamp(2rem, 7vw, 3.4rem)',
+                backgroundImage: `linear-gradient(90deg, ${SAFFRON}, #fff2a8 50%, ${SAFFRON})`,
+                WebkitBackgroundClip: 'text',
+                backgroundClip: 'text',
+                color: 'transparent',
+              }}
+              initial={reduced ? false : { opacity: 0, y: 14 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.2, ease: 'easeOut' }}
+            >
+              Happy Diwali
+            </motion.h1>
+
+            <motion.p
+              className="mt-2.5 max-w-[22rem] text-sm font-medium leading-relaxed text-[#ffe9b0]/85 sm:max-w-none sm:text-base"
+              initial={reduced ? false : { opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.5, ease: 'easeOut' }}
+            >
+              To all, from{' '}
+              <span className="font-bold text-[#fbd75b]">Country Holidays Travel Inn &amp; Suites</span>
+            </motion.p>
+
+            {/* progress */}
+            <div className="mt-6 w-[min(72vw,280px)]">
+              <div className="h-[3px] w-full overflow-hidden rounded-full bg-white/10">
+                <div
+                  className="h-full rounded-full"
+                  style={{
+                    width: `${progress}%`,
+                    background: `linear-gradient(90deg, ${FLAME}, ${SAFFRON}, ${GOLD})`,
+                    boxShadow: '0 0 10px rgba(251,215,91,0.7)',
+                  }}
+                />
+              </div>
+              <div className="mt-2 flex items-center justify-between text-[11px] font-semibold uppercase tracking-[0.25em] text-[#ffe9b0]/60">
+                <span>Lighting up</span>
+                <span className="tabular-nums text-[#fbd75b]">{progress}%</span>
+              </div>
             </div>
           </div>
         </motion.div>

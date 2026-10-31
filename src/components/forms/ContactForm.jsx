@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useSearchParams } from 'react-router-dom'
-import { Send, CheckCircle2, Loader2, AlertCircle, Tag, Phone } from 'lucide-react'
+import { Send, CheckCircle2, Loader2, AlertCircle, Tag, User, Mail, Phone, MessageSquare } from 'lucide-react'
 import { sendEmail } from '../../services/emailService'
 
 export default function ContactForm() {
@@ -92,102 +92,143 @@ export default function ContactForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 font-varela">
+    <form onSubmit={handleSubmit} className="space-y-4 font-varela text-[#0b1f12]">
+      {/* Dynamic subject / promo code notification pill */}
       {subject && (
-        <div className="flex items-center gap-2 rounded-xl bg-white/15 border border-white/25 px-3.5 py-2 text-xs font-semibold text-white backdrop-blur-md">
-          <Tag className="h-3.5 w-3.5 text-[#b3d565]" />
-          <span>Inquiry for: <strong>{subject}</strong></span>
+        <div className="flex items-center gap-2.5 rounded-2xl bg-[#f3f8e6] border border-[#096c27]/25 p-3.5 text-xs text-[#063a2f] shadow-xs">
+          <span className="grid h-7 w-7 shrink-0 place-items-center rounded-xl bg-[#096c27] text-white">
+            <Tag className="h-3.5 w-3.5" />
+          </span>
+          <div className="min-w-0 flex-1">
+            <p className="m-0 text-[10.5px] uppercase font-bold text-[#096c27] tracking-wider">Inquiring For</p>
+            <p className="m-0 font-bold text-sm text-[#063a2f] truncate">{subject}</p>
+          </div>
           {code && (
-            <span className="ml-auto rounded bg-[#b3d565] px-2 py-0.5 text-[10.5px] font-bold text-[#07241b]">
-              Code: {code}
+            <span className="shrink-0 rounded-full bg-[#096c27] px-2.5 py-1 text-[11px] font-mono font-bold text-white shadow-xs">
+              {code}
             </span>
           )}
         </div>
       )}
 
+      {/* Name and Email side by side on desktop */}
       <div className="grid gap-4 sm:grid-cols-2">
-        <label className="block text-xs font-semibold text-white/90">
-          Your Name *
-          <input
-            type="text"
-            name="name"
-            required
-            value={formData.name}
-            onChange={handleChange}
-            className="mt-1.5 w-full rounded-xl border border-white/20 bg-white/10 px-4 py-2.5 text-white text-sm outline-none placeholder:text-white/45 focus:border-[#b3d565] focus:bg-white/20 focus:ring-2 focus:ring-[#b3d565]/30 transition backdrop-blur-md"
-            placeholder="John Doe"
-          />
-        </label>
-        <label className="block text-xs font-semibold text-white/90">
-          Email Address *
-          <input
-            type="email"
-            name="email"
-            required
-            value={formData.email}
-            onChange={handleChange}
-            className="mt-1.5 w-full rounded-xl border border-white/20 bg-white/10 px-4 py-2.5 text-white text-sm outline-none placeholder:text-white/45 focus:border-[#b3d565] focus:bg-white/20 focus:ring-2 focus:ring-[#b3d565]/30 transition backdrop-blur-md"
-            placeholder="you@example.com"
-          />
-        </label>
+        <div>
+          <label className="block text-xs font-bold uppercase tracking-wider text-stone-700">
+            Your Name <span className="text-red-500">*</span>
+          </label>
+          <div className="relative mt-1.5">
+            <input
+              type="text"
+              name="name"
+              required
+              value={formData.name}
+              onChange={handleChange}
+              className="w-full rounded-xl border border-stone-200 bg-[#fbfdfa] pl-10 pr-4 py-2.5 text-stone-900 text-sm outline-none placeholder:text-stone-400 focus:border-[#096c27] focus:bg-white focus:ring-4 focus:ring-[#096c27]/10 transition shadow-xs"
+              placeholder="e.g. John Doe"
+            />
+            <span className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-stone-400">
+              <User className="h-4 w-4" />
+            </span>
+          </div>
+        </div>
+
+        <div>
+          <label className="block text-xs font-bold uppercase tracking-wider text-stone-700">
+            Email Address <span className="text-red-500">*</span>
+          </label>
+          <div className="relative mt-1.5">
+            <input
+              type="email"
+              name="email"
+              required
+              value={formData.email}
+              onChange={handleChange}
+              className="w-full rounded-xl border border-stone-200 bg-[#fbfdfa] pl-10 pr-4 py-2.5 text-stone-900 text-sm outline-none placeholder:text-stone-400 focus:border-[#096c27] focus:bg-white focus:ring-4 focus:ring-[#096c27]/10 transition shadow-xs"
+              placeholder="e.g. you@example.com"
+            />
+            <span className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-stone-400">
+              <Mail className="h-4 w-4" />
+            </span>
+          </div>
+        </div>
       </div>
 
-      <label className="block text-xs font-semibold text-white/90">
-        Phone Number (Optional)
+      {/* Phone Number */}
+      <div>
+        <label className="block text-xs font-bold uppercase tracking-wider text-stone-700">
+          Phone Number <span className="text-xs font-normal text-stone-400 lowercase">(optional)</span>
+        </label>
         <div className="relative mt-1.5">
           <input
             type="tel"
             name="phone"
             value={formData.phone}
             onChange={handleChange}
-            className="w-full rounded-xl border border-white/20 bg-white/10 px-4 py-2.5 text-white text-sm outline-none placeholder:text-white/45 focus:border-[#b3d565] focus:bg-white/20 focus:ring-2 focus:ring-[#b3d565]/30 transition backdrop-blur-md"
-            placeholder="+91 98765 43210"
+            className="w-full rounded-xl border border-stone-200 bg-[#fbfdfa] pl-10 pr-4 py-2.5 text-stone-900 text-sm outline-none placeholder:text-stone-400 focus:border-[#096c27] focus:bg-white focus:ring-4 focus:ring-[#096c27]/10 transition shadow-xs"
+            placeholder="e.g. +91 98765 43210"
+          />
+          <span className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-stone-400">
+            <Phone className="h-4 w-4" />
+          </span>
+        </div>
+      </div>
+
+      {/* Message Textarea */}
+      <div>
+        <label className="block text-xs font-bold uppercase tracking-wider text-stone-700">
+          Message / Travel Wishlist <span className="text-red-500">*</span>
+        </label>
+        <div className="relative mt-1.5">
+          <textarea
+            name="message"
+            required
+            rows="4"
+            value={formData.message}
+            onChange={handleChange}
+            className="w-full rounded-xl border border-stone-200 bg-[#fbfdfa] p-3.5 text-stone-900 text-sm outline-none placeholder:text-stone-400 focus:border-[#096c27] focus:bg-white focus:ring-4 focus:ring-[#096c27]/10 transition shadow-xs resize-y"
+            placeholder="Tell us about your desired vacation, dates, group size or specific requests..."
           />
         </div>
-      </label>
+      </div>
 
-      <label className="block text-xs font-semibold text-white/90">
-        Message / Travel Wishlist *
-        <textarea
-          name="message"
-          required
-          value={formData.message}
-          onChange={handleChange}
-          rows="4"
-          className="mt-1.5 w-full rounded-xl border border-white/20 bg-white/10 px-4 py-2.5 text-white text-sm outline-none placeholder:text-white/45 focus:border-[#b3d565] focus:bg-white/20 focus:ring-2 focus:ring-[#b3d565]/30 transition backdrop-blur-md"
-          placeholder="Tell us about your desired vacation, dates, group size or specific requests..."
-        />
-      </label>
+      {/* Status Alert if any */}
+      {status && (
+        <div
+          className={`rounded-xl p-3.5 text-xs font-medium flex items-start gap-2.5 ${
+            isSuccess
+              ? 'bg-emerald-50 text-emerald-800 border border-emerald-200'
+              : 'bg-amber-50 text-amber-900 border border-amber-200'
+          }`}
+        >
+          {isSuccess ? (
+            <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-600 mt-0.5" />
+          ) : (
+            <AlertCircle className="w-4 h-4 shrink-0 text-amber-600 mt-0.5" />
+          )}
+          <span className="leading-relaxed">{status}</span>
+        </div>
+      )}
 
-      <div className="pt-2 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+      {/* Submit Button */}
+      <div className="pt-2">
         <button
           type="submit"
           disabled={loading}
-          className="inline-flex items-center justify-center gap-2 rounded-full bg-[#b3d565] hover:bg-white disabled:opacity-60 px-7 py-3 text-sm font-bold text-[#07241b] shadow-md transition transform hover:-translate-y-0.5 active:translate-y-0"
+          className="group inline-flex items-center justify-center gap-2.5 rounded-full bg-[#b3d565] hover:bg-[#a5cc4c] disabled:opacity-60 px-8 py-3.5 text-sm font-bold text-[#0b1f12] shadow-[0_8px_20px_-4px_rgba(179,213,101,0.65)] hover:shadow-[0_12px_24px_-4px_rgba(179,213,101,0.75)] transition-all duration-300 transform hover:-translate-y-0.5 active:translate-y-0 cursor-pointer"
         >
           {loading ? (
             <>
-              <Loader2 className="w-4 h-4 animate-spin text-[#07241b]" />
-              <span>Sending...</span>
+              <Loader2 className="w-4 h-4 animate-spin text-[#0b1f12]" />
+              <span>Sending Inquiry...</span>
             </>
           ) : (
             <>
               <span>Send Inquiry</span>
-              <Send className="w-4 h-4 text-[#07241b]" />
+              <Send className="w-4 h-4 text-[#0b1f12] transition-transform duration-300 group-hover:translate-x-1 group-hover:-translate-y-1" />
             </>
           )}
         </button>
-
-        {status && (
-          <p
-            className={`text-xs font-semibold flex items-center gap-1.5 ${
-              isSuccess ? 'text-[#b3d565]' : 'text-amber-200'
-            }`}
-          >
-            {isSuccess ? <CheckCircle2 className="w-4 h-4 shrink-0 text-[#b3d565]" /> : <AlertCircle className="w-4 h-4 shrink-0 text-amber-300" />}
-            <span>{status}</span>
-          </p>
-        )}
       </div>
     </form>
   )

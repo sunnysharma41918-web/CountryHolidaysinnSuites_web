@@ -34,6 +34,7 @@ export default function AppRoutes() {
       <Route path="/destinations/alleppe" element={<Navigate to="/destinations/alleppey" replace />} />
       <Route path="/destinations/:slug" element={<DestinationPropertiesPage />} />
       <Route path="/vacation-packages" element={<VacationPackagesPage />} />
+      <Route path="/membership" element={<Navigate to="/contact?subject=Membership%20Holiday%20Ownership" replace />} />
       <Route path="/activity" element={<ExperiencesPage />} />
       <Route path="/blog" element={<Navigate to="/about" replace />} />
       <Route path="/contact" element={<ContactPage />} />

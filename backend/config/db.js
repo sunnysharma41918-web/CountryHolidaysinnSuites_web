@@ -2,15 +2,60 @@ import mongoose from 'mongoose'
 import dns from 'dns'
 import { config } from './env.js'
 
+// Force Google & Cloudflare DNS to avoid Windows ISP SRV query ECONNREFUSED issues
 try {
-  dns.setServers(['8.8.8.8', '1.1.1.1'])
+  dns.setServers(['8.8.8.8', '1.1.1.1', '8.8.4.4', '1.0.0.1'])
 } catch {}
 
 let isConnected = false
+let isConnecting = false
+let reconnectTimer = null
+let listenersAttached = false
+
+const attachConnectionListeners = () => {
+  if (listenersAttached) return
+  listenersAttached = true
+
+  mongoose.connection.on('connected', () => {
+    isConnected = true
+    isConnecting = false
+    console.log(`✅ [MongoDB Atlas] Connected successfully to host: ${mongoose.connection.host}`)
+  })
+
+  mongoose.connection.on('error', (err) => {
+    console.error('❌ [MongoDB Atlas] Runtime connection error:', err.message)
+    isConnected = false
+    isConnecting = false
+  })
+
+  mongoose.connection.on('disconnected', () => {
+    console.warn('⚠️ [MongoDB Atlas] Connection disconnected. Initiating automatic reconnect...')
+    isConnected = false
+    isConnecting = false
+
+    // Auto-reconnect with 5-second backoff
+    if (!reconnectTimer) {
+      reconnectTimer = setTimeout(async () => {
+        reconnectTimer = null
+        if (mongoose.connection.readyState !== 1 && !isConnecting) {
+          console.log('🔄 [MongoDB Atlas] Reconnecting to cluster now...')
+          await connectDB()
+        }
+      }, 5000)
+    }
+  })
+}
 
 export const connectDB = async () => {
-  if (isConnected) {
+  // If already connected, return current connection
+  if (mongoose.connection.readyState === 1) {
+    isConnected = true
     return mongoose.connection
+  }
+
+  // Prevent multiple concurrent connection attempts
+  if (isConnecting) {
+    return null
   }
 
   const uri = config.mongoUri
@@ -18,43 +63,50 @@ export const connectDB = async () => {
   if (!uri) {
     console.warn(
       '\n⚠️ [MongoDB Atlas] MONGODB_URI is not set in backend/.env.\n' +
-      '  To connect to MongoDB Atlas Free Tier:\n' +
-      '  1. Create a cluster on https://cloud.mongodb.com\n' +
-      '  2. Create a database user and whitelist your IP (or 0.0.0.0/0)\n' +
-      '  3. Set MONGODB_URI=mongodb+srv://<user>:<password>@cluster0.xxx.mongodb.net/chis_db?retryWrites=true&w=majority in backend/.env\n' +
-      '  Backend will start in standalone/offline mode for now.\n'
+      '  Backend is running in standalone mode with default fallback data.\n'
     )
     return null
   }
 
+  attachConnectionListeners()
+
   try {
+    isConnecting = true
     mongoose.set('strictQuery', true)
-    mongoose.set('bufferCommands', false)
+
+    // Ensure reliable DNS before connecting
+    try {
+      dns.setServers(['8.8.8.8', '1.1.1.1', '8.8.4.4', '1.0.0.1'])
+    } catch {}
 
     const conn = await mongoose.connect(uri, {
-      serverSelectionTimeoutMS: 8000,
+      serverSelectionTimeoutMS: 10000,
       socketTimeoutMS: 45000,
-      maxPoolSize: 10, // Ideal for Atlas Free Tier (M0 limit is 500 connections)
-      bufferCommands: false, // Fail fast instead of buffering and timing out after 10s
+      connectTimeoutMS: 10000,
+      maxPoolSize: 10, // Optimal for MongoDB Atlas M0 Free Tier
+      minPoolSize: 2,  // Maintain warm standby connections
+      maxIdleTimeMS: 45000, // Close and refresh idle sockets before Atlas terminates them
+      heartbeatFrequencyMS: 10000, // Ping replica set monitor every 10s to keep connection warm
+      autoIndex: config.env !== 'production',
     })
 
     isConnected = true
-    console.log(`✅ [MongoDB Atlas] Connected successfully to host: ${conn.connection.host}`)
-
-    mongoose.connection.on('error', (err) => {
-      console.error('❌ [MongoDB Atlas] Runtime connection error:', err.message)
-      isConnected = false
-    })
-
-    mongoose.connection.on('disconnected', () => {
-      console.warn('⚠️ [MongoDB Atlas] Connection disconnected. Attempting reconnect...')
-      isConnected = false
-    })
-
+    isConnecting = false
     return conn
   } catch (error) {
-    console.error(`❌ [MongoDB Atlas] Initial connection failed: ${error.message}`)
-    console.warn('  Ensure your MongoDB Atlas credentials, cluster name, and IP whitelist are correct.')
+    isConnected = false
+    isConnecting = false
+    console.error(`❌ [MongoDB Atlas] Connection failed: ${error.message}`)
+
+    // Schedule retry if initial connection failed
+    if (!reconnectTimer) {
+      reconnectTimer = setTimeout(() => {
+        reconnectTimer = null
+        console.log('🔄 [MongoDB Atlas] Retrying connection after failed attempt...')
+        connectDB()
+      }, 8000)
+    }
+
     return null
   }
 }

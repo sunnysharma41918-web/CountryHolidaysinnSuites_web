@@ -1,7 +1,7 @@
 import { resorts, getResortBySlug, getAllResorts, saveCustomResort } from '../data/resorts'
 
 const getApiBase = () => {
-  let base = (import.meta.env.VITE_API_URL || '/api').trim()
+  let base = (import.meta.env.VITE_API_URL || 'https://chis-2mji.onrender.com/api').trim()
   if (base.startsWith('http')) {
     base = base.replace(/\/+$/, '')
     if (!base.endsWith('/api')) {

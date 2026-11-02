@@ -9,7 +9,6 @@ import {
   ShieldCheck,
 } from 'lucide-react'
 import PageTransition from '../components/layout/PageTransition'
-import EscapeMondayGame from '../components/sections/EscapeMondayGame'
 import silverCardImg from '../assets/chis-silver-card.png'
 import goldCardImg from '../assets/chis-gold-card.png'
 import vacationTravelerImg from '../assets/vacation-hero-traveler.png'
@@ -705,11 +704,6 @@ export default function VacationPackagesPage() {
                 Request a quote
               </Pill>
             </div>
-          </div>
-
-          {/* ===== Escape Monday Play Now Mini-Game ===== */}
-          <div className="mt-10 sm:mt-14">
-            <EscapeMondayGame />
           </div>
         </section>
       </div>

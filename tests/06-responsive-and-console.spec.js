@@ -1,4 +1,3 @@
-// @ts-check
 import { test, expect } from '@playwright/test'
 
 test.describe('Suite 6: Responsiveness, Layout Stability & Console Errors', () => {

@@ -1,4 +1,3 @@
-// @ts-check
 import { test, expect } from '@playwright/test'
 
 test.describe('Suite 3: Location-Wise Destinations & Property Displays', () => {
@@ -64,3 +63,4 @@ test.describe('Suite 3: Location-Wise Destinations & Property Displays', () => {
     expect(await destinationLinks.count()).toBeGreaterThan(5)
   })
 })
+

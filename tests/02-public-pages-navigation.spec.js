@@ -1,4 +1,3 @@
-// @ts-check
 import { test, expect } from '@playwright/test'
 
 test.describe('Suite 2: Public Website Pages & Navigation', () => {
@@ -78,3 +77,4 @@ test.describe('Suite 2: Public Website Pages & Navigation', () => {
     expect(bodyText.length).toBeGreaterThan(50)
   })
 })
+

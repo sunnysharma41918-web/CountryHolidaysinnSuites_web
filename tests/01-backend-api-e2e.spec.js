@@ -1,4 +1,3 @@
-// @ts-check
 import { test, expect } from '@playwright/test'
 
 const RENDER_BASE = 'https://chis-2mji.onrender.com/api'
@@ -168,3 +167,4 @@ test.describe('Suite 1: Render Backend & MongoDB Atlas API E2E', () => {
     expect(data.logs.length).toBeGreaterThan(0)
   })
 })
+

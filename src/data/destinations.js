@@ -88,6 +88,41 @@ export const viaOtaExchangeDestinationNames = [
   'Vrindavan',
 ]
 
+// Automatically import all destination images from src/assets/Des-img
+const localDestinationImages = import.meta.glob('../assets/Des-img/*', {
+  eager: true,
+  import: 'default',
+})
+
+const destinationImageMap = {}
+for (const [filePath, resolvedUrl] of Object.entries(localDestinationImages)) {
+  const filename = filePath.split(/[/\\]/).pop() || ''
+  const key = filename.replace(/\.[^.]+$/, '').toLowerCase().trim()
+  if (key) {
+    destinationImageMap[key] = resolvedUrl
+  }
+}
+
+// Spelling / alias variations between destination names and image filenames
+const destinationNameAliases = {
+  lonavala: 'lonavla',
+  vadodara: 'vadodra',
+  bhubaneshwar: 'bhubaneswar',
+}
+
+const DEFAULT_FALLBACK_IMAGE =
+  'https://images.unsplash.com/photo-1564507592333-c60657eea523?auto=format&fit=crop&w=1200&q=80'
+
+export const getDestinationImage = (name, fallback = DEFAULT_FALLBACK_IMAGE) => {
+  if (!name) return fallback
+  const normalized = name.toLowerCase().trim()
+  if (normalized === 'rishikesh') {
+    return 'https://images.unsplash.com/photo-1596895111956-bf1cf0599ce5?auto=format&fit=crop&w=1200&q=80'
+  }
+  const aliased = destinationNameAliases[normalized] || normalized
+  return destinationImageMap[aliased] || fallback
+}
+
 const toDestinationSlug = (name) =>
   name
     .normalize('NFKD')
@@ -122,8 +157,10 @@ export const destinations = [
     slug: 'agra',
     name: 'Agra',
     description: 'Discover Mughal architecture, the Taj Mahal, and welcoming heritage stays in the heart of Agra.',
-    image:
-      'https://images.unsplash.com/photo-1564507592333-c60657eea523?auto=format&fit=crop&w=1200&q=80',
+    image: getDestinationImage(
+      'Agra',
+      'https://images.unsplash.com/photo-1564507592333-c60657eea523?auto=format&fit=crop&w=1200&q=80'
+    ),
     resortDestination: 'Agra',
     region: 'Uttar Pradesh, India',
     knowYourDestination:
@@ -169,8 +206,10 @@ export const destinations = [
     slug: 'bali',
     name: 'Bali',
     description: 'A restorative island escape with lush landscapes, cultural landmarks, and coastal hospitality.',
-    image:
-      'https://images.unsplash.com/photo-1537996194471-e657df975ab4?auto=format&fit=crop&w=900&q=80',
+    image: getDestinationImage(
+      'Bali',
+      'https://images.unsplash.com/photo-1537996194471-e657df975ab4?auto=format&fit=crop&w=900&q=80'
+    ),
     resortDestination: 'Bali',
     region: 'Indonesia',
   },
@@ -183,10 +222,7 @@ export const destinations = [
         name === 'Alleppey'
           ? 'Cruise Kerala’s palm-lined backwaters, discover quiet canals, and experience a slower side of coastal India.'
           : `Explore ${name} and find a comfortable base for discovering its local highlights and nearby experiences.`,
-      image:
-        name === 'Alleppey'
-          ? 'https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?auto=format&fit=crop&w=1600&q=85'
-          : 'https://images.unsplash.com/photo-1564507592333-c60657eea523?auto=format&fit=crop&w=1200&q=80',
+      image: getDestinationImage(name),
       resortDestination: name,
       region: destinationRegions[name] || 'India',
       ...(name === 'Alleppey' && {

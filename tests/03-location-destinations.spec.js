@@ -12,6 +12,7 @@ test.describe('Suite 3: Location-Wise Destinations & Property Displays', () => {
 
     // Assert that resort cards are rendered (not empty 0 stays)
     const resortCards = page.locator('article, .group:has(h3)')
+    await expect(resortCards.first()).toBeVisible({ timeout: 15000 })
     const cardCount = await resortCards.count()
     expect(cardCount).toBeGreaterThanOrEqual(1)
 
@@ -61,6 +62,35 @@ test.describe('Suite 3: Location-Wise Destinations & Property Displays', () => {
     // Check destination cards
     const destinationLinks = page.locator('a[href*="/destinations/"]')
     expect(await destinationLinks.count()).toBeGreaterThan(5)
+  })
+
+  test('3.6 Destinations Index - Location tiles display distinct local images', async ({ page }) => {
+    await page.goto('/destinations')
+    await page.waitForLoadState('networkidle')
+
+    // Check Ahmedabad tile image
+    const ahmedabadLink = page.locator('a[href="/destinations/ahmedabad"]')
+    await expect(ahmedabadLink).toBeVisible()
+    const ahmedabadImg = ahmedabadLink.locator('img')
+    const ahmedabadSrc = await ahmedabadImg.getAttribute('src')
+    expect(ahmedabadSrc).toBeTruthy()
+    expect(ahmedabadSrc).not.toContain('564507592333-c60657eea523')
+
+    // Check Amritsar tile image
+    const amritsarLink = page.locator('a[href="/destinations/amritsar"]').first()
+    await expect(amritsarLink).toBeVisible()
+    const amritsarImg = amritsarLink.locator('img')
+    const amritsarSrc = await amritsarImg.getAttribute('src')
+    expect(amritsarSrc).toBeTruthy()
+    expect(amritsarSrc).not.toContain('564507592333-c60657eea523')
+
+    // Check Goa tile image
+    const goaLink = page.locator('a[href="/destinations/goa"]').first()
+    await expect(goaLink).toBeVisible()
+    const goaImg = goaLink.locator('img')
+    const goaSrc = await goaImg.getAttribute('src')
+    expect(goaSrc).toBeTruthy()
+    expect(goaSrc).not.toContain('564507592333-c60657eea523')
   })
 })
 

@@ -1,6 +1,17 @@
 import { resorts, getResortBySlug, getAllResorts, saveCustomResort } from '../data/resorts'
 
-const API_BASE = import.meta.env.VITE_API_URL || '/api'
+const getApiBase = () => {
+  let base = (import.meta.env.VITE_API_URL || '/api').trim()
+  if (base.startsWith('http')) {
+    base = base.replace(/\/+$/, '')
+    if (!base.endsWith('/api')) {
+      base = `${base}/api`
+    }
+  }
+  return base
+}
+
+const API_BASE = getApiBase()
 
 const getHeaders = (hasBody = true) => {
   const headers = {}

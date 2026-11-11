@@ -1,5 +1,5 @@
-import { useEffect, useRef, useState } from 'react'
-import { animate, motion, useReducedMotion } from 'framer-motion'
+import { useState } from 'react'
+import { motion, useReducedMotion } from 'framer-motion'
 import {
   ArrowUpRight,
   CalendarCheck,
@@ -22,7 +22,6 @@ import img3dConcierge from '../assets/3d/concierge.jpg'
 /* CHIS palette: green #297f33 · deep #1e5f26 · leaf #b3d565 · ink #0b1f12 · mist #f3f8e6 · gold-card night #0b2a1a */
 
 const EASE = [0.22, 1, 0.36, 1]
-const inr = (n) => Math.round(n).toLocaleString('en-IN')
 const pad = (n) => String(n).padStart(2, '0')
 
 const scrollToId = (id, reduced) =>
@@ -38,10 +37,10 @@ const openEnquiry = (plan) => {
 /* ------------------------------ Data ------------------------------ */
 
 const membershipPlans = [
-  { id: 't1-10', category: 'T1', years: 10, priceStr: '₹4,60,000', priceNum: 460000, emiNum: 19166, asf: '₹12,000 / yr', occupancy: '2 Adults + 2 Kids (<6 yrs)', title: 'T1 Standard Room (10 Years)', description: 'Perfect for couples and young families seeking 10 consecutive years of memorable annual holidays.', perks: ['6N / 7D annual stay', 'Silver Tier lounge access', 'Zero peak-season surcharge'], tag: 'Popular for couples' },
-  { id: 't1-30', category: 'T1', years: 30, priceStr: '₹7,60,000', priceNum: 760000, emiNum: 31666, asf: '₹12,000 / yr', occupancy: '2 Adults + 2 Kids (<6 yrs)', title: 'T1 Standard Room (30 Years)', description: 'Three decades of inflation-proof holiday ownership. The smart, long-term savings investment.', perks: ['30-year guaranteed vacations', 'Carry forward unused nights', 'Exchange across 3,500+ resorts'], tag: 'Best long-term value' },
-  { id: 't2-10', category: 'T2', years: 10, priceStr: '₹6,60,000', priceNum: 660000, emiNum: 27500, asf: '₹15,000 / yr', occupancy: '4 Adults + 2 Kids (<6 yrs)', title: 'T2 Suite / 2-Bedroom (10 Years)', description: 'Spacious dual-bedroom suite accommodation for multi-generational families and group adventures.', perks: ['Dual private bedrooms', 'Priority high-season booking', 'Dedicated holiday manager'], tag: 'Ideal for families' },
-  { id: 't2-30', category: 'T2', years: 30, priceStr: '₹9,60,000', priceNum: 960000, emiNum: 40000, asf: '₹15,000 / yr', occupancy: '4 Adults + 2 Kids (<6 yrs)', title: 'T2 Suite / 2-Bedroom (30 Years)', description: 'The definitive prestige membership. 30 years of grand suites and VIP global concierge hospitality.', perks: ['30-year suite entitlement', 'Global RCI & luxury affiliations', 'Complimentary voucher credits'], tag: 'Prestige heritage' },
+  { id: 't1-10', category: 'T1', years: 10, roomType: 'Standard · 1 Bedroom', occupancy: '2 Adults + 2 Kids (<6 yrs)', title: 'T1 Standard Room (10 Years)', description: 'Perfect for couples and young families seeking 10 consecutive years of memorable annual holidays.', perks: ['6N / 7D annual stay', 'Silver Tier lounge access', 'Zero peak-season surcharge'], tag: 'Popular for couples' },
+  { id: 't1-30', category: 'T1', years: 30, roomType: 'Standard · 1 Bedroom', occupancy: '2 Adults + 2 Kids (<6 yrs)', title: 'T1 Standard Room (30 Years)', description: 'Three decades of guaranteed annual holidays for couples and growing families.', perks: ['30-year guaranteed vacations', 'Carry forward unused nights', 'Exchange across 3,500+ resorts'], tag: 'Best long-term value' },
+  { id: 't2-10', category: 'T2', years: 10, roomType: 'Suite · 2 Bedrooms', occupancy: '4 Adults + 2 Kids (<6 yrs)', title: 'T2 Suite / 2-Bedroom (10 Years)', description: 'Spacious dual-bedroom suite accommodation for multi-generational families and group adventures.', perks: ['Dual private bedrooms', 'Priority high-season booking', 'Dedicated holiday manager'], tag: 'Ideal for families' },
+  { id: 't2-30', category: 'T2', years: 30, roomType: 'Suite · 2 Bedrooms', occupancy: '4 Adults + 2 Kids (<6 yrs)', title: 'T2 Suite / 2-Bedroom (30 Years)', description: 'The definitive prestige membership. 30 years of grand suites and VIP global concierge hospitality.', perks: ['30-year suite entitlement', 'Global RCI & luxury affiliations', 'Complimentary voucher credits'], tag: 'Prestige heritage' },
 ]
 const getPlan = (cat, years) => membershipPlans.find((p) => p.category === cat && p.years === years)
 
@@ -50,7 +49,7 @@ const PLAN_META = {
   T2: { name: 'Gold', label: 'T2 · 2-Bedroom Suite', cta: 'Choose Gold' },
 }
 
-const HERO_CHIPS = ['6N / 7D every year', '3,500+ resorts', 'Zero peak surcharge', 'Fixed tariffs']
+const HERO_CHIPS = ['6N / 7D every year', '3,500+ resorts', 'Zero peak surcharge', '10 & 30 year options']
 
 const INCLUDED = [
   { img3d: img3dCalendar, title: 'Carry nights forward', desc: 'Roll unused nights into later holiday years.' },
@@ -158,24 +157,7 @@ function Pill({ children, onClick, tone = 'leaf', className = '' }) {
   )
 }
 
-/** Price that counts to its new value when the tenure changes */
-function Price({ value, reduced }) {
-  const [v, setV] = useState(value)
-  const prev = useRef(value)
-  useEffect(() => {
-    if (reduced) {
-      setV(value)
-      prev.current = value
-      return undefined
-    }
-    const c = animate(prev.current, value, { duration: 0.8, ease: EASE, onUpdate: setV })
-    prev.current = value
-    return () => c.stop()
-  }, [value, reduced])
-  return <span>₹{inr(v)}</span>
-}
-
-/* ------------------------------ Pricing card ------------------------------ */
+/* ------------------------------ Tier showcase card ------------------------------ */
 
 function PlanCard({ cat, years, reduced, index }) {
   const meta = PLAN_META[cat]
@@ -206,11 +188,16 @@ function PlanCard({ cat, years, reduced, index }) {
           </span>
         </div>
 
-        <div className="mt-5 flex items-baseline gap-2 border-y border-[#0b1f12]/10 py-4">
-          <span className="font-rader text-[clamp(1.9rem,3.4vw,2.5rem)] font-bold leading-none tracking-tight tabular-nums text-[#0b1f12]">
-            <Price value={p.priceNum} reduced={reduced} />
+        <div className="mt-5 flex flex-wrap items-baseline justify-between gap-2 border-y border-[#0b1f12]/10 py-4">
+          <div className="flex items-baseline gap-2">
+            <span className="font-rader text-[clamp(1.75rem,3vw,2.25rem)] font-bold leading-none tracking-tight text-[#0b1f12]">
+              {years} Years
+            </span>
+            <span className="font-varela text-xs font-semibold text-[#0b1f12]/60">membership tenure</span>
+          </div>
+          <span className="font-varela rounded-full bg-[#f3f8e6] px-2.5 py-1 text-[11px] font-bold text-[#297f33]">
+            6N / 7D annual stay
           </span>
-          <span className="font-varela text-xs font-semibold text-[#0b1f12]/55">/ {years} years</span>
         </div>
 
         <p className="mb-0 mt-4 font-varela text-[13.5px] leading-relaxed text-[#0b1f12]/75">
@@ -236,8 +223,8 @@ function PlanCard({ cat, years, reduced, index }) {
             <dd className="m-0 mt-0.5 font-bold leading-snug">{p.occupancy}</dd>
           </div>
           <div>
-            <dt className="text-[10.5px] font-bold uppercase tracking-[0.12em] text-[#0b1f12]/50">Annual fee</dt>
-            <dd className="m-0 mt-0.5 font-bold leading-snug">{p.asf}</dd>
+            <dt className="text-[10.5px] font-bold uppercase tracking-[0.12em] text-[#0b1f12]/50">Accommodation</dt>
+            <dd className="m-0 mt-0.5 font-bold leading-snug">{p.roomType}</dd>
           </div>
         </dl>
         <div className="mt-4">
@@ -253,15 +240,16 @@ function PlanCard({ cat, years, reduced, index }) {
 /* ------------------------------ Compare ------------------------------ */
 
 function CompareTable({ reduced }) {
-  const t = [getPlan('T1', 10), getPlan('T1', 30)]
-  const g = [getPlan('T2', 10), getPlan('T2', 30)]
+  const t = getPlan('T1', 10)
+  const g = getPlan('T2', 10)
   const short = (o) => o.replace('(<6 yrs)', '(<6)')
   const rows = [
     ['Room', 'Standard · 1 bedroom', 'Suite · 2 bedrooms'],
-    ['Guests', short(t[0].occupancy), short(g[0].occupancy)],
-    ['10 years', t[0].priceStr, g[0].priceStr],
-    ['30 years', t[1].priceStr, g[1].priceStr],
-    ['Annual fee', t[0].asf, g[0].asf],
+    ['Guests', short(t.occupancy), short(g.occupancy)],
+    ['Annual stay', '6N / 7D every year', '6N / 7D every year'],
+    ['Tenure options', '10 or 30 years', '10 or 30 years'],
+    ['Stay flexibility', 'Carry forward & split nights', 'Carry forward & split nights'],
+    ['Resort access', '3,500+ partner resorts', '3,500+ RCI & luxury resorts'],
     ['Extras', 'Lounge access, transfer rights', 'Priority booking, holiday manager'],
     ['Best for', 'Couples, young kids', 'Grandparents, bigger groups'],
   ]
@@ -346,7 +334,7 @@ function MembershipCard({ cat, reduced, index }) {
                 ))}
               </ul>
               <p className={`m-0 px-5 pb-3 text-[10px] ${dark ? 'text-[#faf6ea]/65' : 'text-[#10201a]/60'}`}>
-                Annual fee {p10.asf} · Sample card design
+                {meta.label} · Sample card design
               </p>
             </div>
           </div>
@@ -422,11 +410,11 @@ export default function VacationPackagesPage() {
               </h1>
 
               <p className="mb-0 mt-5 max-w-lg font-varela text-[15px] sm:text-base leading-relaxed text-white/85">
-                Guaranteed 6N/7D stays every year across 3,500+ resorts worldwide. Pick a tier, choose 10 or 30 years, and lock in inflation-proof luxury stays.
+                Guaranteed 6N/7D stays every year across 3,500+ resorts worldwide. Pick a tier, choose 10 or 30 years, and explore effortless luxury stays.
               </p>
 
               <div className="mt-8 flex flex-wrap items-center gap-3.5">
-                <Pill onClick={() => scrollToId('membership-pricing', reduced)}>Get started</Pill>
+                <Pill onClick={() => scrollToId('membership-tiers', reduced)}>Get started</Pill>
                 <button
                   type="button"
                   onClick={() => openEnquiry()}
@@ -531,16 +519,16 @@ export default function VacationPackagesPage() {
           />
 
           {/* ============ PLANS ============ */}
-          <section id="membership-pricing" aria-labelledby="pricing-title" className="relative px-5 py-16 sm:px-8 sm:py-20 lg:px-12">
+          <section id="membership-tiers" aria-labelledby="tiers-title" className="relative px-5 py-16 sm:px-8 sm:py-20 lg:px-12">
             <div className="mx-auto max-w-[1240px]">
               <SectionHead
                 center
                 eyebrow="Membership plans"
                 title="Choose your"
                 accent="tier."
-                copy="Guaranteed nights, zero seasonal surge, and a price that stays put."
+                copy="Guaranteed annual nights, zero seasonal surge, and global resort access."
               />
-              <h2 id="pricing-title" className="sr-only">Choose your tier</h2>
+              <h2 id="tiers-title" className="sr-only">Choose your tier</h2>
 
               {/* tenure toggle */}
               <div
@@ -609,8 +597,8 @@ export default function VacationPackagesPage() {
                       <ShieldCheck className="h-5 w-5" aria-hidden="true" />
                     </span>
                     <div className="font-varela">
-                      <p className="m-0 text-[13.5px] font-bold text-[#0b1f12]">Tariff locked</p>
-                      <p className="m-0 text-xs text-[#0b1f12]/60">No inflation, no surge pricing.</p>
+                      <p className="m-0 text-[13.5px] font-bold text-[#0b1f12]">Zero peak surcharge</p>
+                      <p className="m-0 text-xs text-[#0b1f12]/60">All-season stays, no surge hikes.</p>
                     </div>
                   </div>
                 </Fade>
@@ -697,7 +685,7 @@ export default function VacationPackagesPage() {
                   Plan your next <span className="font-bold text-[#b3d565]">30 years</span> of travel.
                 </h2>
                 <p className="mb-0 mt-4 max-w-md font-varela text-[15px] leading-relaxed text-white/85">
-                  Our holiday desk will walk you through the numbers, no pressure.
+                  Our holiday desk will walk you through every tier and destination, no pressure.
                 </p>
               </div>
               <Pill onClick={() => openEnquiry({ title: 'Custom Vacation Consultation' })} className="w-fit">

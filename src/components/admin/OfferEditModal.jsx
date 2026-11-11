@@ -49,9 +49,9 @@ export default function OfferEditModal({ isOpen, onClose, offer, onSave }) {
         badge: 'SPECIAL OFFER',
         code: 'SAVE10',
         discount: 'Flat 20% Off',
-        originalPrice: '₹50,000',
-        offerPrice: '₹40,000',
-        emi: 'Flexible EMI available',
+        originalPrice: '',
+        offerPrice: '',
+        emi: '',
         validTill: 'Limited Time Offer',
         tagline: 'Exclusive holiday savings designed for luxury stays and suites.',
         perks: '6N / 7D luxury stay\nZero peak surcharge\nComplimentary breakfast',
@@ -162,7 +162,7 @@ export default function OfferEditModal({ isOpen, onClose, offer, onSave }) {
                 type="text"
                 value={formData.discount}
                 onChange={(e) => setFormData({ ...formData, discount: e.target.value })}
-                placeholder="e.g. Save ₹1,61,000"
+                placeholder="e.g. Festive 35% Off"
                 className="mt-1 w-full rounded-xl border border-stone-200 px-3.5 py-2 text-sm focus:border-[#22d37a] focus:outline-none focus:ring-1 focus:ring-[#22d37a]"
               />
             </div>
@@ -198,7 +198,7 @@ export default function OfferEditModal({ isOpen, onClose, offer, onSave }) {
                 type="text"
                 value={formData.offerPrice}
                 onChange={(e) => setFormData({ ...formData, offerPrice: e.target.value })}
-                placeholder="e.g. ₹2,99,000"
+                placeholder="Optional (hidden on public cards)"
                 className="mt-1 w-full rounded-xl border border-stone-200 px-3.5 py-2 text-sm font-semibold text-[#0c3b27] focus:border-[#22d37a] focus:outline-none focus:ring-1 focus:ring-[#22d37a]"
               />
             </div>
@@ -208,7 +208,7 @@ export default function OfferEditModal({ isOpen, onClose, offer, onSave }) {
                 type="text"
                 value={formData.originalPrice}
                 onChange={(e) => setFormData({ ...formData, originalPrice: e.target.value })}
-                placeholder="e.g. ₹4,60,000"
+                placeholder="Optional (hidden on public cards)"
                 className="mt-1 w-full rounded-xl border border-stone-200 px-3.5 py-2 text-sm line-through text-stone-500 focus:border-[#22d37a] focus:outline-none focus:ring-1 focus:ring-[#22d37a]"
               />
             </div>
@@ -218,7 +218,7 @@ export default function OfferEditModal({ isOpen, onClose, offer, onSave }) {
                 type="text"
                 value={formData.emi}
                 onChange={(e) => setFormData({ ...formData, emi: e.target.value })}
-                placeholder="e.g. ₹12,450 / month"
+                placeholder="Optional note"
                 className="mt-1 w-full rounded-xl border border-stone-200 px-3.5 py-2 text-sm focus:border-[#22d37a] focus:outline-none focus:ring-1 focus:ring-[#22d37a]"
               />
             </div>

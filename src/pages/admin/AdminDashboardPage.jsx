@@ -371,7 +371,7 @@ export default function AdminDashboardPage() {
               </div>
 
               <div className="mt-3.5 flex items-center justify-between border-t border-stone-100 pt-2.5 text-xs">
-                <span className="font-bold text-[#0c3b27]">{offer.offerPrice}</span>
+                <span className="font-bold text-[#0c3b27]">{offer.offerPrice || offer.subtitle || 'Showcase Offer'}</span>
                 <div className="flex items-center gap-2">
                   <button
                     type="button"

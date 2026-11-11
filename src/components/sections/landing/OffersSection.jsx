@@ -333,21 +333,14 @@ export default function OffersSection() {
                   </div>
 
                   <div className="mt-5 pt-4 border-t border-[#0b1f12]/8">
-                    {/* Price and promo code row */}
-                    <div className="flex items-baseline justify-between gap-2">
+                    {/* Privilege code row */}
+                    <div className="flex items-center justify-between gap-2">
                       <div>
-                        <div className="flex items-baseline gap-2">
-                          <span className="font-rader text-2xl font-bold tracking-tight text-[#0b1f12]">
-                            {offer.offerPrice}
-                          </span>
-                          {offer.originalPrice !== offer.offerPrice && (
-                            <span className="text-xs text-[#0b1f12]/40 line-through">
-                              {offer.originalPrice}
-                            </span>
-                          )}
-                        </div>
-                        <p className="m-0 text-[11px] text-[#0b1f12]/55">
-                          {offer.emi}
+                        <p className="m-0 text-[10px] font-bold uppercase tracking-[0.12em] text-[#0b1f12]/45">
+                          Privilege Code
+                        </p>
+                        <p className="m-0 text-[11.5px] font-medium text-[#0b1f12]/65">
+                          Apply when you enquire
                         </p>
                       </div>
 

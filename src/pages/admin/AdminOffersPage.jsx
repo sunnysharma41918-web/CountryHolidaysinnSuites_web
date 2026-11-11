@@ -216,14 +216,20 @@ export default function AdminOffersPage() {
                 {offer.tagline}
               </p>
 
-              {/* Price row */}
+              {/* Highlight row */}
               <div className="mt-4 flex items-baseline justify-between border-y border-stone-100 py-2.5">
-                <div>
-                  <span className="text-lg font-bold text-[#0c3b27]">{offer.offerPrice}</span>
-                  {offer.originalPrice !== offer.offerPrice && (
-                    <span className="ml-2 text-xs text-stone-400 line-through">{offer.originalPrice}</span>
-                  )}
-                </div>
+                {offer.offerPrice ? (
+                  <div>
+                    <span className="text-lg font-bold text-[#0c3b27]">{offer.offerPrice}</span>
+                    {offer.originalPrice !== offer.offerPrice && (
+                      <span className="ml-2 text-xs text-stone-400 line-through">{offer.originalPrice}</span>
+                    )}
+                  </div>
+                ) : (
+                  <span className="text-xs font-medium text-stone-500">
+                    {offer.subtitle || 'Showcase privilege'}
+                  </span>
+                )}
                 <span className="text-xs font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md">
                   {offer.discount}
                 </span>

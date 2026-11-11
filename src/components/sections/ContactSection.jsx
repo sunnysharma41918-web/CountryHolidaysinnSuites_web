@@ -73,7 +73,7 @@ export default function ContactSection() {
                 our <span className="font-bold text-[#b3d565]">travel experts.</span>
               </h2>
               <p className="mb-0 mt-4 max-w-[480px] font-varela text-[15px] leading-relaxed text-white/80">
-                Questions about membership, destinations, or planning your next vacation? Reach out to our team or drop by the office.
+                Questions about vacation packages, destinations, or planning your next getaway? Reach out to our team or drop by the office.
               </p>
             </motion.div>
 
@@ -102,14 +102,14 @@ export default function ContactSection() {
               ))}
             </motion.ul>
 
-            {/* Membership callout */}
+            {/* Vacation package callout */}
             <motion.div
               {...reveal(0.18)}
               className="flex flex-col gap-3 rounded-3xl border border-[#b3d565]/40 bg-[#b3d565]/10 p-4 sm:flex-row sm:items-center sm:justify-between sm:px-5"
             >
               <div className="flex items-center gap-3">
                 <span aria-hidden="true" className="h-2.5 w-2.5 shrink-0 rotate-45 bg-[#b3d565]" />
-                <p className="m-0 font-varela text-sm font-semibold">New membership enquiry?</p>
+                <p className="m-0 font-varela text-sm font-semibold">New vacation package enquiry?</p>
               </div>
               <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-[13px]">
                 <a

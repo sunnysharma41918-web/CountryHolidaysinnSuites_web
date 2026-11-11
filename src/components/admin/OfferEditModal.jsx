@@ -116,7 +116,7 @@ export default function OfferEditModal({ isOpen, onClose, offer, onSave }) {
                 required
                 value={formData.title}
                 onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                placeholder="e.g. 10-Year Silver Vacation Membership"
+                placeholder="e.g. 10-Year Silver Vacation Package"
                 className="mt-1 w-full rounded-xl border border-stone-200 px-3.5 py-2 text-sm focus:border-[#22d37a] focus:outline-none focus:ring-1 focus:ring-[#22d37a]"
               />
             </div>
@@ -140,7 +140,7 @@ export default function OfferEditModal({ isOpen, onClose, offer, onSave }) {
                 onChange={(e) => setFormData({ ...formData, category: e.target.value })}
                 className="mt-1 w-full rounded-xl border border-stone-200 px-3 py-2 text-sm focus:border-[#22d37a] focus:outline-none focus:ring-1 focus:ring-[#22d37a]"
               >
-                <option value="membership">Memberships</option>
+                <option value="membership">Vacation Packages</option>
                 <option value="stay">Resorts & Stays</option>
                 <option value="seasonal">Seasonal & Family</option>
               </select>

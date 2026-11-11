@@ -32,7 +32,7 @@ const REVIEWS = [
     id: 4,
     name: 'David Chen',
     alias: '(Ananya)',
-    role: 'Executive Member',
+    role: 'Vacation Package Guest',
     rating: '5.0',
     quote: 'Flawless arrangements from flights to personal concierge guides. The best holiday experience we have ever had!',
   },

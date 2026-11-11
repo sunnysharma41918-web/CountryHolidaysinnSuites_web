@@ -6,8 +6,8 @@ export const DEFAULT_OFFERS = [
     id: 'offer-1',
     category: 'membership',
     badge: '35% OFF · FESTIVE SPECIAL',
-    title: '10-Year Silver Vacation Membership',
-    subtitle: 'Couple & Family Vacation Club Ownership',
+    title: '10-Year Silver Vacation Package',
+    subtitle: 'Couple & Family Vacation Package',
     img: '1571896349842-33c89424de2d', // Luxury pool resort
     tagline: 'Guaranteed 6N/7D annual stays with all-season privileges for an entire decade.',
     code: 'CHIS35',
@@ -17,10 +17,10 @@ export const DEFAULT_OFFERS = [
     emi: '',
     validTill: 'Valid till 30 Nov 2026',
     perks: ['6N / 7D every year', 'Zero peak surcharge', 'Carry forward unused nights'],
-    destinationDetail: 'CHIS 10-Year Silver Membership (Festive 35% Off Offer)',
+    destinationDetail: 'CHIS 10-Year Silver Vacation Package (Festive 35% Off Offer)',
     active: true,
     showInTicker: true,
-    tickerText: 'Festive Holiday Special: Flat 35% OFF on 10 & 30-Year Memberships',
+    tickerText: 'Festive Holiday Special: Flat 35% OFF on 10 & 30-Year Vacation Packages',
   },
   {
     id: 'offer-2',
@@ -66,7 +66,7 @@ export const DEFAULT_OFFERS = [
     id: 'offer-4',
     category: 'membership',
     badge: 'PRESTIGE VIP · SUITE PRIVILEGE',
-    title: '30-Year Gold Suite Lifetime Ownership',
+    title: '30-Year Gold Suite Vacation Package',
     subtitle: 'Grand 2-Bedroom Suite Entitlement',
     img: '1582719508461-905c673771fd', // Grand suite interior
     tagline: 'Three decades of luxury holiday privileges in lavish 2-bedroom suites for 4 adults.',
@@ -77,10 +77,10 @@ export const DEFAULT_OFFERS = [
     emi: '',
     validTill: 'Only 10 suites allocated',
     perks: ['Dual private bedrooms', 'Global RCI & luxury access', 'Dedicated holiday concierge'],
-    destinationDetail: 'CHIS 30-Year Gold Suite Lifetime Membership (VIP Savings)',
+    destinationDetail: 'CHIS 30-Year Gold Suite Vacation Package (VIP Savings)',
     active: true,
     showInTicker: true,
-    tickerText: 'Prestige VIP: Exclusive Benefits on 30-Year 2-Bedroom Gold Suite Ownership',
+    tickerText: 'Prestige VIP: Exclusive Benefits on 30-Year 2-Bedroom Gold Suite Vacation Packages',
   },
   {
     id: 'offer-5',
@@ -124,7 +124,7 @@ export const DEFAULT_OFFERS = [
   },
 ]
 
-const STORAGE_KEY = 'chis_active_offers_v2'
+const STORAGE_KEY = 'chis_active_offers_v3'
 
 export function getStoredOffers() {
   try {
@@ -251,7 +251,7 @@ export const FESTIVAL_PRESETS = {
     emoji: '✨',
     badge: '✨ FESTIVE WISHES',
     title: 'Season Greetings',
-    message: 'Warm festive greetings from Country Holidays Inn & Suites! Enjoy exclusive holiday packages and special membership perks.',
+    message: 'Warm festive greetings from Country Holidays Inn & Suites! Enjoy exclusive holiday deals and special vacation package perks.',
     promoCode: 'FESTIVECHIS',
     discount: 'Special Privilege',
   },

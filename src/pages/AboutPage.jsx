@@ -89,7 +89,7 @@ const TIMELINE = [
     stat: '3,500+ Properties & 250 Associates',
     highlights: [
       '3,500+ tie-up collaborative properties worldwide',
-      '250 travel associates catering to member needs',
+      '250 travel associates catering to vacation package & travel needs',
       '500+ CHIS family members delivering seamless journeys',
     ],
     icon: Globe2,
@@ -130,7 +130,7 @@ const UNIQUE = [
     icon: ShieldCheck,
     title: 'Upright stance',
     sub: 'Integrity & resilience',
-    body: 'Diverse vacations, member needs and premium experiences across 3,500+ collaborative properties, delivered with transparency and reliability.',
+    body: 'Diverse vacations, traveller needs and premium experiences across 3,500+ collaborative properties, delivered with transparency and reliability.',
     image: upright3D,
     meta: 'By CHIS Team • Verified Stays',
   },
@@ -478,7 +478,7 @@ export default function AboutPage() {
                 <Pill to="/vacation-packages">View vacation packages</Pill>
                 <button
                   type="button"
-                  onClick={() => handleOpenBooking('Membership Consultation')}
+                  onClick={() => handleOpenBooking('Vacation Package Consultation')}
                   className="font-varela font-bold inline-flex items-center gap-2 rounded-full border border-white/30 px-5 py-2.5 text-[13px] transition-colors duration-300 hover:bg-white/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
                 >
                   <PhoneCall className="h-4 w-4" aria-hidden="true" /> Talk to us
@@ -575,7 +575,7 @@ export default function AboutPage() {
               copy={OBJECTIVE}
               right={
                 <div className="shrink-0">
-                  <Pill tone="ink" onClick={() => handleOpenBooking('Membership Consultation')}>Talk to us</Pill>
+                  <Pill tone="ink" onClick={() => handleOpenBooking('Vacation Package Consultation')}>Talk to us</Pill>
                 </div>
               }
             />

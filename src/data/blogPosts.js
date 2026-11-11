@@ -2,7 +2,7 @@ export const blogCategories = [
   'All',
   'Travel Guides',
   'Resort Spotlights',
-  'Membership Perks',
+  'Vacation Package Perks',
   'Adventure & Wilderness',
   'Culinary & Culture',
 ]
@@ -35,21 +35,21 @@ export const blogPosts = [
       ### 2. The Morskie Oko Ridge Traverse
       While the lower lake path is famous, the true magic lies on the upper ridge trail toward Rysy. Here, golden eagles ride morning thermals, and early risers can witness morning mist lifting off the dark waters in complete solitude.
 
-      ### Member Tips:
+      ### Traveler Tips:
       - **Best Season**: Late August to early October for golden larch trees and crisp, stable autumn weather.
-      - **CHIS Advantage**: Complimentary guided sunrise trek and priority transfers included with standard memberships.
+      - **CHIS Advantage**: Complimentary guided sunrise trek and priority transfers included with standard vacation packages.
     `,
   },
   {
-    id: 'maximize-chis-vacation-membership',
-    slug: 'maximize-chis-vacation-membership',
-    title: 'How to Get Maximum Value from Your 5-to-30 Year Vacation Membership',
-    category: 'Membership Perks',
+    id: 'maximize-chis-vacation-packages',
+    slug: 'maximize-chis-vacation-packages',
+    title: 'How to Get Maximum Value from Your 5-to-30 Year Vacation Packages',
+    category: 'Vacation Package Perks',
     readTime: '5 min read',
     date: 'Oct 12, 2026',
     author: {
       name: 'Vikram Malhotra',
-      role: 'Head of Member Concierge',
+      role: 'Head of Guest Concierge',
       avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=200&q=80',
     },
     excerpt:
@@ -57,15 +57,15 @@ export const blogPosts = [
     image:
       'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1200&q=80',
     featured: false,
-    tags: ['Membership', 'Savings', 'Luxury Travel', 'Tips'],
+    tags: ['Vacation Packages', 'Savings', 'Luxury Travel', 'Tips'],
     content: `
-      A long-term vacation membership is more than guaranteed hotel nights—it is an inflation-proof hedge on luxury hospitality that guarantees family memories year after year.
+      A long-term vacation package is more than guaranteed hotel nights—it is an inflation-proof hedge on luxury hospitality that guarantees family memories year after year.
 
       ### 1. Strategic Season Selection
-      Your 6 Nights / 7 Days allotment can be utilized during peak festival windows or stretched with member bonus vouchers during shoulder months. Traveling in early autumn or late spring often yields complimentary room category upgrades from T1 standard rooms to sprawling T2 multi-room suites.
+      Your 6 Nights / 7 Days allotment can be utilized during peak festival windows or stretched with bonus travel vouchers during shoulder months. Traveling in early autumn or late spring often yields complimentary room category upgrades from T1 standard rooms to sprawling T2 multi-room suites.
 
       ### 2. Utilizing Partner Flight Discounts
-      Every CHIS cardholder has access to corporate-rate flight desk bookings. On international family bookings to destinations like Dubai, Interlaken, or Bali, members consistently save up to ₹10,000+ per itinerary.
+      Every CHIS cardholder has access to corporate-rate flight desk bookings. On international family bookings to destinations like Dubai, Interlaken, or Bali, travelers consistently save up to ₹10,000+ per itinerary.
     `,
   },
   {
@@ -153,7 +153,7 @@ export const blogPosts = [
       avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80',
     },
     excerpt:
-      'Traveling with young children does not mean sacrificing luxury or tranquility. Discover the top strategies seasoned member families swear by.',
+      'Traveling with young children does not mean sacrificing luxury or tranquility. Discover the top strategies seasoned traveling families swear by.',
     image:
       'https://images.unsplash.com/photo-1502086223501-7ea6ecd79368?auto=format&fit=crop&w=1200&q=80',
     featured: false,

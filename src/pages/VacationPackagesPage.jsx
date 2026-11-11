@@ -29,8 +29,8 @@ const scrollToId = (id, reduced) =>
 
 const openEnquiry = (plan) => {
   const subject = plan
-    ? `CHIS Membership: ${plan.title || `${plan.category} ${plan.years} Years`}`
-    : 'CHIS Membership Enquiry'
+    ? `CHIS Vacation Package: ${plan.title || `${plan.category} ${plan.years} Years`}`
+    : 'CHIS Vacation Package Enquiry'
   window.location.href = `/contact?subject=${encodeURIComponent(subject)}`
 }
 
@@ -40,7 +40,7 @@ const membershipPlans = [
   { id: 't1-10', category: 'T1', years: 10, roomType: 'Standard · 1 Bedroom', occupancy: '2 Adults + 2 Kids (<6 yrs)', title: 'T1 Standard Room (10 Years)', description: 'Perfect for couples and young families seeking 10 consecutive years of memorable annual holidays.', perks: ['6N / 7D annual stay', 'Silver Tier lounge access', 'Zero peak-season surcharge'], tag: 'Popular for couples' },
   { id: 't1-30', category: 'T1', years: 30, roomType: 'Standard · 1 Bedroom', occupancy: '2 Adults + 2 Kids (<6 yrs)', title: 'T1 Standard Room (30 Years)', description: 'Three decades of guaranteed annual holidays for couples and growing families.', perks: ['30-year guaranteed vacations', 'Carry forward unused nights', 'Exchange across 3,500+ resorts'], tag: 'Best long-term value' },
   { id: 't2-10', category: 'T2', years: 10, roomType: 'Suite · 2 Bedrooms', occupancy: '4 Adults + 2 Kids (<6 yrs)', title: 'T2 Suite / 2-Bedroom (10 Years)', description: 'Spacious dual-bedroom suite accommodation for multi-generational families and group adventures.', perks: ['Dual private bedrooms', 'Priority high-season booking', 'Dedicated holiday manager'], tag: 'Ideal for families' },
-  { id: 't2-30', category: 'T2', years: 30, roomType: 'Suite · 2 Bedrooms', occupancy: '4 Adults + 2 Kids (<6 yrs)', title: 'T2 Suite / 2-Bedroom (30 Years)', description: 'The definitive prestige membership. 30 years of grand suites and VIP global concierge hospitality.', perks: ['30-year suite entitlement', 'Global RCI & luxury affiliations', 'Complimentary voucher credits'], tag: 'Prestige heritage' },
+  { id: 't2-30', category: 'T2', years: 30, roomType: 'Suite · 2 Bedrooms', occupancy: '4 Adults + 2 Kids (<6 yrs)', title: 'T2 Suite / 2-Bedroom (30 Years)', description: 'The definitive prestige vacation package. 30 years of grand suites and VIP global concierge hospitality.', perks: ['30-year suite entitlement', 'Global RCI & luxury affiliations', 'Complimentary voucher credits'], tag: 'Prestige heritage' },
 ]
 const getPlan = (cat, years) => membershipPlans.find((p) => p.category === cat && p.years === years)
 
@@ -193,7 +193,7 @@ function PlanCard({ cat, years, reduced, index }) {
             <span className="font-rader text-[clamp(1.75rem,3vw,2.25rem)] font-bold leading-none tracking-tight text-[#0b1f12]">
               {years} Years
             </span>
-            <span className="font-varela text-xs font-semibold text-[#0b1f12]/60">membership tenure</span>
+            <span className="font-varela text-xs font-semibold text-[#0b1f12]/60">vacation package tenure</span>
           </div>
           <span className="font-varela rounded-full bg-[#f3f8e6] px-2.5 py-1 text-[11px] font-bold text-[#297f33]">
             6N / 7D annual stay
@@ -314,7 +314,7 @@ function MembershipCard({ cat, reduced, index }) {
           <div aria-hidden={flipped} className={face} style={hide}>
             <img
               src={dark ? goldCardImg : silverCardImg}
-              alt={`${meta.name} Membership Card`}
+              alt={`${meta.name} Vacation Package Card`}
               className="h-full w-full object-cover"
             />
           </div>
@@ -523,7 +523,7 @@ export default function VacationPackagesPage() {
             <div className="mx-auto max-w-[1240px]">
               <SectionHead
                 center
-                eyebrow="Membership plans"
+                eyebrow="Vacation packages"
                 title="Choose your"
                 accent="tier."
                 copy="Guaranteed annual nights, zero seasonal surge, and global resort access."
@@ -533,7 +533,7 @@ export default function VacationPackagesPage() {
               {/* tenure toggle */}
               <div
                 role="radiogroup"
-                aria-label="Membership tenure"
+                aria-label="Vacation package tenure"
                 className="font-varela relative mx-auto mt-8 grid max-w-sm grid-cols-2 rounded-full bg-white p-1 shadow-sm ring-1 ring-[#297f33]/15"
               >
                 {[{ y: 10, label: '10 years' }, { y: 30, label: '30 years · best value' }].map(({ y, label }) => (
@@ -637,7 +637,7 @@ export default function VacationPackagesPage() {
               </div>
 
               <p className="mb-0 mt-6 text-center font-varela text-xs text-[#0b1f12]/50">
-                Entitlements are summarised here. Your membership agreement is the final reference.
+                Entitlements are summarised here. Your vacation package agreement is the final reference.
               </p>
             </div>
           </section>
@@ -647,7 +647,7 @@ export default function VacationPackagesPage() {
             <div className="mx-auto max-w-[1240px]">
               <SectionHead
                 center
-                eyebrow="Membership cards"
+                eyebrow="Vacation package cards"
                 title="One card, every"
                 accent="arrival."
                 copy="Tap a card to flip it and see what it carries."

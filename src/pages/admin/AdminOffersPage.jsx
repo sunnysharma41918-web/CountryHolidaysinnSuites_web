@@ -170,7 +170,7 @@ export default function AdminOffersPage() {
                   : 'bg-stone-100 text-stone-600 hover:bg-stone-200'
               }`}
             >
-              {tab === 'all' ? 'All Offers' : tab === 'stay' ? 'Resorts & Stays' : tab} (
+              {tab === 'all' ? 'All Offers' : tab === 'membership' ? 'Vacation Packages' : tab === 'stay' ? 'Resorts & Stays' : tab} (
               {tab === 'all' ? offers.length : offers.filter((o) => o.category === tab).length})
             </button>
           ))}

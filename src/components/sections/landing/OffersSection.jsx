@@ -21,7 +21,7 @@ import { getStoredOffers, getFestivalGreeting } from '../../../data/offers'
 
 const CATEGORIES = [
   { id: 'all', label: 'All Offers' },
-  { id: 'membership', label: 'Memberships' },
+  { id: 'membership', label: 'Vacation Packages' },
   { id: 'stay', label: 'Resorts & Stays' },
   { id: 'seasonal', label: 'Seasonal & Family' },
 ]
@@ -143,7 +143,7 @@ export default function OffersSection() {
               <span className="text-[#297f33]">Next Escape.</span>
             </h2>
             <p className="mb-0 mt-3 font-varela text-[14.5px] sm:text-[15.5px] leading-relaxed text-[#0b1f12]/75">
-              Limited-edition vacation club savings, complimentary 2-night stay vouchers, and zero-surge packages reserved for CHIS members and travelers.
+              Limited-edition vacation package savings, complimentary 2-night stay vouchers, and zero-surge deals reserved for CHIS guests and travelers.
             </p>
           </div>
 

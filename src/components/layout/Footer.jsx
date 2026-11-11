@@ -37,7 +37,7 @@ const QUICK_LINKS = [
 ]
 
 const MORE_LINKS = [
-  { label: 'Member portal', href: 'https://member.countryholidaysinnsuites.com/' },
+  { label: 'Package portal', href: 'https://member.countryholidaysinnsuites.com/' },
   { label: 'Redeem voucher', href: 'https://www.countryholidaysinnsuites.com/chis/voucher' },
   { label: 'Terms of use', to: '/terms' },
   { label: 'Admin portal', to: '/admin/login' },
@@ -207,7 +207,7 @@ export default function Footer() {
                 </span>
               </h2>
               <p className="font-poppins mt-3 text-base md:text-lg font-normal text-[#0d4a3a]/75 leading-relaxed">
-                Sign up to get the latest holiday packages, deals &amp; exclusive member updates.
+                Sign up to get the latest holiday deals &amp; exclusive vacation package updates.
               </p>
             </div>
 
@@ -301,8 +301,8 @@ export default function Footer() {
                     ))}
                   </ul>
                 </nav>
-                <nav aria-label="Member links">
-                  <p className="font-montserrat text-base font-semibold text-white">Members</p>
+                <nav aria-label="Vacation package links">
+                  <p className="font-montserrat text-base font-semibold text-white">Vacation Packages</p>
                   <ul className="mt-3 space-y-2">
                     {MORE_LINKS.map((l) => (
                       <li key={l.label}><FootLink to={l.to} href={l.href}>{l.label}</FootLink></li>

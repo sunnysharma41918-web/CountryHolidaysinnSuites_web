@@ -25,7 +25,7 @@ function AppLayout() {
       <WebsiteLoader
         visible={isLandingPage}
         onlyOncePerSession={true}
-        duration={2400}
+        duration={1600}
       />
       <Navbar />
       <main>

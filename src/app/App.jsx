@@ -2,7 +2,7 @@ import { useEffect } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import Navbar from '../components/layout/Navbar'
 import Footer from '../components/layout/Footer'
-import Preloader from '../components/layout/Preloader'
+import WebsiteLoader from '../components/layout/WebsiteLoader'
 import AppProviders from './AppProviders'
 import AppRoutes from './routes'
 
@@ -22,10 +22,10 @@ function AppLayout() {
 
   return (
     <div className="min-h-screen bg-[#fbfdfa] text-slate-800 antialiased font-sans">
-      <Preloader
+      <WebsiteLoader
         visible={isLandingPage}
         onlyOncePerSession={true}
-        duration={2200}
+        duration={2400}
       />
       <Navbar />
       <main>

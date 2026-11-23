@@ -48,9 +48,17 @@ export const api = {
     })
 
     try {
-      const res = await fetch(`${API_BASE}/properties?${searchParams.toString()}`)
+      const controller = new AbortController()
+      const timeoutId = setTimeout(() => controller.abort(), 2500)
+      const res = await fetch(`${API_BASE}/properties?${searchParams.toString()}`, {
+        signal: controller.signal,
+      })
+      clearTimeout(timeoutId)
       if (res.ok) {
-        return await res.json()
+        const data = await res.json()
+        if (data && Array.isArray(data.properties) && data.properties.length > 0) {
+          return data
+        }
       }
     } catch {
       console.warn('Backend unavailable, using static resort fallback')
@@ -59,6 +67,9 @@ export const api = {
     // Static fallback
     const allItems = getAllResorts ? getAllResorts() : resorts
     let filtered = [...allItems]
+    if (params.source && params.source !== 'All') {
+      filtered = filtered.filter((r) => r.source === params.source)
+    }
     if (params.destination && params.destination !== 'All') {
       filtered = filtered.filter(
         (r) => r.destination?.toLowerCase() === params.destination.toLowerCase()
@@ -90,9 +101,17 @@ export const api = {
 
   async getPropertyBySlug(slug) {
     try {
-      const res = await fetch(`${API_BASE}/properties/${slug}`)
+      const controller = new AbortController()
+      const timeoutId = setTimeout(() => controller.abort(), 2500)
+      const res = await fetch(`${API_BASE}/properties/${slug}`, {
+        signal: controller.signal,
+      })
+      clearTimeout(timeoutId)
       if (res.ok) {
-        return await res.json()
+        const data = await res.json()
+        if (data && (data.property || data.data)) {
+          return data
+        }
       }
     } catch {
       console.warn('Backend unavailable, using static fallback for slug:', slug)

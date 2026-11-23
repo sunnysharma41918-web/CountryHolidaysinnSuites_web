@@ -1,123 +1,164 @@
 import { useLayoutEffect, useRef } from 'react'
+import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
-import { ArrowUpRight, ChevronsRight, Hotel, MapPin, Plane } from 'lucide-react'
-import { EASE, GREEN, WRAP, YELLOW, unsplash, Img, Tag } from './landingShared'
+import { ArrowUpRight, ChevronsRight, Hotel, MapPin, Sparkles } from 'lucide-react'
+import { WRAP, unsplash, Tag } from './landingShared'
 
 gsap.registerPlugin(ScrollTrigger)
 
-// kind: 'photo' (image + name label) | 'text' (pale card with dotted flight path) | 'tall' (full-height image with text)
-// pos places each card on the 4-column x 2-row desktop grid, like the journal layout
-// place is only filled where the name itself gives a location; add the others yourself
+// Curated live featured VIA OTA properties with real verified images
 const PROPERTIES = [
-  { name: 'Honeymoon Inn Manali', type: 'Inn', place: 'Manali', img: '1512917774080-9991f1c4c750', kind: 'photo', pos: 'lg:col-start-1 lg:row-start-1', note: 'Ask your planner for room options, rates and dates.' },
-  { name: 'DoubleTree By Hilton', type: 'Hotel', place: '', img: '1566073771259-6a8506099945', kind: 'text', pos: 'lg:col-start-1 lg:row-start-2', note: 'Book through us with a fixed price before you pay.' },
-  { name: 'Four Points By Sheraton New Delhi', type: 'Hotel', place: 'New Delhi', img: '1499793983690-e29da59ef1c2', kind: 'tall', pos: 'lg:col-start-2 lg:row-span-2 lg:row-start-1', note: 'We confirm rooms and rates before you pay.' },
-  { name: 'White Woods Resorts & SPA', type: 'Resort & Spa', place: '', img: '1571896349842-33c89424de2d', kind: 'text', pos: 'lg:col-start-3 lg:row-start-1', note: 'Add transfers and a local guide to your stay.' },
-  { name: 'KK Royal Hotel & Convention Centre', type: 'Hotel & Convention Centre', place: '', img: '1520250497591-112f2f40a3f4', kind: 'photo', pos: 'lg:col-start-3 lg:row-start-2', note: 'Ask us about dates, rooms and group rates.' },
-  { name: 'Winsome Resort & Spa', type: 'Resort & Spa', place: '', img: '1507525428034-b723cf961d3e', kind: 'tall', pos: 'lg:col-start-4 lg:row-span-2 lg:row-start-1', note: 'One planner for your stay, transfers and guide.' },
+  {
+    name: 'The Grand Imperial, Agra',
+    type: 'Heritage Palace',
+    place: 'Agra, Uttar Pradesh',
+    slug: 'the-grand-imperial-agra',
+    image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRRcwcllaYdHLfGPOUYCX48ogj9m97VJ7ZezS2VDaCu1082w4mi6vvjTVhT&s=10',
+    unsplashId: '1566073771259-6a8506099945',
+    note: 'Historic Grade-II colonial Mughal luxury near Taj Mahal.',
+    gridPos: 'lg:col-start-1 lg:row-start-1',
+    isTall: false,
+  },
+  {
+    name: 'Mayfair Hideaway Spa Resort',
+    type: 'Spa Sanctuary',
+    place: 'Betul, Goa',
+    slug: 'mayfair-hideaway-spa-resort',
+    image: 'https://cf.bstatic.com/xdata/images/hotel/max1024x768/29807934.jpg?k=d6bbfbef9e209c493021242242ced823e7e5b71d874c5048e65515cb449bafcd&o=',
+    unsplashId: '1540541338287-41700207dee6',
+    note: 'Tranquil riverfront sanctuary with holistic Ayurvedic wellness.',
+    gridPos: 'lg:col-start-1 lg:row-start-2',
+    isTall: false,
+  },
+  {
+    name: 'The Desert Palace',
+    type: 'Royal Palace Resort',
+    place: 'Jaisalmer, Rajasthan',
+    slug: 'the-desert-palace',
+    image: 'https://images.trvl-media.com/lodging/21000000/20200000/20192500/20192442/a2131a3d.jpg?impolicy=resizecrop&rw=575&rh=575&ra=fill',
+    unsplashId: '1512917774080-9991f1c4c750',
+    note: 'Authentic royal Rajasthani architecture and golden desert dunes.',
+    gridPos: 'lg:col-start-2 lg:row-start-1 lg:row-span-2',
+    isTall: true,
+  },
+  {
+    name: 'White Woods Resort & Spa',
+    type: 'Tropical Retreat',
+    place: 'Morjim, Goa',
+    slug: 'white-woods-resort-spa',
+    image: 'https://dynamic-media-cdn.tripadvisor.com/media/photo-o/2e/c1/24/fa/caption.jpg?w=900&h=500&s=1',
+    unsplashId: '1571896349842-33c89424de2d',
+    note: 'Lush tropical hideaway near serene North Goa beaches.',
+    gridPos: 'lg:col-start-3 lg:row-start-1',
+    isTall: false,
+  },
+  {
+    name: 'Country Holidays Resorts Hassan Valley',
+    type: 'Himalayan Hill Retreat',
+    place: 'Shimla, Himachal Pradesh',
+    slug: 'country-holidays-resorts-hassan-valley-shimla',
+    image: 'https://pix10.agoda.net/hotelImages/32661782/-1/b5bc3f189592bc9eabaca33484be72d6.png?ce=0&s=800x600',
+    unsplashId: '1506744038136-46273834b3fb',
+    note: 'Panoramic Himalayan cedar valley views and crisp mountain air.',
+    gridPos: 'lg:col-start-3 lg:row-start-2',
+    isTall: false,
+  },
+  {
+    name: 'Winsome Resort & Spa',
+    type: 'Jungle Spa Resort',
+    place: 'Jim Corbett, Uttarakhand',
+    slug: 'winsome-resort-spa',
+    image: 'https://www.winsomeresorts.com/images/photos/3.jpg',
+    unsplashId: '1507525428034-b723cf961d3e',
+    note: 'Wilderness luxury and safaris adjacent to Corbett National Park.',
+    gridPos: 'lg:col-start-4 lg:row-start-1 lg:row-span-2',
+    isTall: true,
+  },
 ]
 
-const Media = ({ p, w = 1000 }) => (
-  <div className="pr-img absolute inset-0">
-    <Img src={unsplash(p.img, w)} alt={p.name} className="h-full w-full object-cover transition-transform duration-[1200ms] ease-out group-hover:scale-105" />
-    <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/35 to-black/10" />
-  </div>
-)
-
-const Badge = ({ children, dark }) => (
-  <span className={`inline-flex items-center gap-2 font-varela text-xs font-semibold ${dark ? 'rounded-full bg-white/15 px-3 py-1.5 text-white backdrop-blur' : 'text-[#0d4a3a]/70'}`}>
-    <Hotel className="h-3.5 w-3.5" /> {children}
-  </span>
-)
-
-// Dotted flight path that wipes in, with a plane that floats at its end
-function Trail() {
-  return (
-    <>
-      <motion.svg
-        viewBox="0 0 160 60" fill="none" aria-hidden="true"
-        className="pointer-events-none absolute bottom-3 right-4 h-14 w-36"
-        initial={{ clipPath: 'inset(0 100% 0 0)' }}
-        whileInView={{ clipPath: 'inset(0 0% 0 0)' }}
-        viewport={{ once: true }}
-        transition={{ duration: 1.6, ease: EASE, delay: 0.8 }}
-      >
-        <path d="M2 54 C 40 52, 60 12, 100 30 S 140 22, 148 14" stroke={GREEN} strokeOpacity="0.4" strokeWidth="1.6" strokeDasharray="3 5" strokeLinecap="round" />
-      </motion.svg>
-      <motion.span
-        aria-hidden="true"
-        className="pointer-events-none absolute bottom-[2.6rem] right-2 text-[#0d4a3a]/70"
-        initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}
-        transition={{ delay: 2.2 }}
-      >
-        <motion.span className="block" animate={{ y: [0, -4, 0], x: [0, 3, 0] }} transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}>
-          <Plane className="h-5 w-5" />
-        </motion.span>
-      </motion.span>
-    </>
-  )
-}
-
 function Card({ p }) {
-  const base = `pr-card group relative block overflow-hidden rounded-3xl lg:aspect-auto ${p.pos}`
-  const href = '#faq'
+  const href = `/resorts/${p.slug}`
 
-  if (p.kind === 'photo') {
-    return (
-      <motion.a href={href} whileHover={{ y: -4 }} transition={{ duration: 0.35 }} className={`${base} aspect-[4/3] bg-[#0b3f32] border border-[#297f33]/25 hover:border-[#297f33] lp-shadow-combo-dark`}>
-        <Media p={p} />
-        <div className="relative z-10 flex h-full flex-col justify-end p-5 text-white">
-          <Badge dark>{p.type}</Badge>
-          <h3 className="mt-1 font-varela text-lg font-bold leading-tight">{p.name}</h3>
+  return (
+    <motion.div
+      whileHover={{ y: -5 }}
+      transition={{ duration: 0.35, ease: 'easeOut' }}
+      className={`pr-card h-full min-h-[260px] sm:min-h-[280px] lg:min-h-0 ${p.gridPos}`}
+    >
+      <Link
+        to={href}
+        className="group relative flex h-full w-full flex-col justify-between overflow-hidden rounded-3xl border border-[#297f33]/25 bg-[#0b3f32] p-5 shadow-[0_4px_20px_rgba(6,58,47,0.08)] transition-all duration-500 hover:border-[#297f33] hover:shadow-[0_20px_40px_-12px_rgba(6,58,47,0.35)] lg:p-6"
+      >
+        {/* Background Image with Fallback */}
+        <div className="absolute inset-0">
+          <img
+            src={p.image}
+            alt={p.name}
+            loading="lazy"
+            onError={(e) => {
+              e.currentTarget.onerror = null
+              e.currentTarget.src = unsplash(p.unsplashId, 1200)
+            }}
+            className="h-full w-full object-cover transition-transform duration-[1200ms] ease-out group-hover:scale-105"
+          />
+          {/* Deep readable gradient overlays */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/45 to-black/20 transition-opacity duration-300 group-hover:from-black/95" />
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(251,215,91,0.12),transparent_70%)]" />
+        </div>
+
+        {/* Top Badges Bar */}
+        <div className="relative z-10 flex items-center justify-between gap-2">
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-black/40 px-3 py-1 font-varela text-[11px] font-semibold text-white backdrop-blur-md ring-1 ring-white/20">
+            <Hotel className="h-3 w-3 text-[#fbd75b]" />
+            {p.type}
+          </span>
+          <span className="grid h-8 w-8 place-items-center rounded-full bg-white/20 text-white backdrop-blur-md transition-all duration-300 group-hover:bg-[#fbd75b] group-hover:text-[#063a2f] group-hover:rotate-45">
+            <ArrowUpRight className="h-4 w-4" />
+          </span>
+        </div>
+
+        {/* Bottom Content Area */}
+        <div className="relative z-10 pt-4">
           {p.place && (
-            <p className="font-varela mt-1 flex items-center gap-1.5 text-xs text-white/80">
-              <MapPin className="h-3.5 w-3.5 text-[#ffd84d]" /> {p.place}
+            <p className="font-varela flex items-center gap-1.5 text-xs font-medium text-white/90">
+              <MapPin className="h-3.5 w-3.5 shrink-0 text-[#fbd75b]" />
+              <span className="truncate">{p.place}</span>
             </p>
           )}
-        </div>
-      </motion.a>
-    )
-  }
 
-  if (p.kind === 'tall') {
-    return (
-      <motion.a href={href} whileHover={{ y: -4 }} transition={{ duration: 0.35 }} className={`${base} aspect-[3/4] bg-[#0b3f32] border border-[#297f33]/25 hover:border-[#297f33] lp-shadow-combo-dark`}>
-        <Media p={p} w={1200} />
-        <div className="relative z-10 flex h-full flex-col justify-between p-6 text-white">
-          <div className="flex items-center justify-between">
-            <Badge dark>{p.type}</Badge>
-            <span className="grid h-8 w-8 place-items-center rounded-full bg-white/20 text-white backdrop-blur transition-transform duration-300 group-hover:rotate-45">
-              <ArrowUpRight className="h-4 w-4" />
-            </span>
-          </div>
-          <div>
-            <h3 className="font-varela text-2xl font-bold leading-tight">{p.name}</h3>
-            {p.place && (
-              <p className="font-varela mt-1 flex items-center gap-1.5 text-xs text-white/80">
-                <MapPin className="h-3.5 w-3.5 text-[#ffd84d]" /> {p.place}
-              </p>
-            )}
-            <p className="font-varela mt-3 text-xs text-white/80 border-t border-white/20 pt-3">{p.note}</p>
-          </div>
-        </div>
-      </motion.a>
-    )
-  }
+          <h3
+            className={`font-varela mt-1 font-bold leading-tight text-white transition-colors group-hover:text-[#fbd75b] ${
+              p.isTall ? 'text-xl sm:text-2xl' : 'text-base sm:text-lg'
+            } line-clamp-2`}
+          >
+            {p.name}
+          </h3>
 
-  return (
-    <motion.a href={href} whileHover={{ y: -4 }} transition={{ duration: 0.35 }} className={`${base} flex aspect-[4/3] flex-col justify-between border border-white/90 bg-white/75 p-5 text-[#0d4a3a] lp-shadow-combo backdrop-blur-xl hover:border-[#297f33]/30`}>
-      <div>
-        <Badge>{p.type}</Badge>
-        <h3 className="mt-2 font-varela text-lg font-bold leading-tight text-[#063a2f]">{p.name}</h3>
-        <p className="font-varela mt-2 text-xs text-[#0d4a3a]/75">{p.note}</p>
-      </div>
-      <span className="mb-1 inline-flex items-center gap-1.5 font-varela text-sm font-bold text-[#297f33]">
-        Book this stay <ArrowUpRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1 group-hover:-translate-y-1" />
-      </span>
-      <Trail />
-    </motion.a>
+          <p
+            className={`font-varela text-white/80 ${
+              p.isTall
+                ? 'mt-3 line-clamp-2 text-xs border-t border-white/20 pt-3'
+                : 'mt-1.5 line-clamp-1 text-[11px]'
+            }`}
+          >
+            {p.note}
+          </p>
+
+          {p.isTall && (
+            <div className="mt-4 flex items-center justify-between border-t border-white/15 pt-3">
+              <span className="inline-flex items-center gap-1 text-xs font-bold text-[#fbd75b] transition-transform group-hover:translate-x-1">
+                Explore Retreat &rarr;
+              </span>
+              <span className="flex items-center gap-1 text-[10px] uppercase tracking-wider text-white/70">
+                <Sparkles className="h-2.5 w-2.5 text-[#fbd75b]" /> VIA OTA
+              </span>
+            </div>
+          )}
+        </div>
+      </Link>
+    </motion.div>
   )
 }
 
@@ -129,39 +170,44 @@ export default function PropertiesSection() {
       const mm = gsap.matchMedia()
       mm.add('(prefers-reduced-motion: no-preference)', () => {
         gsap
-          .timeline({ defaults: { ease: 'power3.out' }, scrollTrigger: { trigger: root.current, start: 'top 70%', once: true } })
-          .from('.pr-head', { opacity: 0, y: 28, duration: 0.9, stagger: 0.12 })
-          .from('.pr-card', { opacity: 0, y: 30, duration: 0.8, stagger: 0.08 }, 0.15)
+          .timeline({
+            defaults: { ease: 'power3.out' },
+            scrollTrigger: { trigger: root.current, start: 'top 75%', once: true },
+          })
+          .from('.pr-head', { opacity: 0, y: 24, duration: 0.8, stagger: 0.1 })
+          .from('.pr-card', { opacity: 0, y: 28, duration: 0.7, stagger: 0.08 }, 0.15)
       })
     }, root)
     return () => ctx.revert()
   }, [])
 
   return (
-    <section ref={root} id="properties" className="relative flex flex-col bg-transparent py-8 md:py-12 text-[#0d4a3a]">
+    <section ref={root} id="properties" className="relative flex flex-col bg-transparent py-10 md:py-16 text-[#0d4a3a]">
       <div className={`${WRAP} flex min-h-0 flex-1 flex-col gap-6`}>
+        {/* Section Header */}
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
           <div>
-            <Tag>EXCLUSIVE STAYS</Tag>
+            <Tag>EXCLUSIVE PROPERTIES</Tag>
             <h2 className="pr-head font-rader mt-2 text-[clamp(2.25rem,3.6vw,3.15rem)] font-bold leading-[1.12] text-[#063a2f]">
               Our Recent <span className="text-[#297f33]">Properties</span>
             </h2>
           </div>
-          <motion.a
-            href="#faq"
-            className="pr-head inline-flex items-center gap-3 rounded-full border border-white/90 bg-white/80 backdrop-blur-xl py-1.5 pl-5 pr-1.5 text-xs font-semibold text-[#063a2f] shadow-sm hover:bg-white hover:shadow-md transition-all self-start sm:self-auto"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.96 }}
+          <Link
+            to="/destinations/category/via-ota"
+            className="pr-head inline-flex items-center gap-3 rounded-full border border-white/90 bg-white/80 backdrop-blur-xl py-1.5 pl-5 pr-1.5 text-xs font-semibold text-[#063a2f] shadow-sm hover:bg-white hover:shadow-md transition-all self-start sm:self-auto hover:scale-105 active:scale-95"
           >
-            <span className="font-varela font-bold">View all stays</span>
+            <span className="font-varela font-bold">View all 17 properties</span>
             <span className="grid h-8 w-8 place-items-center rounded-full bg-[#063a2f] text-[#fbd75b]">
               <ChevronsRight className="h-4 w-4" />
             </span>
-          </motion.a>
+          </Link>
         </div>
 
-        <div className="grid min-h-0 flex-1 gap-3 sm:grid-cols-2 lg:grid-cols-4 lg:grid-rows-2 lg:gap-4">
-          {PROPERTIES.map((p) => <Card key={p.name} p={p} />)}
+        {/* Bento Grid */}
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 lg:grid-rows-2 lg:h-[620px]">
+          {PROPERTIES.map((p) => (
+            <Card key={p.name} p={p} />
+          ))}
         </div>
       </div>
     </section>

@@ -7,6 +7,7 @@ export const getPublicProperties = async (req, res, next) => {
     const {
       search,
       destination,
+      source,
       featured,
       page = 1,
       limit = 20,
@@ -18,6 +19,10 @@ export const getPublicProperties = async (req, res, next) => {
     const query = {
       status: 'published',
       isActive: true,
+    }
+
+    if (source && source !== 'All') {
+      query.source = source
     }
 
     if (destination && destination !== 'All') {
@@ -70,6 +75,10 @@ export const getPublicProperties = async (req, res, next) => {
 
     // Fallback: If DB is not connected, filter from baseline
     let filtered = defaultResorts.filter((item) => item.status === 'published' && item.isActive)
+
+    if (source && source !== 'All') {
+      filtered = filtered.filter((item) => item.source === source)
+    }
 
     if (destination && destination !== 'All') {
       filtered = filtered.filter(

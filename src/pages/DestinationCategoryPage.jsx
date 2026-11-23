@@ -1,9 +1,11 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Link, useParams, useNavigate } from 'react-router-dom'
 import { AnimatePresence, motion, useReducedMotion, useScroll, useTransform } from 'framer-motion'
-import { ArrowDown, ArrowLeft, ArrowUpRight, Search, X } from 'lucide-react'
+import { ArrowDown, ArrowLeft, ArrowUpRight, Search, X, BedDouble, MapPin, Sparkles } from 'lucide-react'
 import PageTransition from '../components/layout/PageTransition'
+import ResortCard from '../components/ui/ResortCard'
 import { destinationMenuGroups, getDestinationBySlug } from '../data/destinations'
+import { api } from '../services/api'
 
 const EASE = [0.16, 1, 0.3, 1]
 
@@ -22,7 +24,7 @@ const pad = (n) => String(n + 1).padStart(2, '0')
 /* ------------------------------------------------------------------ */
 /*  Small destination card                                            */
 /* ------------------------------------------------------------------ */
-function DestRow({ destination, index }) {
+function DestRow({ destination, index, stayCount = 0 }) {
   const reduce = useReducedMotion()
   const img = imageOf(destination)
   const place = placeOf(destination)
@@ -59,6 +61,12 @@ function DestRow({ destination, index }) {
         </span>
 
         <div className="absolute inset-x-0 bottom-0 p-3.5">
+          {stayCount > 0 && (
+            <span className="mb-1.5 inline-flex items-center gap-1 rounded-full bg-gold/90 px-2.5 py-0.5 text-[10px] font-bold text-midnight shadow-sm backdrop-blur-sm">
+              <Sparkles className="h-3 w-3" />
+              {stayCount} {stayCount === 1 ? 'Property' : 'Properties'}
+            </span>
+          )}
           <h3 className="font-display text-lg leading-tight text-white sm:text-xl">{nameOf(destination)}</h3>
           {place && (
             <p className="mt-1 truncate text-[10px] font-medium uppercase tracking-[0.18em] text-white/70">{place}</p>
@@ -80,6 +88,9 @@ export default function DestinationCategoryPage() {
   const { category } = useParams()
   const reduce = useReducedMotion()
   const [query, setQuery] = useState('')
+  const [properties, setProperties] = useState([])
+  const [loadingProperties, setLoadingProperties] = useState(true)
+  const [selectedLocation, setSelectedLocation] = useState('All')
 
   const heroRef = useRef(null)
   const listRef = useRef(null)
@@ -95,16 +106,108 @@ export default function DestinationCategoryPage() {
     [group],
   )
 
-  useEffect(() => setQuery(''), [category])
+  useEffect(() => {
+    setQuery('')
+    setSelectedLocation('All')
+  }, [category])
+
+  useEffect(() => {
+    let mounted = true
+    const loadProperties = async () => {
+      try {
+        setLoadingProperties(true)
+        const res = await api.getProperties({ limit: 100 })
+        if (mounted && res && Array.isArray(res.properties)) {
+          const isViaOta = category === 'via-ota'
+          const filtered = res.properties.filter((p) => {
+            const matchesDest = categoryDestinations.some(
+              (d) => d.name?.toLowerCase() === p.destination?.toLowerCase()
+            )
+            if (isViaOta) {
+              return matchesDest && (p.source === 'VIA_OTA' || p.source !== 'VIA_OTA_EXCHANGE')
+            }
+            if (category === 'via-ota-exchange') {
+              return matchesDest || p.source === 'VIA_OTA_EXCHANGE'
+            }
+            return matchesDest
+          })
+          setProperties(filtered)
+        }
+      } catch (err) {
+        console.warn('Error loading category properties:', err)
+      } finally {
+        if (mounted) setLoadingProperties(false)
+      }
+    }
+    loadProperties()
+    return () => {
+      mounted = false
+    }
+  }, [category, categoryDestinations])
+
+  // Group properties location-wise (by destination)
+  const locationGroups = useMemo(() => {
+    const map = new Map()
+    properties.forEach((p) => {
+      const destName = p.destination || 'Other'
+      if (!map.has(destName)) {
+        const destObj = categoryDestinations.find(
+          (d) => d.name?.toLowerCase() === destName.toLowerCase()
+        )
+        map.set(destName, {
+          name: destName,
+          destinationObj: destObj,
+          properties: [],
+        })
+      }
+      map.get(destName).properties.push(p)
+    })
+
+    // Sort locations by property count descending
+    return Array.from(map.values()).sort((a, b) => b.properties.length - a.properties.length)
+  }, [properties, categoryDestinations])
+
+  const locationFilters = useMemo(() => {
+    return [
+      { label: 'All Locations', value: 'All', count: properties.length },
+      ...locationGroups.map((g) => ({
+        label: g.name,
+        value: g.name,
+        count: g.properties.length,
+      })),
+    ]
+  }, [properties.length, locationGroups])
 
   const q = query.trim().toLowerCase()
-  const visible = useMemo(
-    () =>
-      q
-        ? categoryDestinations.filter((d) => `${nameOf(d)} ${placeOf(d)} ${blurbOf(d)}`.toLowerCase().includes(q))
-        : categoryDestinations,
-    [categoryDestinations, q],
-  )
+
+  const filteredLocationGroups = useMemo(() => {
+    let groups = locationGroups
+    if (selectedLocation !== 'All') {
+      groups = groups.filter((g) => g.name.toLowerCase() === selectedLocation.toLowerCase())
+    }
+    if (q) {
+      groups = groups
+        .map((g) => ({
+          ...g,
+          properties: g.properties.filter((p) =>
+            `${p.name} ${p.location} ${p.destination}`.toLowerCase().includes(q)
+          ),
+        }))
+        .filter((g) => g.properties.length > 0 || g.name.toLowerCase().includes(q))
+    }
+    return groups
+  }, [locationGroups, selectedLocation, q])
+
+  const otherDestinations = useMemo(() => {
+    const activeNames = new Set(locationGroups.map((g) => g.name.toLowerCase()))
+    let others = categoryDestinations.filter((d) => !activeNames.has(d.name?.toLowerCase()))
+    if (q) {
+      others = others.filter((d) =>
+        `${nameOf(d)} ${placeOf(d)}`.toLowerCase().includes(q)
+      )
+    }
+    return others
+  }, [categoryDestinations, locationGroups, q])
 
   const navigate = useNavigate()
   const openBooking = () => navigate(`/contact?subject=${encodeURIComponent(group?.label || 'Holiday Enquiry')}`)
@@ -214,7 +317,7 @@ export default function DestinationCategoryPage() {
                     transition={{ duration: 0.9, delay: 0.55, ease: EASE }}
                     className="max-w-md text-sm leading-relaxed text-white/80 sm:text-lg"
                   >
-                    {`Every ${group.label.toLowerCase()} stay in one place. Pick a destination to see the details and start planning.`}
+                    {`Every ${group.label} property and destination in one place. Pick a location to see the details and start planning.`}
                   </motion.p>
 
                   <motion.div
@@ -231,15 +334,17 @@ export default function DestinationCategoryPage() {
                       </div>
                     )}
                     <div className="leading-none text-white">
-                      <span className="block font-display text-4xl sm:text-5xl">{String(categoryDestinations.length).padStart(2, '0')}</span>
+                      <span className="block font-display text-4xl sm:text-5xl">
+                        {properties.length > 0 ? properties.length : categoryDestinations.length}
+                      </span>
                       <span className="mt-1 block text-[10px] sm:text-[11px] uppercase tracking-[0.25em] text-white/65">
-                        {categoryDestinations.length === 1 ? 'Destination' : 'Destinations'}
+                        {properties.length > 0 ? 'Listed Properties' : 'Destinations'}
                       </span>
                     </div>
                     <button
                       type="button"
                       onClick={scrollToList}
-                      aria-label="Scroll to destinations"
+                      aria-label="Scroll to properties"
                       className="grid h-12 w-12 sm:h-14 sm:w-14 place-items-center rounded-full bg-gold text-midnight transition hover:scale-105 focus:outline-none focus-visible:ring-4 focus-visible:ring-white/60"
                     >
                       <motion.span
@@ -256,56 +361,74 @@ export default function DestinationCategoryPage() {
           </div>
         </section>
 
-        {/* ================= 2. simple list ================= */}
+        {/* ================= 2. location-wise property list ================= */}
         <section ref={listRef} className="mx-auto max-w-7xl scroll-mt-20 px-4 pb-20 pt-12 sm:px-8 sm:pb-24 sm:pt-20 lg:px-12">
           <div className="mb-8 flex flex-col gap-5 sm:mb-10 sm:gap-6 lg:flex-row lg:items-end lg:justify-between">
-            <motion.h2
-              initial={reduce ? false : { opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.9, ease: EASE }}
-              className="font-display text-4xl leading-none text-midnight sm:text-6xl"
-            >
-              Choose a <em className="italic text-gold">destination</em>
-            </motion.h2>
+            <div>
+              <motion.div
+                initial={reduce ? false : { opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.7, ease: EASE }}
+                className="mb-2 flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.25em] text-gold"
+              >
+                <MapPin className="h-3.5 w-3.5" />
+                <span>Location-Wise Property Directory</span>
+              </motion.div>
+              <motion.h2
+                initial={reduce ? false : { opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.9, ease: EASE }}
+                className="font-display text-4xl leading-none text-midnight sm:text-6xl"
+              >
+                Explore Properties by <em className="italic text-gold">Location</em>
+              </motion.h2>
+              <p className="mt-2 text-xs sm:text-sm text-midnight/70">
+                {`Explore verified ${group.label} properties across ${locationGroups.length} destinations, organized location-by-location.`}
+              </p>
+            </div>
 
-            <label className="group relative block w-full lg:w-80">
-              <span className="sr-only">Search destinations</span>
-              <Search
-                className="pointer-events-none absolute left-0 top-1/2 h-4 w-4 -translate-y-1/2 text-midnight/50 transition group-focus-within:text-gold"
-                aria-hidden="true"
-              />
-              <input
-                type="search"
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                placeholder={`Search in ${group.label}`}
-                className="h-12 w-full border-b border-midnight/25 bg-transparent pl-8 pr-9 text-sm text-midnight placeholder:text-midnight/45 focus:outline-none"
-              />
-              <span className="absolute inset-x-0 bottom-0 h-0.5 origin-left scale-x-0 bg-gold transition-transform duration-500 group-focus-within:scale-x-100" />
-              {query && (
-                <button
-                  type="button"
-                  onClick={() => setQuery('')}
-                  aria-label="Clear search"
-                  className="absolute right-0 top-1/2 grid h-7 w-7 -translate-y-1/2 place-items-center rounded-full text-midnight/60 transition hover:bg-midnight/10"
-                >
-                  <X className="h-4 w-4" aria-hidden="true" />
-                </button>
-              )}
-            </label>
+            <div className="flex items-center gap-3">
+              {/* Search Bar */}
+              <label className="group relative block w-full sm:w-72">
+                <span className="sr-only">Search properties or location</span>
+                <Search
+                  className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-midnight/40 transition group-focus-within:text-gold"
+                  aria-hidden="true"
+                />
+                <input
+                  type="search"
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  placeholder="Search property or location..."
+                  className="h-11 w-full rounded-full border border-midnight/20 bg-white/90 pl-10 pr-9 text-xs sm:text-sm text-midnight placeholder:text-midnight/45 shadow-sm focus:border-midnight focus:bg-white focus:outline-none"
+                />
+                {query && (
+                  <button
+                    type="button"
+                    onClick={() => setQuery('')}
+                    aria-label="Clear search"
+                    className="absolute right-2 top-1/2 grid h-7 w-7 -translate-y-1/2 place-items-center rounded-full text-midnight/60 transition hover:bg-midnight/10"
+                  >
+                    <X className="h-3.5 w-3.5" aria-hidden="true" />
+                  </button>
+                )}
+              </label>
+            </div>
           </div>
 
+          {/* Category Group Links */}
           <div
-            className="-mx-5 mb-6 flex gap-1 overflow-x-auto px-5 [scrollbar-width:none] sm:mx-0 sm:px-0 [&::-webkit-scrollbar]:hidden"
+            className="-mx-5 mb-5 flex gap-1 overflow-x-auto px-5 [scrollbar-width:none] sm:mx-0 sm:px-0 [&::-webkit-scrollbar]:hidden"
             role="navigation"
             aria-label="Destination categories"
           >
             <Link
               to="/destinations"
-              className="shrink-0 rounded-full px-5 py-2.5 text-sm font-medium text-midnight/70 transition hover:bg-midnight/5 hover:text-midnight"
+              className="shrink-0 rounded-full px-4 py-2 text-xs font-medium text-midnight/70 transition hover:bg-midnight/5 hover:text-midnight"
             >
-              All
+              All Destinations
             </Link>
             {destinationMenuGroups.map((g) => {
               const on = g.slug === category
@@ -314,8 +437,9 @@ export default function DestinationCategoryPage() {
                   key={g.slug}
                   to={`/destinations/category/${g.slug}`}
                   aria-current={on ? 'page' : undefined}
-                  className={`relative shrink-0 rounded-full px-5 py-2.5 text-sm font-medium transition-colors ${on ? 'text-white' : 'text-midnight/70 hover:bg-midnight/5 hover:text-midnight'
-                    }`}
+                  className={`relative shrink-0 rounded-full px-4 py-2 text-xs font-medium transition-colors ${
+                    on ? 'text-white' : 'text-midnight/70 hover:bg-midnight/5 hover:text-midnight'
+                  }`}
                 >
                   {on && (
                     <motion.span
@@ -330,29 +454,156 @@ export default function DestinationCategoryPage() {
             })}
           </div>
 
-          <p className="mb-4 text-xs uppercase tracking-[0.2em] text-midnight/55" aria-live="polite">
-            {q ? `${visible.length} of ${categoryDestinations.length} destinations` : `${categoryDestinations.length} destinations`}
-          </p>
+          {/* Location Filters Chips */}
+          {locationFilters.length > 1 && (
+            <div className="-mx-5 mb-8 flex gap-2 overflow-x-auto px-5 pb-1 [scrollbar-width:none] sm:mx-0 sm:px-0 [&::-webkit-scrollbar]:hidden">
+              {locationFilters.map(({ label, value, count }) => {
+                const isSelected = selectedLocation.toLowerCase() === value.toLowerCase()
+                return (
+                  <button
+                    key={value}
+                    type="button"
+                    onClick={() => setSelectedLocation(value)}
+                    className={`inline-flex shrink-0 items-center gap-2 rounded-full px-4 py-2 text-xs font-semibold transition-all shadow-sm ${
+                      isSelected
+                        ? 'bg-midnight text-white ring-2 ring-gold/40'
+                        : 'bg-white text-midnight/75 border border-midnight/10 hover:border-midnight/30 hover:text-midnight'
+                    }`}
+                  >
+                    <span>{label}</span>
+                    <span
+                      className={`text-[10px] font-bold rounded-full px-2 py-0.5 ${
+                        isSelected ? 'bg-gold text-midnight' : 'bg-midnight/10 text-midnight/70'
+                      }`}
+                    >
+                      {count}
+                    </span>
+                  </button>
+                )
+              })}
+            </div>
+          )}
 
-          {visible.length > 0 ? (
-            <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-4 xl:grid-cols-5">
-              <AnimatePresence mode="popLayout">
-                {visible.map((destination, i) => (
-                  <DestRow key={destination.slug} destination={destination} index={i} />
-                ))}
-              </AnimatePresence>
-            </ul>
+          {/* Location-wise Property Groups */}
+          {loadingProperties ? (
+            <div className="space-y-12 animate-pulse">
+              {[1, 2, 3].map((n) => (
+                <div key={n} className="rounded-3xl border border-midnight/10 bg-white/40 p-6 sm:p-8">
+                  <div className="h-8 w-48 rounded-lg bg-[#eee7d9] mb-6" />
+                  <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                    {[1, 2, 3, 4].map((k) => (
+                      <div key={k} className="h-72 rounded-2xl bg-[#eee7d9]" />
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : filteredLocationGroups.length > 0 ? (
+            <div className="space-y-12 sm:space-y-16">
+              {filteredLocationGroups.map((locGroup, groupIdx) => {
+                const destSlug = locGroup.destinationObj?.slug || locGroup.name.toLowerCase().replace(/\s+/g, '-')
+                return (
+                  <motion.section
+                    key={locGroup.name}
+                    initial={reduce ? false : { opacity: 0, y: 24 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true, amount: 0.1 }}
+                    transition={{ duration: 0.6, delay: groupIdx * 0.05, ease: EASE }}
+                    className="rounded-3xl border border-midnight/10 bg-white/60 p-5 sm:p-8 shadow-sm backdrop-blur-sm"
+                  >
+                    {/* Location Header */}
+                    <div className="mb-6 flex flex-wrap items-center justify-between gap-3 border-b border-midnight/10 pb-4">
+                      <div className="flex items-center gap-3">
+                        <span className="grid h-10 w-10 place-items-center rounded-2xl bg-midnight text-gold shadow-sm">
+                          <MapPin className="h-5 w-5" />
+                        </span>
+                        <div>
+                          <div className="flex items-center gap-2.5">
+                            <h3 className="font-display text-2xl sm:text-3xl font-bold tracking-tight text-midnight">
+                              {locGroup.name}
+                            </h3>
+                            <span className="rounded-full bg-gold/20 border border-gold/40 px-2.5 py-0.5 text-[11px] font-bold text-midnight">
+                              {locGroup.properties.length} {locGroup.properties.length === 1 ? 'Property' : 'Properties'}
+                            </span>
+                          </div>
+                          {locGroup.destinationObj?.region && (
+                            <p className="text-[11px] font-medium uppercase tracking-[0.2em] text-midnight/55">
+                              {locGroup.destinationObj.region}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+
+                      <Link
+                        to={`/destinations/${destSlug}`}
+                        className="inline-flex items-center gap-1.5 rounded-full border border-midnight/15 bg-white px-4 py-2 text-xs font-semibold text-midnight transition-colors hover:border-midnight hover:bg-midnight hover:text-white"
+                      >
+                        Explore {locGroup.name} Destination
+                        <ArrowUpRight className="h-3.5 w-3.5" />
+                      </Link>
+                    </div>
+
+                    {/* Properties Grid */}
+                    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                      {locGroup.properties.map((resort, i) => (
+                        <motion.div
+                          key={resort.slug || resort._id || resort.id}
+                          initial={reduce ? false : { opacity: 0, y: 16 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ duration: 0.45, delay: Math.min(i, 8) * 0.04, ease: EASE }}
+                        >
+                          <ResortCard resort={resort} />
+                        </motion.div>
+                      ))}
+                    </div>
+                  </motion.section>
+                )
+              })}
+            </div>
           ) : (
-            <div className="grid place-items-center rounded-[2rem] border border-dashed border-midnight/20 bg-white/60 px-6 py-24 text-center">
-              <p className="font-display text-3xl text-midnight">No match for “{query}”</p>
-              <p className="mt-2 text-midnight/60">Try a different name or clear the search.</p>
+            <div className="grid place-items-center rounded-[2rem] border border-dashed border-midnight/20 bg-white/60 px-6 py-20 text-center">
+              <p className="font-display text-2xl text-midnight">No properties match your filter</p>
+              <p className="mt-1.5 text-xs text-midnight/60">Try choosing a different location or clearing your search.</p>
               <button
                 type="button"
-                onClick={() => setQuery('')}
-                className="mt-6 rounded-full bg-midnight px-6 py-3 text-sm font-medium text-white transition hover:bg-midnight/90"
+                onClick={() => {
+                  setQuery('')
+                  setSelectedLocation('All')
+                }}
+                className="mt-4 rounded-full bg-midnight px-5 py-2.5 text-xs font-medium text-white transition hover:bg-midnight/90"
               >
-                Clear search
+                Reset filters
               </button>
+            </div>
+          )}
+
+          {/* ================= Other Network Destinations ================= */}
+          {otherDestinations.length > 0 && selectedLocation === 'All' && !query && (
+            <div className="mt-20 border-t border-midnight/10 pt-16">
+              <div className="mb-8 flex flex-col gap-2">
+                <span className="text-xs font-semibold uppercase tracking-[0.25em] text-gold">
+                  Explore The Network
+                </span>
+                <h3 className="font-display text-3xl text-midnight sm:text-4xl">
+                  Other Destinations in <em className="italic text-gold">{group.label}</em>
+                </h3>
+                <p className="text-xs sm:text-sm text-midnight/65 max-w-2xl">
+                  {`Explore ${otherDestinations.length} additional curated destination locations across India.`}
+                </p>
+              </div>
+
+              <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-4 xl:grid-cols-5">
+                <AnimatePresence mode="popLayout">
+                  {otherDestinations.map((destination, i) => (
+                    <DestRow
+                      key={destination.slug}
+                      destination={destination}
+                      index={i}
+                      stayCount={0}
+                    />
+                  ))}
+                </AnimatePresence>
+              </ul>
             </div>
           )}
         </section>
@@ -397,7 +648,7 @@ export default function DestinationCategoryPage() {
                   onClick={openBooking}
                   className="group inline-flex items-center gap-3 rounded-full bg-gold py-2 pl-7 pr-2 text-sm font-semibold text-midnight transition-transform duration-300 hover:scale-[1.03] focus:outline-none focus-visible:ring-4 focus-visible:ring-white/60"
                 >
-                  Plan my stay
+                  Plan my journey
                   <span className="grid h-11 w-11 place-items-center rounded-full bg-midnight text-gold transition-transform duration-500 group-hover:rotate-45">
                     <ArrowUpRight className="h-4 w-4" aria-hidden="true" />
                   </span>

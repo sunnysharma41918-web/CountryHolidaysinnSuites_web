@@ -3,6 +3,7 @@ import { AnimatePresence, motion } from 'framer-motion'
 import { ArrowUpRight, ChevronDown, Search, X } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { destinationMenuGroups, getDestinationBySlug } from '../../data/destinations'
+import { resorts } from '../../data/resorts'
 
 /*
   Theme (matches Navbar + hero):
@@ -64,8 +65,22 @@ function MegaMenu({ groups, onNavigate }) {
   const visible = useMemo(() => {
     if (!active) return []
     const q = query.trim().toLowerCase()
-    if (!q) return active.items
-    return active.items.filter((d) => d.name.toLowerCase().includes(q))
+    let items = active.items
+    if (q) {
+      items = items.filter((d) => d.name.toLowerCase().includes(q))
+    }
+    // For VIA OTA, sort locations that have active properties first so visitors immediately see and access them
+    if (active.slug === 'via-ota' && !q) {
+      return [...items].sort((a, b) => {
+        const countA = resorts.filter((r) => r.destination?.toLowerCase() === a.name?.toLowerCase()).length
+        const countB = resorts.filter((r) => r.destination?.toLowerCase() === b.name?.toLowerCase()).length
+        if (countA > 0 && countB === 0) return -1
+        if (countA === 0 && countB > 0) return 1
+        if (countA > 0 && countB > 0) return countB - countA
+        return a.name.localeCompare(b.name)
+      })
+    }
+    return items
   }, [active, query])
 
   useEffect(() => () => clearTimeout(hoverTimer.current), [])
@@ -201,7 +216,7 @@ function MegaMenu({ groups, onNavigate }) {
               onClick={onNavigate}
               className={`inline-flex items-center gap-1 text-sm font-semibold text-[#b9e26a] transition-opacity hover:opacity-80 ${focusRing}`}
             >
-              View all
+              {active.slug === 'via-ota' ? 'View 17 Properties by Location' : `View all ${active.label}`}
               <ArrowUpRight className="h-4 w-4" aria-hidden="true" />
             </Link>
           </div>
@@ -234,23 +249,33 @@ function MegaMenu({ groups, onNavigate }) {
               transition={{ duration: 0.25, ease: EASE }}
               className="m-0 grid max-h-[clamp(180px,calc(100svh_-_300px),420px)] list-none grid-cols-2 gap-x-2 gap-y-0.5 overflow-y-auto p-0 pr-1 lg:grid-cols-3"
             >
-              {visible.map((d) => (
-                <li key={d.slug}>
-                  <Link
-                    to={`/destinations/${d.slug}`}
-                    onClick={onNavigate}
-                    className={`group flex items-center justify-between gap-2 rounded-lg px-3 py-2 text-sm text-[#f3f1e4]/85 transition-colors hover:bg-[#2b3519] hover:text-white ${focusRing}`}
-                  >
-                    <span className="truncate">
-                      <Highlight text={d.name} query={query} />
-                    </span>
-                    <ArrowUpRight
-                      aria-hidden="true"
-                      className="h-3.5 w-3.5 shrink-0 -translate-x-1 text-[#b9e26a] opacity-0 transition-all duration-200 group-hover:translate-x-0 group-hover:opacity-100 group-focus-visible:translate-x-0 group-focus-visible:opacity-100"
-                    />
-                  </Link>
-                </li>
-              ))}
+              {visible.map((d) => {
+                const count = resorts.filter(
+                  (r) => r.destination?.toLowerCase() === d.name?.toLowerCase()
+                ).length
+                return (
+                  <li key={d.slug}>
+                    <Link
+                      to={`/destinations/${d.slug}`}
+                      onClick={onNavigate}
+                      className={`group flex items-center justify-between gap-2 rounded-lg px-3 py-2 text-sm text-[#f3f1e4]/85 transition-colors hover:bg-[#2b3519] hover:text-white ${focusRing}`}
+                    >
+                      <span className="truncate flex items-center gap-1.5">
+                        <Highlight text={d.name} query={query} />
+                        {count > 0 && (
+                          <span className="text-[10px] font-semibold text-[#b9e26a] bg-[#6aa22f]/20 rounded-full px-1.5 py-0.5">
+                            {count} {count === 1 ? 'property' : 'properties'}
+                          </span>
+                        )}
+                      </span>
+                      <ArrowUpRight
+                        aria-hidden="true"
+                        className="h-3.5 w-3.5 shrink-0 -translate-x-1 text-[#b9e26a] opacity-0 transition-all duration-200 group-hover:translate-x-0 group-hover:opacity-100 group-focus-visible:translate-x-0 group-focus-visible:opacity-100"
+                      />
+                    </Link>
+                  </li>
+                )
+              })}
             </motion.ul>
           )}
         </AnimatePresence>
@@ -307,24 +332,47 @@ function MobileAccordion({ groups, onNavigate }) {
                 >
                   <div className="px-2 pb-3 pt-0.5">
                     <ul className="m-0 grid list-none grid-cols-2 gap-0.5 p-0">
-                      {group.items.map((d) => (
-                        <li key={d.slug}>
-                          <Link
-                            to={`/destinations/${d.slug}`}
-                            onClick={onNavigate}
-                            className={`flex min-h-11 items-center rounded-lg px-2.5 py-2 text-sm text-[#f3f1e4]/85 transition-colors active:bg-[#2b3519] hover:bg-[#2b3519] hover:text-white ${focusRing}`}
-                          >
-                            <span className="truncate">{d.name}</span>
-                          </Link>
-                        </li>
-                      ))}
+                      {(() => {
+                        const sorted = group.slug === 'via-ota'
+                          ? [...group.items].sort((a, b) => {
+                              const countA = resorts.filter((r) => r.destination?.toLowerCase() === a.name?.toLowerCase()).length
+                              const countB = resorts.filter((r) => r.destination?.toLowerCase() === b.name?.toLowerCase()).length
+                              if (countA > 0 && countB === 0) return -1
+                              if (countA === 0 && countB > 0) return 1
+                              if (countA > 0 && countB > 0) return countB - countA
+                              return a.name.localeCompare(b.name)
+                            })
+                          : group.items
+
+                        return sorted.map((d) => {
+                          const count = resorts.filter(
+                            (r) => r.destination?.toLowerCase() === d.name?.toLowerCase()
+                          ).length
+                          return (
+                            <li key={d.slug}>
+                              <Link
+                                to={`/destinations/${d.slug}`}
+                                onClick={onNavigate}
+                                className={`flex min-h-11 items-center justify-between rounded-lg px-2.5 py-2 text-sm text-[#f3f1e4]/85 transition-colors active:bg-[#2b3519] hover:bg-[#2b3519] hover:text-white ${focusRing}`}
+                              >
+                                <span className="truncate">{d.name}</span>
+                                {count > 0 && (
+                                  <span className="shrink-0 text-[10px] font-semibold text-[#b9e26a] bg-[#6aa22f]/20 rounded-full px-1.5 py-0.5">
+                                    {count}
+                                  </span>
+                                )}
+                              </Link>
+                            </li>
+                          )
+                        })
+                      })()}
                     </ul>
                     <Link
                       to={`/destinations/category/${group.slug}`}
                       onClick={onNavigate}
                       className={`mt-2 inline-flex min-h-11 items-center gap-1 px-2.5 text-sm font-semibold text-[#b9e26a] ${focusRing}`}
                     >
-                      View all {group.label.toLowerCase()}
+                      {group.slug === 'via-ota' ? 'View 17 properties by location' : `View all ${group.label.toLowerCase()}`}
                       <ArrowUpRight className="h-4 w-4" aria-hidden="true" />
                     </Link>
                   </div>

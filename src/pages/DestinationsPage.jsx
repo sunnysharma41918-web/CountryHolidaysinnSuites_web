@@ -1,6 +1,6 @@
 import { useMemo, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Search, X, Sparkles, Globe, MapPin } from 'lucide-react'
+import { Search, X, Sparkles, Globe, MapPin, ArrowUpRight } from 'lucide-react'
 import PageTransition from '../components/layout/PageTransition'
 import travelDoodlesGreen from '../assets/travel-doodles-green.png'
 import {
@@ -8,6 +8,7 @@ import {
   viaOtaDestinationNames,
   viaOtaExchangeDestinationNames,
 } from '../data/destinations'
+import { resorts } from '../data/resorts'
 
 const TABS = [
   { id: 'ALL', label: 'All', icon: null },
@@ -29,6 +30,12 @@ function matches(dest, q) {
 
 /* One compact destination row: thumbnail + name + region */
 function DestinationTile({ destination }) {
+  const stayCount = useMemo(() => {
+    return resorts.filter(
+      (r) => r.destination?.toLowerCase() === destination.name?.toLowerCase()
+    ).length
+  }, [destination.name])
+
   return (
     <Link
       to={`/destinations/${destination.slug}`}
@@ -40,9 +47,16 @@ function DestinationTile({ destination }) {
         loading="lazy"
         className="h-10 w-10 shrink-0 rounded-lg object-cover"
       />
-      <span className="min-w-0">
-        <span className="block truncate text-xs font-semibold text-midnight">
-          {destination.name}
+      <span className="min-w-0 flex-1">
+        <span className="flex items-center justify-between gap-1">
+          <span className="truncate text-xs font-semibold text-midnight">
+            {destination.name}
+          </span>
+          {stayCount > 0 && (
+            <span className="shrink-0 rounded-full bg-gold/30 px-1.5 py-0.5 text-[9px] font-bold text-midnight">
+              {stayCount} {stayCount === 1 ? 'property' : 'properties'}
+            </span>
+          )}
         </span>
         <span className="mt-px flex items-center gap-1 truncate text-[11px] text-midnight/55">
           <MapPin className="h-2.5 w-2.5 shrink-0" aria-hidden="true" />
@@ -54,7 +68,7 @@ function DestinationTile({ destination }) {
 }
 
 /* A titled, independently scrolling panel */
-function Panel({ id, icon: Icon, title, subtitle, items, wide, emptyLabel }) {
+function Panel({ id, icon: Icon, title, subtitle, items, wide, emptyLabel, action }) {
   return (
     <section
       aria-labelledby={id}
@@ -74,9 +88,12 @@ function Panel({ id, icon: Icon, title, subtitle, items, wide, emptyLabel }) {
             </p>
           </div>
         </div>
-        <span className="shrink-0 rounded-full bg-[#f3ece0] px-2.5 py-1 text-[11px] font-semibold tabular-nums text-midnight/70">
-          {items.length}
-        </span>
+        <div className="flex items-center gap-2">
+          {action}
+          <span className="shrink-0 rounded-full bg-[#f3ece0] px-2.5 py-1 text-[11px] font-semibold tabular-nums text-midnight/70">
+            {items.length}
+          </span>
+        </div>
       </header>
 
       <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain p-2">
@@ -260,6 +277,15 @@ export default function DestinationsPage() {
                 items={filteredViaOta}
                 wide={!bothVisible}
                 emptyLabel="No VIA OTA destinations match your search. Try a different name or region."
+                action={
+                  <Link
+                    to="/destinations/category/via-ota"
+                    className="inline-flex items-center gap-1 rounded-full bg-midnight px-2.5 py-1 text-[11px] font-semibold text-gold shadow-sm transition hover:bg-midnight/80"
+                  >
+                    View 17 Properties
+                    <ArrowUpRight className="h-3 w-3" />
+                  </Link>
+                }
               />
             </div>
           )}

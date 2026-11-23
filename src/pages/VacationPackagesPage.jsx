@@ -7,6 +7,16 @@ import {
   Globe,
   RotateCw,
   ShieldCheck,
+  Crown,
+  Sparkles,
+  Users,
+  Bed,
+  Star,
+  BedDouble,
+  Clock,
+  Repeat,
+  HeartHandshake,
+  Layers,
 } from 'lucide-react'
 import PageTransition from '../components/layout/PageTransition'
 import silverCardImg from '../assets/chis-silver-card.png'
@@ -164,6 +174,8 @@ function PlanCard({ cat, years, reduced, index }) {
   const p = getPlan(cat, years)
   if (!p) return null
 
+  const isGold = cat === 'T2'
+
   return (
     <motion.article
       initial={reduced ? false : { opacity: 0, y: 35 }}
@@ -171,67 +183,114 @@ function PlanCard({ cat, years, reduced, index }) {
       viewport={{ once: true, amount: 0.2 }}
       transition={{ duration: 0.8, ease: EASE, delay: index * 0.1 }}
       whileHover={reduced ? undefined : { y: -6 }}
-      className="group relative flex flex-col justify-between overflow-hidden rounded-[28px] border border-[#297f33]/20 bg-white p-7 sm:p-8 shadow-[0_12px_36px_-10px_rgba(7,36,26,0.08)] transition-all duration-300 hover:border-[#297f33]/50 hover:shadow-[0_20px_48px_-12px_rgba(7,36,26,0.16)]"
+      className={`group relative flex flex-col justify-between overflow-hidden rounded-[32px] p-7 sm:p-9 transition-all duration-500 border-2 bg-gradient-to-br from-[#062118] via-[#0b3324] to-[#071f16] text-white shadow-[0_20px_50px_-10px_rgba(7,36,26,0.38)] hover:shadow-[0_28px_60px_-10px_rgba(7,36,26,0.55)] ${
+        isGold
+          ? 'border-[#b3d565]/60 hover:border-[#b3d565]'
+          : 'border-[#297f33]/40 hover:border-[#b3d565]/80'
+      }`}
     >
-      <div className="relative">
-        <div className="flex items-start justify-between gap-3">
-          <div>
-            <p className="m-0 font-varela text-[11px] font-bold uppercase tracking-[0.14em] text-[#297f33]">
-              {meta.label}
-            </p>
-            <h3 className="m-0 mt-1 font-rader text-[28px] font-bold leading-none tracking-tight text-[#0b1f12]">{meta.name}</h3>
-          </div>
-          <span
-            className="font-varela shrink-0 rounded-full border border-[#297f33]/20 bg-[#f3f8e6] px-2.5 py-1 text-[10.5px] font-bold text-[#297f33]"
-          >
-            {p.tag}
+      {/* Decorative ambient corner glow */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full bg-[#b3d565]/20 blur-3xl"
+      />
+
+      <div className="relative z-10">
+        {/* Top Badges & Tag */}
+        <div className="flex flex-wrap items-center justify-between gap-2.5">
+          {isGold ? (
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r from-[#ffd84d] to-[#b3d565] px-3.5 py-1 text-[11px] font-bold uppercase tracking-wider text-[#07241a] shadow-sm">
+              <Crown className="h-3.5 w-3.5" />
+              Prestige Flagship Tier
+            </span>
+          ) : (
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-white/15 px-3.5 py-1 text-[11px] font-bold uppercase tracking-wider text-[#b3d565] border border-white/20 shadow-sm">
+              <Sparkles className="h-3.5 w-3.5 text-[#b3d565]" />
+              Popular for Couples
+            </span>
+          )}
+
+          <span className="font-varela text-[10px] font-bold rounded-full px-2.5 py-0.5 uppercase tracking-wider bg-white/15 text-[#b3d565] border border-white/20">
+            Tier {cat}
           </span>
         </div>
 
-        <div className="mt-5 flex flex-wrap items-baseline justify-between gap-2 border-y border-[#0b1f12]/10 py-4">
+        {/* Title & Category */}
+        <div className="mt-5">
+          <h3 className="m-0 font-rader text-[28px] sm:text-[32px] font-bold leading-none tracking-tight text-white">
+            {meta.name} Package
+          </h3>
+          <p className="mt-1.5 font-varela text-xs font-semibold text-[#b3d565]">
+            {meta.label}
+          </p>
+        </div>
+
+        {/* Tenure & Annual Nights Banner */}
+        <div className="mt-5 flex flex-wrap items-baseline justify-between gap-2 rounded-2xl p-3.5 sm:p-4 bg-white/10 border border-white/15 text-white">
           <div className="flex items-baseline gap-2">
-            <span className="font-rader text-[clamp(1.75rem,3vw,2.25rem)] font-bold leading-none tracking-tight text-[#0b1f12]">
+            <span className="font-rader text-[clamp(1.85rem,3.2vw,2.4rem)] font-bold leading-none tracking-tight text-[#b3d565]">
               {years} Years
             </span>
-            <span className="font-varela text-xs font-semibold text-[#0b1f12]/60">vacation package tenure</span>
+            <span className="font-varela text-xs font-semibold text-white/70">
+              guaranteed holidays
+            </span>
           </div>
-          <span className="font-varela rounded-full bg-[#f3f8e6] px-2.5 py-1 text-[11px] font-bold text-[#297f33]">
-            6N / 7D annual stay
+          <span className="font-varela rounded-full px-3 py-1 text-[11.5px] font-bold bg-[#b3d565] text-[#07241a]">
+            6N / 7D Every Year
           </span>
         </div>
 
-        <p className="mb-0 mt-4 font-varela text-[13.5px] leading-relaxed text-[#0b1f12]/75">
+        {/* Description */}
+        <p className="mb-0 mt-4 font-varela text-[13.5px] leading-relaxed text-white/80">
           {p.description}
         </p>
 
-        <ul className="m-0 mt-4 list-none space-y-2 p-0">
+        {/* Key Specifications Grid */}
+        <div className="mt-5 grid grid-cols-2 gap-2.5 font-varela">
+          <div className="rounded-2xl p-3 text-xs bg-white/10 border border-white/10 text-white">
+            <span className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider opacity-60">
+              <Users className="h-3 w-3" /> Occupancy
+            </span>
+            <p className="m-0 mt-1 font-bold leading-snug">{p.occupancy}</p>
+          </div>
+
+          <div className="rounded-2xl p-3 text-xs bg-white/10 border border-white/10 text-white">
+            <span className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider opacity-60">
+              <Bed className="h-3 w-3" /> Accommodation
+            </span>
+            <p className="m-0 mt-1 font-bold leading-snug">{p.roomType}</p>
+          </div>
+        </div>
+
+        {/* Perks Checklist */}
+        <ul className="m-0 mt-5 list-none space-y-2.5 p-0 font-varela">
           {p.perks.map((perk) => (
-            <li key={perk} className="font-varela flex items-center gap-2.5 text-[13px] text-[#0b1f12]">
-              <span className="grid h-5 w-5 shrink-0 place-items-center rounded-full bg-[#297f33] text-white">
+            <li key={perk} className="flex items-center gap-3 text-[13px]">
+              <span className="grid h-5 w-5 shrink-0 place-items-center rounded-full text-xs font-bold bg-[#b3d565] text-[#07241a]">
                 <Check className="h-3 w-3" strokeWidth={3} aria-hidden="true" />
               </span>
-              {perk}
+              <span className="text-white/95">{perk}</span>
             </li>
           ))}
         </ul>
       </div>
 
-      <div className="relative mt-5">
-        <dl className="m-0 grid grid-cols-2 gap-3 rounded-2xl bg-[#f3f8e6] p-3.5 font-varela text-[13px] text-[#0b1f12]">
-          <div>
-            <dt className="text-[10.5px] font-bold uppercase tracking-[0.12em] text-[#0b1f12]/50">Occupancy</dt>
-            <dd className="m-0 mt-0.5 font-bold leading-snug">{p.occupancy}</dd>
-          </div>
-          <div>
-            <dt className="text-[10.5px] font-bold uppercase tracking-[0.12em] text-[#0b1f12]/50">Accommodation</dt>
-            <dd className="m-0 mt-0.5 font-bold leading-snug">{p.roomType}</dd>
-          </div>
-        </dl>
-        <div className="mt-4">
-          <Pill tone="green" onClick={() => openEnquiry(p)} className="w-full justify-between">
-            {meta.cta}
-          </Pill>
-        </div>
+      {/* CTA Button */}
+      <div className="relative z-10 mt-7 pt-4 border-t border-white/10">
+        <button
+          type="button"
+          onClick={() => openEnquiry(p)}
+          className={`group flex w-full items-center justify-between rounded-full py-2 pl-6 pr-2 text-sm font-bold shadow-md transition-all duration-300 hover:scale-[1.02] hover:shadow-lg focus:outline-none focus-visible:ring-4 focus-visible:ring-gold/60 font-varela ${
+            isGold
+              ? 'bg-gradient-to-r from-[#ffd84d] to-[#b3d565] text-[#07241a]'
+              : 'bg-[#b3d565] text-[#07241a] hover:bg-white'
+          }`}
+        >
+          <span>{isGold ? 'Inquire for Gold Package' : 'Inquire for Silver Package'}</span>
+          <span className="grid h-9 w-9 place-items-center rounded-full bg-[#07241a] text-[#b3d565] transition-transform duration-300 group-hover:rotate-45">
+            <ArrowUpRight className="h-4 w-4" />
+          </span>
+        </button>
       </div>
     </motion.article>
   )
@@ -240,40 +299,305 @@ function PlanCard({ cat, years, reduced, index }) {
 /* ------------------------------ Compare ------------------------------ */
 
 function CompareTable({ reduced }) {
+  const [mobileTab, setMobileTab] = useState('both')
   const t = getPlan('T1', 10)
   const g = getPlan('T2', 10)
   const short = (o) => o.replace('(<6 yrs)', '(<6)')
-  const rows = [
-    ['Room', 'Standard · 1 bedroom', 'Suite · 2 bedrooms'],
-    ['Guests', short(t.occupancy), short(g.occupancy)],
-    ['Annual stay', '6N / 7D every year', '6N / 7D every year'],
-    ['Tenure options', '10 or 30 years', '10 or 30 years'],
-    ['Stay flexibility', 'Carry forward & split nights', 'Carry forward & split nights'],
-    ['Resort access', '3,500+ partner resorts', '3,500+ RCI & luxury resorts'],
-    ['Extras', 'Lounge access, transfer rights', 'Priority booking, holiday manager'],
-    ['Best for', 'Couples, young kids', 'Grandparents, bigger groups'],
-  ]
-  return (
-    <Fade reduced={reduced} className="mx-auto mt-10 max-w-4xl">
-      <div className="overflow-x-auto rounded-3xl border border-[#297f33]/15 bg-white shadow-sm font-varela">
-        <div className="grid min-w-[480px] sm:min-w-0 grid-cols-[0.7fr_1fr_1fr] text-[12px] sm:text-[13.5px]">
-          <div className="bg-[#f3f8e6]" />
-          <div className="flex items-center justify-between bg-[#f3f8e6] px-3 py-3.5 sm:px-5">
-            <span className="font-rader text-lg font-bold tracking-tight text-[#297f33] sm:text-xl">Silver</span>
-            <span className="hidden rounded-full bg-white px-2 py-0.5 text-[10.5px] font-bold text-[#297f33] sm:block">T1</span>
-          </div>
-          <div className="flex items-center justify-between border-l border-[#297f33]/10 bg-[#f3f8e6] px-3 py-3.5 sm:px-5">
-            <span className="font-rader text-lg font-bold tracking-tight text-[#297f33] sm:text-xl">Gold</span>
-            <span className="hidden rounded-full bg-white px-2 py-0.5 text-[10.5px] font-bold text-[#297f33] sm:block">T2</span>
-          </div>
 
-          {rows.map(([k, a, b]) => (
-            <div key={k} className="contents">
-              <div className="flex items-center border-t border-[#0b1f12]/8 px-3 py-3 font-semibold text-[#0b1f12]/55 sm:px-5">{k}</div>
-              <div className="flex items-center border-t border-[#0b1f12]/8 px-3 py-3 font-medium text-[#0b1f12] sm:px-5">{a}</div>
-              <div className="flex items-center border-t border-l border-[#0b1f12]/8 px-3 py-3 font-medium text-[#0b1f12] sm:px-5">{b}</div>
-            </div>
-          ))}
+  const rows = [
+    {
+      label: 'Room Configuration',
+      sub: 'Bedrooms & private space',
+      icon: BedDouble,
+      silver: 'Standard Room · 1 Private Bedroom',
+      gold: 'Luxury Suite · 2 Grand Bedrooms',
+      goldBadge: 'Double Space',
+    },
+    {
+      label: 'Guest Occupancy',
+      sub: 'Family members included per stay',
+      icon: Users,
+      silver: `${short(t.occupancy)} included`,
+      gold: `${short(g.occupancy)} included`,
+      goldBadge: 'Up to 6 Guests',
+    },
+    {
+      label: 'Annual Holiday Duration',
+      sub: 'Guaranteed each calendar year',
+      icon: CalendarCheck,
+      silver: '6 Nights / 7 Days every year',
+      gold: '6 Nights / 7 Days every year',
+      silverBadge: 'Guaranteed',
+      goldBadge: 'Guaranteed',
+    },
+    {
+      label: 'Tenure Options',
+      sub: 'Long-term vacation certainty',
+      icon: Clock,
+      silver: '10 or 30 Years (Fixed price)',
+      gold: '10 or 30 Years (Fixed price)',
+      silverBadge: 'Inflation Proof',
+      goldBadge: 'Inflation Proof',
+    },
+    {
+      label: 'Stay Flexibility',
+      sub: 'Carry-forward & split nights',
+      icon: Repeat,
+      silver: 'Carry forward unused nights · Split across seasons',
+      gold: 'Carry forward unused nights · Split across seasons',
+      silverBadge: '100% Flexible',
+      goldBadge: '100% Flexible',
+    },
+    {
+      label: 'Resort Network & Affiliation',
+      sub: 'Global destinations accessible',
+      icon: Globe,
+      silver: '3,500+ CHIS & verified partner resorts',
+      gold: '3,500+ RCI Gold Crown & 5-Star luxury properties',
+      goldBadge: 'RCI Gold Crown',
+    },
+    {
+      label: 'Privileges & Concierge',
+      sub: 'On-ground service standard',
+      icon: Sparkles,
+      silver: 'Silver Lounge access & holiday transfer rights',
+      gold: 'Dedicated holiday manager & priority high-season booking',
+      goldBadge: 'VIP Manager',
+    },
+    {
+      label: 'Best Suited For',
+      sub: 'Recommended traveler profile',
+      icon: HeartHandshake,
+      silver: 'Couples, honeymooners & young families',
+      gold: 'Multi-gen families, grandparents & grand groups',
+      goldBadge: 'Multi-Gen',
+    },
+  ]
+
+  const showSilver = mobileTab === 'both' || mobileTab === 't1'
+  const showGold = mobileTab === 'both' || mobileTab === 't2'
+
+  return (
+    <Fade reduced={reduced} className="mx-auto mt-10 max-w-5xl">
+      {/* Mobile view toggle tabs */}
+      <div className="mb-4 flex items-center justify-center gap-1.5 sm:hidden font-varela">
+        <span className="text-xs font-semibold text-[#07241a]/60 mr-2">Compare:</span>
+        <div className="inline-flex rounded-full bg-white p-1 shadow-sm border border-[#096c27]/15">
+          <button
+            type="button"
+            onClick={() => setMobileTab('both')}
+            className={`rounded-full px-3 py-1 text-xs font-bold transition-colors ${
+              mobileTab === 'both' ? 'bg-[#096c27] text-white' : 'text-[#07241a]/70 hover:text-[#07241a]'
+            }`}
+          >
+            Both Tiers
+          </button>
+          <button
+            type="button"
+            onClick={() => setMobileTab('t1')}
+            className={`rounded-full px-3 py-1 text-xs font-bold transition-colors ${
+              mobileTab === 't1' ? 'bg-[#096c27] text-white' : 'text-[#07241a]/70 hover:text-[#07241a]'
+            }`}
+          >
+            Silver
+          </button>
+          <button
+            type="button"
+            onClick={() => setMobileTab('t2')}
+            className={`rounded-full px-3 py-1 text-xs font-bold transition-colors ${
+              mobileTab === 't2' ? 'bg-[#096c27] text-white' : 'text-[#07241a]/70 hover:text-[#07241a]'
+            }`}
+          >
+            Gold
+          </button>
+        </div>
+      </div>
+
+      <div className="overflow-hidden rounded-3xl sm:rounded-[32px] border-2 border-[#096c27]/20 bg-white shadow-[0_20px_50px_-15px_rgba(7,36,26,0.12)] font-varela">
+        <div className="overflow-x-auto">
+          <table className="w-full border-collapse text-left">
+            <thead>
+              <tr className="border-b border-[#096c27]/15">
+                {/* Feature Column Header */}
+                <th
+                  scope="col"
+                  className="w-[32%] bg-[#f3f8e6]/80 p-4 sm:p-6 align-bottom"
+                >
+                  <div className="flex items-center gap-2 text-[#096c27] text-xs font-bold uppercase tracking-wider">
+                    <Layers className="h-4 w-4" />
+                    <span>Plan Features</span>
+                  </div>
+                  <h4 className="mt-1 font-rader text-xl sm:text-2xl font-bold tracking-tight text-[#07241a]">
+                    Tier Comparison
+                  </h4>
+                  <p className="mt-1 text-xs text-[#07241a]/60 hidden sm:block">
+                    Compare key specifications and benefits
+                  </p>
+                </th>
+
+                {/* Silver Header */}
+                {showSilver && (
+                  <th
+                    scope="col"
+                    className={`p-4 sm:p-6 align-bottom border-l border-[#096c27]/15 bg-gradient-to-b from-[#f3f8e6] to-white ${
+                      mobileTab === 'both' ? 'w-[34%]' : 'w-[68%]'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="inline-flex items-center gap-1 rounded-full bg-[#096c27]/10 px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-wider text-[#096c27]">
+                        <Star className="h-3 w-3" />
+                        Silver Tier
+                      </span>
+                      <span className="rounded-full bg-white px-2 py-0.5 text-[10.5px] font-bold text-[#096c27] border border-[#096c27]/20">
+                        T1
+                      </span>
+                    </div>
+
+                    <h4 className="mt-2.5 font-rader text-xl sm:text-2xl font-bold text-[#07241a]">
+                      Standard Room
+                    </h4>
+                    <p className="mt-0.5 text-xs font-semibold text-[#096c27]">
+                      1 Bedroom · Couples & Kids
+                    </p>
+                  </th>
+                )}
+
+                {/* Gold Header */}
+                {showGold && (
+                  <th
+                    scope="col"
+                    className={`relative p-4 sm:p-6 align-bottom border-l border-[#096c27]/15 bg-gradient-to-b from-[#ffd84d]/15 via-[#b3d565]/10 to-white ${
+                      mobileTab === 'both' ? 'w-[34%]' : 'w-[68%]'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="inline-flex items-center gap-1 rounded-full bg-gradient-to-r from-[#ffd84d] to-[#b3d565] px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-wider text-[#07241a] shadow-sm">
+                        <Crown className="h-3 w-3" />
+                        Gold Tier · Flagship
+                      </span>
+                      <span className="rounded-full bg-[#07241a] px-2 py-0.5 text-[10.5px] font-bold text-[#ffd84d]">
+                        T2
+                      </span>
+                    </div>
+
+                    <h4 className="mt-2.5 font-rader text-xl sm:text-2xl font-bold text-[#07241a]">
+                      2-Bedroom Suite
+                    </h4>
+                    <p className="mt-0.5 text-xs font-semibold text-[#096c27]">
+                      Spacious Suite · Families & Groups
+                    </p>
+                  </th>
+                )}
+              </tr>
+            </thead>
+
+            <tbody className="divide-y divide-[#096c27]/10 text-xs sm:text-[13.5px]">
+              {rows.map((row, idx) => {
+                const Icon = row.icon
+                const isEven = idx % 2 === 0
+                return (
+                  <tr
+                    key={row.label}
+                    className={`transition-colors hover:bg-[#096c27]/[0.04] ${
+                      isEven ? 'bg-white' : 'bg-[#fbfdfa]'
+                    }`}
+                  >
+                    {/* Feature Label Cell */}
+                    <td className="p-3.5 sm:p-4.5 pl-4 sm:pl-6 align-middle">
+                      <div className="flex items-center gap-3">
+                        <span className="grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-[#096c27]/10 text-[#096c27]">
+                          <Icon className="h-4 w-4" />
+                        </span>
+                        <div>
+                          <p className="font-bold text-[#07241a] leading-tight">
+                            {row.label}
+                          </p>
+                          <p className="text-[11px] text-[#07241a]/55 hidden sm:block mt-0.5">
+                            {row.sub}
+                          </p>
+                        </div>
+                      </div>
+                    </td>
+
+                    {/* Silver Cell */}
+                    {showSilver && (
+                      <td className="p-3.5 sm:p-4.5 border-l border-[#096c27]/10 align-middle">
+                        <div className="flex flex-wrap items-center gap-1.5">
+                          <span className="font-medium text-[#07241a]">
+                            {row.silver}
+                          </span>
+                          {row.silverBadge && (
+                            <span className="rounded-full bg-[#096c27]/10 px-2 py-0.5 text-[10px] font-bold text-[#096c27]">
+                              {row.silverBadge}
+                            </span>
+                          )}
+                        </div>
+                      </td>
+                    )}
+
+                    {/* Gold Cell */}
+                    {showGold && (
+                      <td className="p-3.5 sm:p-4.5 border-l border-[#096c27]/10 bg-[#ffd84d]/[0.03] align-middle">
+                        <div className="flex flex-wrap items-center gap-1.5">
+                          <span className="font-semibold text-[#07241a]">
+                            {row.gold}
+                          </span>
+                          {row.goldBadge && (
+                            <span className="rounded-full bg-gradient-to-r from-[#ffd84d] to-[#b3d565] px-2 py-0.5 text-[10px] font-bold text-[#07241a] shadow-sm">
+                              {row.goldBadge}
+                            </span>
+                          )}
+                        </div>
+                      </td>
+                    )}
+                  </tr>
+                )
+              })}
+            </tbody>
+
+            <tfoot>
+              <tr className="border-t-2 border-[#096c27]/15 bg-[#fbfdfa]">
+                <td className="p-4 sm:p-5 pl-4 sm:pl-6 align-middle">
+                  <p className="text-xs font-bold text-[#07241a]">
+                    Choose Your Experience
+                  </p>
+                  <p className="text-[11px] text-[#07241a]/55">
+                    No-pressure consultation with our desk
+                  </p>
+                </td>
+
+                {showSilver && (
+                  <td className="p-4 sm:p-5 border-l border-[#096c27]/10 align-middle">
+                    <button
+                      type="button"
+                      onClick={() => openEnquiry(t)}
+                      className="group flex w-full items-center justify-between rounded-full bg-[#b3d565] py-2 pl-4 pr-1.5 text-xs font-bold text-[#07241a] transition-all hover:bg-[#07241a] hover:text-white shadow-sm"
+                    >
+                      <span>Inquire Silver</span>
+                      <span className="grid h-7 w-7 place-items-center rounded-full bg-[#07241a] text-[#b3d565] transition-transform group-hover:rotate-45 group-hover:bg-[#b3d565] group-hover:text-[#07241a]">
+                        <ArrowUpRight className="h-3.5 w-3.5" />
+                      </span>
+                    </button>
+                  </td>
+                )}
+
+                {showGold && (
+                  <td className="p-4 sm:p-5 border-l border-[#096c27]/10 bg-[#ffd84d]/[0.05] align-middle">
+                    <button
+                      type="button"
+                      onClick={() => openEnquiry(g)}
+                      className="group flex w-full items-center justify-between rounded-full bg-gradient-to-r from-[#ffd84d] to-[#b3d565] py-2 pl-4 pr-1.5 text-xs font-bold text-[#07241a] transition-all hover:scale-[1.02] shadow-md"
+                    >
+                      <span>Inquire Gold</span>
+                      <span className="grid h-7 w-7 place-items-center rounded-full bg-[#07241a] text-[#ffd84d] transition-transform group-hover:rotate-45">
+                        <ArrowUpRight className="h-3.5 w-3.5" />
+                      </span>
+                    </button>
+                  </td>
+                )}
+              </tr>
+            </tfoot>
+          </table>
         </div>
       </div>
     </Fade>
@@ -285,10 +609,10 @@ function CompareTable({ reduced }) {
 function MembershipCard({ cat, reduced, index }) {
   const meta = PLAN_META[cat]
   const facts = CARD_FACTS[cat]
-  const dark = cat === 'T2'
+  const isGold = cat === 'T2'
   const p10 = getPlan(cat, 10)
   const [flipped, setFlipped] = useState(false)
-  const face = 'absolute inset-0 overflow-hidden rounded-[1.1rem] shadow-[0_18px_36px_-14px_rgba(7,36,26,0.55)]'
+  const face = 'absolute inset-0 overflow-hidden rounded-[1.3rem] shadow-[0_18px_36px_-14px_rgba(7,36,26,0.55)]'
   const hide = { backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden' }
 
   return (
@@ -297,65 +621,125 @@ function MembershipCard({ cat, reduced, index }) {
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, amount: 0.2 }}
       transition={{ duration: 0.8, ease: EASE, delay: index * 0.1 }}
-      className="flex flex-col items-center rounded-3xl border border-[#297f33]/15 bg-white p-5 shadow-sm sm:p-6"
+      className="group relative flex flex-col justify-between overflow-hidden rounded-[32px] p-6 sm:p-8 transition-all duration-500 border-2 border-[#b3d565]/40 bg-gradient-to-b from-[#07241a] via-[#0c3625] to-[#061d14] text-white shadow-[0_20px_50px_-12px_rgba(7,36,26,0.35)]"
     >
-      <div className="w-full max-w-[24rem]" style={{ perspective: 1100 }}>
-        <motion.div
-          role="button"
-          tabIndex={0}
-          aria-label={`Flip ${meta.name} card`}
-          onClick={() => setFlipped((v) => !v)}
-          onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && (e.preventDefault(), setFlipped((v) => !v))}
-          animate={{ rotateY: flipped ? 180 : 0 }}
-          transition={{ duration: reduced ? 0 : 0.8, ease: EASE }}
-          style={{ transformStyle: 'preserve-3d' }}
-          className="relative aspect-[1.586/1] w-full cursor-pointer focus:outline-none focus-visible:ring-4 focus-visible:ring-[#b3d565]/70 rounded-[1.1rem]"
-        >
-          <div aria-hidden={flipped} className={face} style={hide}>
-            <img
-              src={dark ? goldCardImg : silverCardImg}
-              alt={`${meta.name} Vacation Package Card`}
-              className="h-full w-full object-cover"
-            />
+      <div>
+        {/* Card Header */}
+        <div className="mb-5 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <span className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 font-varela text-xs font-bold bg-[#b3d565] text-[#07241a]">
+              {isGold ? <Crown className="h-3.5 w-3.5" /> : <Star className="h-3.5 w-3.5" />}
+              {meta.name} Privilege Pass
+            </span>
           </div>
-          <div
-            aria-hidden={!flipped}
-            className={`${face} ${facts.face}`}
-            style={{ ...hide, transform: 'rotateY(180deg)' }}
+          <span className="font-varela text-xs font-semibold text-white/70">
+            {meta.label}
+          </span>
+        </div>
+
+        {/* 3D Flippable Card Stage */}
+        <div className="mx-auto w-full max-w-[24rem] py-2" style={{ perspective: 1200 }}>
+          <motion.div
+            role="button"
+            tabIndex={0}
+            aria-label={`Flip ${meta.name} card`}
+            onClick={() => setFlipped((v) => !v)}
+            onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && (e.preventDefault(), setFlipped((v) => !v))}
+            animate={{ rotateY: flipped ? 180 : 0 }}
+            transition={{ duration: reduced ? 0 : 0.8, ease: EASE }}
+            style={{ transformStyle: 'preserve-3d' }}
+            className="relative aspect-[1.586/1] w-full cursor-pointer focus:outline-none focus-visible:ring-4 focus-visible:ring-[#b3d565]/70 rounded-[1.3rem]"
           >
-            <div className="flex h-full flex-col font-varela">
-              <div aria-hidden="true" className="mt-4 h-6 w-full bg-[#07241a] sm:h-7" />
-              <ul className="m-0 flex-1 list-none space-y-1.5 px-5 pt-3 text-[11.5px] font-medium leading-tight sm:space-y-2 sm:text-xs">
-                {facts.back.map((b) => (
-                  <li key={b} className="flex items-center gap-2">
-                    <Check className={`h-3.5 w-3.5 shrink-0 ${dark ? 'text-[#b3d565]' : 'text-[#297f33]'}`} strokeWidth={3} aria-hidden="true" />
-                    {b}
-                  </li>
-                ))}
-              </ul>
-              <p className={`m-0 px-5 pb-3 text-[10px] ${dark ? 'text-[#faf6ea]/65' : 'text-[#10201a]/60'}`}>
-                {meta.label} · Sample card design
-              </p>
+            {/* Front of Card */}
+            <div aria-hidden={flipped} className={face} style={hide}>
+              <img
+                src={isGold ? goldCardImg : silverCardImg}
+                alt={`${meta.name} Vacation Package Card`}
+                className="h-full w-full object-cover"
+              />
             </div>
+
+            {/* Back of Card */}
+            <div
+              aria-hidden={!flipped}
+              className={`${face} ${facts.face}`}
+              style={{ ...hide, transform: 'rotateY(180deg)' }}
+            >
+              <div className="flex h-full flex-col font-varela">
+                <div aria-hidden="true" className="mt-4 h-6 w-full bg-[#07241a] sm:h-7" />
+                <ul className="m-0 flex-1 list-none space-y-1.5 px-5 pt-3 text-[11.5px] font-medium leading-tight sm:space-y-2 sm:text-xs">
+                  {facts.back.map((b) => (
+                    <li key={b} className="flex items-center gap-2">
+                      <Check
+                        className="h-3.5 w-3.5 shrink-0 text-[#b3d565]"
+                        strokeWidth={3}
+                        aria-hidden="true"
+                      />
+                      {b}
+                    </li>
+                  ))}
+                </ul>
+                <p className="m-0 px-5 pb-3 text-[10px] text-[#faf6ea]/65">
+                  {meta.label} · Official CHIS Membership Card
+                </p>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+
+        {/* Interactive Flip Hint */}
+        <p className="mt-3 text-center font-varela text-xs text-white/60">
+          Tap card above to inspect {flipped ? 'front artwork' : 'magnetic strip & privileges'}
+        </p>
+
+        {/* Card Features & Description */}
+        <div className="mt-4 text-center">
+          <h3 className="m-0 font-rader text-[22px] font-bold tracking-tight text-white">
+            {meta.name} Pass Benefits
+          </h3>
+          <p className="mb-0 mt-1.5 font-varela text-[13.5px] text-white/75">
+            {facts.tagline}
+          </p>
+
+          {/* Key tags */}
+          <div className="mt-4 flex flex-wrap items-center justify-center gap-2 font-varela text-xs">
+            <span className="rounded-full px-3 py-1 font-semibold bg-white/10 text-[#b3d565]">
+              6N / 7D Every Year
+            </span>
+            <span className="rounded-full px-3 py-1 font-semibold bg-white/10 text-white/90">
+              3,500+ Resorts
+            </span>
+            <span className="rounded-full px-3 py-1 font-semibold bg-white/10 text-white/90">
+              Zero Peak Surcharge
+            </span>
           </div>
-        </motion.div>
+        </div>
       </div>
 
-      <div className="mt-5 text-center">
-        <h3 className="m-0 font-rader text-[20px] font-bold tracking-tight text-[#0b1f12]">{meta.name} card</h3>
-        <p className="mb-0 mt-1 font-varela text-[13.5px] text-[#0b1f12]/60">{facts.tagline}</p>
-        <div className="mt-4 flex flex-wrap items-center justify-center gap-2.5">
-          <button
-            type="button"
-            aria-pressed={flipped}
-            onClick={() => setFlipped((v) => !v)}
-            className="font-varela inline-flex items-center gap-2 rounded-full border border-[#297f33]/25 px-4 py-2 text-[13px] font-bold text-[#297f33] transition-colors duration-300 hover:bg-[#297f33] hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-[#297f33]"
-          >
-            <RotateCw className="h-3.5 w-3.5" aria-hidden="true" />
-            {flipped ? 'Show front' : 'Flip card'}
-          </button>
-          <Pill tone="green" onClick={() => openEnquiry(p10)}>Get this card</Pill>
-        </div>
+      {/* Action Buttons */}
+      <div className="mt-6 flex flex-wrap items-center justify-center gap-3 font-varela pt-4 border-t border-white/10">
+        <button
+          type="button"
+          aria-pressed={flipped}
+          onClick={() => setFlipped((v) => !v)}
+          className="inline-flex items-center gap-2 rounded-full px-4 py-2 text-[13px] font-bold transition-all duration-300 focus:outline-none border border-white/25 text-white hover:bg-white/15"
+        >
+          <RotateCw className="h-3.5 w-3.5" aria-hidden="true" />
+          {flipped ? 'View front design' : 'Flip to view reverse'}
+        </button>
+
+        <button
+          type="button"
+          onClick={() => openEnquiry(p10)}
+          className={`inline-flex items-center gap-2 rounded-full px-5 py-2 text-[13px] font-bold text-[#07241a] shadow-sm transition-all hover:scale-105 ${
+            isGold
+              ? 'bg-gradient-to-r from-[#ffd84d] to-[#b3d565]'
+              : 'bg-[#b3d565] hover:bg-white'
+          }`}
+        >
+          {isGold ? 'Inquire for Gold Card' : 'Inquire for Silver Card'}
+          <ArrowUpRight className="h-4 w-4" />
+        </button>
       </div>
     </motion.article>
   )
@@ -570,7 +954,7 @@ export default function VacationPackagesPage() {
             <div className="mx-auto max-w-[1240px]">
               <SectionHead
                 center
-                eyebrow="Side by side"
+                eyebrow="Tier breakdown"
                 title="Compare"
                 accent="plans."
                 copy="Same promise, two sizes. Here is what changes between Silver and Gold."
@@ -650,14 +1034,14 @@ export default function VacationPackagesPage() {
                 eyebrow="Vacation package cards"
                 title="One card, every"
                 accent="arrival."
-                copy="Tap a card to flip it and see what it carries."
+                copy="Tap a card to flip it and inspect its reverse benefits, magnetic strip, and tier privileges."
               />
               <h2 id="cards-title" className="sr-only">One card, every arrival</h2>
               <div className="mt-10 grid gap-6 md:grid-cols-2">
                 <MembershipCard cat="T1" reduced={reduced} index={0} />
                 <MembershipCard cat="T2" reduced={reduced} index={1} />
               </div>
-              <p className="mb-0 mt-5 text-center font-varela text-xs text-[#0b1f12]/50">Card designs shown are illustrative.</p>
+              <p className="mb-0 mt-5 text-center font-varela text-xs text-[#0b1f12]/50">Physical cards issued to verified CHIS members upon plan enrollment.</p>
             </div>
           </section>
         </div>

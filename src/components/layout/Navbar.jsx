@@ -205,7 +205,7 @@ export default function Navbar() {
                         animate={{ opacity: 1, x: '-50%', y: 0, scale: 1 }}
                         exit={{ opacity: 0, x: '-50%', y: -8, scale: 0.98 }}
                         transition={{ duration: 0.28, ease: EASE }}
-                        className="absolute left-1/2 top-full z-50 mt-5 w-[min(760px,calc(100vw-2rem))] rounded-3xl border border-white/15 bg-[#1c2110]/95 p-5 shadow-[0_30px_80px_rgba(10,14,4,0.55)] backdrop-blur-2xl sm:p-6"
+                        className="absolute left-1/2 top-full z-50 mt-5 w-[min(760px,calc(100vw-2rem))] rounded-3xl border border-white/20 bg-[#1c2110] p-5 shadow-[0_30px_80px_rgba(0,0,0,0.85)] backdrop-blur-2xl sm:p-6"
                       >
                         <DestinationMenuLinks mode="mega" onNavigate={() => setDestinationsOpen(false)} />
                         <NavLink

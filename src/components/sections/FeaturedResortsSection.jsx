@@ -32,15 +32,15 @@ export default function FeaturedResortsSection() {
       <div className="mx-auto max-w-7xl px-5 sm:px-8 lg:px-12">
         <div className="mb-12 flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
           <SectionHeading
-            eyebrow="Featured stays"
+            eyebrow="Featured properties"
             title="Beautiful places to linger."
             description="Curated destinations chosen for design, comfort, scenery, and slow travel."
           />
           <Link
-            to="/resorts"
+            to="/destinations/category/via-ota"
             className="inline-flex items-center gap-2 text-sm uppercase tracking-[0.2em] text-midnight transition hover:text-gold"
           >
-            View all resorts <ArrowRight className="h-4 w-4" />
+            View all properties <ArrowRight className="h-4 w-4" />
           </Link>
         </div>
         <div className="grid gap-8 lg:grid-cols-2">

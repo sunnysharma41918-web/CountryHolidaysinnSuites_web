@@ -11,13 +11,14 @@ import ContactForm from '../forms/ContactForm'
   CHIS palette: green #096c27 · deep #06501b · leaf #b3d565 · ink #0b1f12 · mist #f3f8e6
 */
 const EASE = [0.22, 1, 0.36, 1]
-const PHONE = '7669775335'
+const PHONE = '8130701133'
+const SECONDARY_PHONE = '7669775335'
 const INFO_MAIL = 'info@countryholidaysinnsuites.com'
 const CARE_MAIL = 'customercare@countryholidaysinnsuites.com'
 const ADDRESS = '126, 1st Floor, Devika Tower 6, Nehru Place, New Delhi - 110019.'
 
 const cards = [
-  { Icon: Phone, label: 'Call us', note: 'Customer care & bookings', value: PHONE, href: `tel:${PHONE}` },
+  { Icon: Phone, label: 'Call us', note: `Customer care & bookings · Alt: ${SECONDARY_PHONE}`, value: PHONE, href: `tel:${PHONE}` },
   { Icon: Mail, label: 'General info', note: 'Questions and partnerships', value: INFO_MAIL, href: `mailto:${INFO_MAIL}` },
   { Icon: Mail, label: 'Customer care', note: 'Help with an existing stay', value: CARE_MAIL, href: `mailto:${CARE_MAIL}` },
   {

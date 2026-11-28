@@ -43,7 +43,8 @@ const MORE_LINKS = [
   { label: 'Admin portal', to: '/admin/login' },
 ]
 
-const PHONE = '7669775335'
+const PHONE = '8130701133'
+const SECONDARY_PHONE = '7669775335'
 const EMAIL = 'info@countryholidaysinnsuites.com'
 const CARE_EMAIL = 'customercare@countryholidaysinnsuites.com'
 
@@ -364,6 +365,7 @@ export default function Footer() {
                     <Phone className="mt-0.5 h-4 w-4 shrink-0 text-[#b9e26a] lg:order-2" aria-hidden="true" />
                     <div className="flex flex-col lg:items-end">
                       <a href={`tel:${PHONE}`} className="font-semibold text-white hover:underline">{PHONE}</a>
+                      <a href={`tel:${SECONDARY_PHONE}`} className="text-white/85 hover:text-[#b9e26a] hover:underline">{SECONDARY_PHONE}</a>
                       <span className="mt-0.5 text-xs text-white/70">
                         (Our working time mon-friday 10 to 5pm)
                       </span>

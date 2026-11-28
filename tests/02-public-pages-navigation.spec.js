@@ -16,7 +16,7 @@ test.describe('Suite 2: Public Website Pages & Navigation', () => {
     await expect(page.locator('#faq')).toBeAttached()
 
     // Footer contact number check
-    const footerPhone = page.locator('footer a[href="tel:7669775335"]')
+    const footerPhone = page.locator('footer a[href="tel:8130701133"]')
     await expect(footerPhone).toBeAttached()
   })
 
@@ -49,11 +49,11 @@ test.describe('Suite 2: Public Website Pages & Navigation', () => {
     await expect(page.locator('text=About').first()).toBeVisible()
   })
 
-  test('2.6 Contact Page - Displays updated phone 7669775335, working hours, and form inputs', async ({ page }) => {
+  test('2.6 Contact Page - Displays updated phone 8130701133, working hours, and form inputs', async ({ page }) => {
     await page.goto('/contact')
 
     // Verify phone number in contact cards
-    const phoneLink = page.locator('a[href="tel:7669775335"]').first()
+    const phoneLink = page.locator('a[href="tel:8130701133"]').first()
     await expect(phoneLink).toBeVisible()
 
     // Verify enquiry form inputs are rendered with high contrast

@@ -112,13 +112,20 @@ export default function ContactSection() {
                 <span aria-hidden="true" className="h-2.5 w-2.5 shrink-0 rotate-45 bg-[#b3d565]" />
                 <p className="m-0 font-varela text-sm font-semibold">New vacation package enquiry?</p>
               </div>
-              <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-[13px]">
+              <div className="flex flex-wrap items-center gap-x-3 gap-y-2 text-[13px]">
                 <a
                   href={`tel:${PHONE}`}
                   className="font-varela inline-flex items-center gap-2 rounded-full bg-[#b3d565] px-4 py-2 font-bold text-[#0b1f12] transition hover:bg-white focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
                 >
                   <Phone className="h-3.5 w-3.5" aria-hidden="true" />
                   {PHONE}
+                </a>
+                <a
+                  href={`tel:${SECONDARY_PHONE}`}
+                  className="font-varela inline-flex items-center gap-2 rounded-full border border-[#b3d565]/60 bg-white/10 px-4 py-2 font-bold text-white transition hover:bg-[#b3d565] hover:text-[#0b1f12] focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
+                >
+                  <Phone className="h-3.5 w-3.5" aria-hidden="true" />
+                  {SECONDARY_PHONE}
                 </a>
                 <a
                   href={`mailto:${INFO_MAIL}`}

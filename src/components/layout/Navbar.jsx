@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { NavLink, Link, useLocation } from 'react-router-dom'
 import { AnimatePresence, motion, useScroll, useSpring } from 'framer-motion'
-import { Menu, X, ArrowUpRight, ChevronDown } from 'lucide-react'
+import { Menu, X, ArrowUpRight, ChevronDown, Phone } from 'lucide-react'
 import logo from '../../assets/logo-000.png'
 import { navigation } from '../../data/navigation'
 import DestinationMenuLinks from './DestinationMenuLinks'
@@ -238,20 +238,29 @@ export default function Navbar() {
             )}
           </nav>
 
-          {/* Right: Contact button + mobile toggle */}
+          {/* Right: Member Login + Contact button + mobile toggle */}
           <div className="flex items-center justify-self-end gap-2.5">
-            <Link
-              to="/contact"
-              className={`group hidden items-center gap-3 rounded-full py-1.5 pl-5 pr-1.5 text-[13px] font-semibold shadow-[0_8px_28px_rgba(10,14,4,0.3)] transition-all duration-300 hover:scale-[1.03] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#6aa22f] active:scale-95 sm:inline-flex ${isLight ? `bg-[#1c2110] text-[#f3f1e4]` : `bg-[#f3f1e4] text-[#1c2110]`
+            <a
+              href="https://member.countryholidaysinnsuites.com/"
+              target="_blank"
+              rel="noreferrer"
+              className={`group hidden items-center gap-2 rounded-full border px-4 py-2 text-[13px] font-semibold backdrop-blur-md transition-all duration-300 hover:scale-[1.03] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#6aa22f] active:scale-95 sm:inline-flex ${isLight
+                ? 'border-[#1c2110]/20 bg-[#1c2110]/5 text-[#1c2110] hover:bg-[#1c2110]/10'
+                : 'border-white/25 bg-white/10 text-[#f3f1e4] hover:bg-white/20'
                 }`}
             >
-              <span>Contact Us</span>
-              <span
-                className="grid h-8 w-8 place-items-center rounded-full text-white transition-transform duration-300 group-hover:rotate-45"
-                style={{ background: GREEN }}
-              >
-                <ArrowUpRight className="h-4 w-4" />
-              </span>
+              <span>Member Login</span>
+              <ArrowUpRight className="h-3.5 w-3.5 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+            </a>
+
+            <Link
+              to="/contact"
+              aria-label="Contact Us"
+              title="Contact Us"
+              className="group hidden h-10 w-10 place-items-center rounded-full text-white shadow-[0_8px_28px_rgba(10,14,4,0.3)] transition-all duration-300 hover:scale-105 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#6aa22f] active:scale-95 sm:grid"
+              style={{ background: GREEN }}
+            >
+              <Phone className="h-4 w-4 transition-transform duration-300 group-hover:rotate-12" />
             </Link>
 
             <button
@@ -361,13 +370,26 @@ export default function Navbar() {
               })}
             </nav>
 
-            {/* Mobile Contact Button linked to Contact Form */}
+            {/* Mobile Member Login & Contact Buttons */}
             <motion.div
               initial={{ opacity: 0, y: 24 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.7, delay: 0.2 + links.length * 0.06, ease: EASE }}
-              className="mt-10"
+              className="mt-10 flex flex-col gap-3"
             >
+              <a
+                href="https://member.countryholidaysinnsuites.com/"
+                target="_blank"
+                rel="noreferrer"
+                onClick={() => setMobileOpen(false)}
+                className="group relative flex w-full items-center justify-between rounded-full border border-white/25 bg-white/10 py-2 pl-7 pr-2 text-[15px] font-semibold text-[#f3f1e4] active:scale-[0.98]"
+              >
+                <span>Member Login</span>
+                <span className="grid h-11 w-11 place-items-center rounded-full bg-white/15 text-white transition-transform duration-300 group-hover:rotate-45">
+                  <ArrowUpRight className="h-5 w-5" />
+                </span>
+              </a>
+
               <Link
                 to="/contact"
                 onClick={() => setMobileOpen(false)}

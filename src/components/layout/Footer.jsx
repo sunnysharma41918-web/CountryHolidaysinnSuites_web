@@ -37,13 +37,13 @@ const QUICK_LINKS = [
 ]
 
 const MORE_LINKS = [
-  { label: 'Package portal', href: 'https://member.countryholidaysinnsuites.com/' },
+  { label: 'Member login', href: 'https://member.countryholidaysinnsuites.com/' },
   { label: 'Redeem voucher', href: 'https://www.countryholidaysinnsuites.com/chis/voucher' },
   { label: 'Terms of use', to: '/terms' },
   { label: 'Admin portal', to: '/admin/login' },
 ]
 
-const PHONE = '76697775335'
+const PHONE = '7669775335'
 const EMAIL = 'info@countryholidaysinnsuites.com'
 const CARE_EMAIL = 'customercare@countryholidaysinnsuites.com'
 

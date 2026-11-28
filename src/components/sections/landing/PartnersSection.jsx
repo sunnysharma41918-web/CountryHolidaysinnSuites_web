@@ -101,9 +101,9 @@ export default function PartnersSection() {
   const [activeTab, setActiveTab] = useState('all')
 
   const TABS = [
-    { id: 'all', label: 'All Partners' },
-    { id: 'hotels', label: 'Hotel Partners', icon: Building2 },
-    { id: 'travel', label: 'Travel Partners', icon: Globe2 },
+    { id: 'all', label: 'All Associates' },
+    { id: 'hotels', label: 'Hotel Associates', icon: Building2 },
+    { id: 'travel', label: 'Travel Associates', icon: Globe2 },
   ]
 
   return (
@@ -116,7 +116,7 @@ export default function PartnersSection() {
           <div className="flex items-center justify-center gap-2 sm:gap-4 md:gap-8">
             <BotanicalBranch className="shrink-0" />
             <h2 className="font-rader text-[clamp(2rem,3.6vw,3.15rem)] font-bold tracking-tight text-[#063a2f] text-center">
-              Major <span className="text-[#297f33]">Partners</span>
+              Major <span className="text-[#297f33]">Associates</span>
             </h2>
             <BotanicalBranch mirror className="shrink-0" />
           </div>
@@ -167,7 +167,7 @@ export default function PartnersSection() {
                 <div>
                   <div className="mb-2 text-center">
                     <span className="font-varela text-[11px] font-semibold tracking-wider uppercase text-[#0d4a3a]/60">
-                      Hotel Partners
+                      Hotel Associates
                     </span>
                   </div>
                   <MarqueeRow items={HOTEL_PARTNERS} dir="left" dur="32s" />
@@ -175,7 +175,7 @@ export default function PartnersSection() {
                 <div>
                   <div className="mb-2 text-center">
                     <span className="font-varela text-[11px] font-semibold tracking-wider uppercase text-[#0d4a3a]/60">
-                      Travel & Booking Partners
+                      Travel & Booking Associates
                     </span>
                   </div>
                   <MarqueeRow items={TRAVEL_PARTNERS} dir="right" dur="36s" />
@@ -218,7 +218,7 @@ export default function PartnersSection() {
             className="group inline-flex items-center gap-4 rounded-full py-2.5 pl-7 pr-2.5 text-sm font-semibold text-[#0d4a3a] shadow-md transition-all hover:scale-105 hover:shadow-lg active:scale-95"
             style={{ background: YELLOW }}
           >
-            <span className="font-varela font-bold">Become a Partner</span>
+            <span className="font-varela font-bold">Become an Associate</span>
             <span
               className="grid h-9 w-9 place-items-center rounded-full text-white shadow-sm transition-transform duration-300 group-hover:translate-x-0.5"
               style={{ background: GREEN }}
